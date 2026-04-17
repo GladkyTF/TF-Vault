@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#06101f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TF Vault">
+<title>TF Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Teko:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   DESIGN TOKENS
+   Cyberpunk-industrial: deep navy + neon cyan + fire orange
+   ========================================================= */
+:root {
+  --c-bg:    #06101f;
+  --c-bg2:   #0a1828;
+  --c-bg3:   #0f1f35;
+  --c-pl:    #152338;
+  --c-pl2:   #1c2e48;
+  --c-wr:    #1e3050;
+  --c-wr2:   #2a4060;
+  --c-neon:  #00ccff;
+  --c-neon2: #005e77;
+  --c-neon3: #003d4d;
+  --c-fire:  #ff6600;
+  --c-fire2: #ff884d;
+  --c-acid:  #33ff99;
+  --c-spark: #ffdd00;
+  --c-red:   #ff2244;
+  --c-tx:    #ccdff5;
+  --c-tx2:   #5d88aa;
+  --c-tx3:   #2e4e68;
+  --f-hd:    'Teko', sans-serif;
+  --f-body:  'Rajdhani', sans-serif;
+  --f-mono:  'Share Tech Mono', monospace;
+  --safe-t:  env(safe-area-inset-top, 0px);
+  --safe-b:  env(safe-area-inset-bottom, 0px);
+}
+
+/* =========================================================
+   RESET + BASE
+   ========================================================= */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--c-bg); }
+body { color: var(--c-tx); font-family: var(--f-body); font-size: 15px; display: flex; flex-direction: column; }
+
+/* grid texture */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,204,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,204,255,.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 110% 50% at 50% -5%, rgba(0,100,160,.14), transparent 65%);
+}
+
+/* scrollbars */
+::-webkit-scrollbar { width: 2px; height: 2px; }
+::-webkit-scrollbar-thumb { background: var(--c-wr2); border-radius: 2px; }
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+.hdr {
+  flex-shrink: 0; position: relative; z-index: 60;
+  padding: calc(var(--safe-t) + 8px) 14px 0;
+  background: rgba(6,16,31,.97); border-bottom: 1px solid var(--c-wr);
+  backdrop-filter: blur(14px);
+}
+.hdr-row { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-hex {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: linear-gradient(145deg, var(--c-neon3), var(--c-neon2));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center; font-size: 17px;
+  animation: hex-glow 3.5s ease-in-out infinite;
+}
+@keyframes hex-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(0,204,255,.5)); }
+  50%       { filter: drop-shadow(0 0 12px rgba(0,204,255,.9)); }
+}
+.logo-txt { line-height: 1; }
+.logo-name { font-family: var(--f-hd); font-size: 30px; font-weight: 600; letter-spacing: 5px; color: var(--c-tx); }
+.logo-sub  { font-family: var(--f-mono); font-size: 8px; color: var(--c-neon); letter-spacing: 3px; }
+.hdr-actions { display: flex; gap: 6px; }
+.hbtn {
+  width: 32px; height: 32px; border-radius: 4px;
+  border: 1px solid var(--c-wr); background: var(--c-pl);
+  color: var(--c-tx2); cursor: pointer; display: flex;
+  align-items: center; justify-content: center; font-size: 15px; transition: .14s;
+}
+.hbtn:hover { border-color: var(--c-neon2); color: var(--c-neon); }
+
+/* =========================================================
+   BOTTOM NAV TABS
+   ========================================================= */
+.nav {
+  flex-shrink: 0; display: flex; overflow-x: auto; scrollbar-width: none;
+  background: var(--c-bg2); border-bottom: 1px solid var(--c-wr); position: relative; z-index: 59;
+}
+.nav::-webkit-scrollbar { display: none; }
+.ntab {
+  flex: 1; min-width: 70px; padding: 9px 4px 7px;
+  border: none; background: none; color: var(--c-tx3); cursor: pointer;
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: .5px; text-transform: uppercase;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  border-bottom: 2px solid transparent; transition: .13s;
+}
+.ntab .ni { font-size: 18px; }
+.ntab.on { color: var(--c-neon); border-bottom-color: var(--c-neon); }
+.ntab:hover:not(.on) { color: var(--c-tx2); }
+
+/* =========================================================
+   PAGE SYSTEM
+   ========================================================= */
+.pages { flex: 1; overflow: hidden; position: relative; z-index: 1; }
+.pg { display: none; height: 100%; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.pg.on { display: block; animation: pgfade .17s ease; }
+@keyframes pgfade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* =========================================================
+   SHARED ATOMS
+   ========================================================= */
+.lbl { font-family: var(--f-mono); font-size: 9px; color: var(--c-tx3); letter-spacing: 1.5px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+.inp, .sel, .ta {
+  width: 100%; background: var(--c-bg3); border: 1px solid var(--c-wr); border-radius: 4px;
+  color: var(--c-tx); font-family: var(--f-body); font-size: 14px; font-weight: 500;
+  padding: 9px 11px; outline: none; transition: border-color .14s; -webkit-appearance: none;
+}
+.inp:focus, .sel:focus, .ta:focus { border-color: var(--c-neon2); box-shadow: 0 0 0 2px rgba(0,204,255,.07); }
+.inp::placeholder, .ta::placeholder { color: var(--c-tx3); }
+.ta  { min-height: 72px; resize: vertical; line-height: 1.5; }
+.sel { cursor: pointer; }
+.sel option { background: var(--c-bg3); }
+
+.row2 { display: flex; gap: 10px; margin-bottom: 12px; }
+.row2 > .fg { flex: 1; min-width: 0; }
+.fg { margin-bottom: 12px; }
+.sec { padding: 14px 16px; }
+.divl { height: 1px; background: var(--c-wr); margin: 0 16px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 16px; border-radius: 5px; border: 1px solid var(--c-wr); background: var(--c-pl);
+  color: var(--c-tx); font-family: var(--f-body); font-size: 13px; font-weight: 600;
+  letter-spacing: .5px; cursor: pointer; transition: .13s; white-space: nowrap; text-transform: uppercase;
+}
+.btn:hover   { background: var(--c-pl2); border-color: var(--c-wr2); }
+.btn:disabled { opacity: .3; cursor: not-allowed; }
+.btn-neon  { background: rgba(0,204,255,.1);   border-color: var(--c-neon2); color: var(--c-neon); }
+.btn-neon:hover:not(:disabled) { background: rgba(0,204,255,.2); }
+.btn-fire  { background: rgba(255,102,0,.12);  border-color: rgba(255,102,0,.5); color: var(--c-fire2); }
+.btn-fire:hover { background: rgba(255,102,0,.22); }
+.btn-acid  { background: rgba(51,255,153,.08); border-color: rgba(51,255,153,.35); color: var(--c-acid); }
+.btn-red   { border-color: rgba(255,34,68,.4); color: var(--c-red); }
+.btn-red:hover { background: rgba(255,34,68,.1); }
+.btn-full  { width: 100%; }
+.btn-sm    { padding: 7px 11px; font-size: 11px; }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 3px; font-family: var(--f-mono); font-size: 9px; letter-spacing: .5px; }
+.bg-n { background: rgba(0,204,255,.1);   color: var(--c-neon);  border: 1px solid rgba(0,204,255,.2); }
+.bg-f { background: rgba(255,102,0,.1);   color: var(--c-fire2); border: 1px solid rgba(255,102,0,.22); }
+.bg-a { background: rgba(51,255,153,.07); color: var(--c-acid);  border: 1px solid rgba(51,255,153,.2); }
+.bg-s { background: rgba(255,221,0,.07);  color: var(--c-spark); border: 1px solid rgba(255,221,0,.2); }
+.bg-r { background: rgba(255,34,68,.07);  color: var(--c-red);   border: 1px solid rgba(255,34,68,.2); }
+
+/* Toggles */
+.tog { width: 42px; height: 22px; background: var(--c-bg3); border: 1px solid var(--c-wr); border-radius: 11px; cursor: pointer; position: relative; transition: .2s; flex-shrink: 0; }
+.tog.on { background: var(--c-neon2); border-color: var(--c-neon2); }
+.tog::after { content: ''; position: absolute; width: 16px; height: 16px; background: var(--c-tx3); border-radius: 50%; top: 2px; left: 2px; transition: .2s; }
+.tog.on::after { transform: translateX(20px); background: #fff; }
+
+.hidden { display: none !important; }
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+.dash-hero {
+  padding: 20px 16px 16px; border-bottom: 1px solid var(--c-wr);
+  background: linear-gradient(145deg, rgba(0,204,255,.05) 0%, transparent 55%),
+              linear-gradient(225deg, rgba(255,102,0,.05) 0%, transparent 55%);
+  position: relative; overflow: hidden;
+}
+.dash-hero::after {
+  content: ''; position: absolute; top: -20px; right: -20px;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0, rgba(0,204,255,.045) 60deg, transparent 120deg);
+  animation: spin-conic 24s linear infinite;
+}
+@keyframes spin-conic { to { transform: rotate(360deg); } }
+.hero-tag  { font-family: var(--f-mono); font-size: 8px; color: var(--c-neon); letter-spacing: 3px; margin-bottom: 4px; }
+.hero-h    { font-family: var(--f-hd); font-size: 44px; font-weight: 600; letter-spacing: 4px; line-height: .92; color: var(--c-tx); }
+.hero-desc { font-family: var(--f-mono); font-size: 9px; color: var(--c-tx3); margin-top: 7px; letter-spacing: 1px; }
+
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; padding: 12px 16px; }
+.kpi { background: var(--c-pl); border: 1px solid var(--c-wr); border-radius: 6px; padding: 12px; position: relative; overflow: hidden; }
+.kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--c-neon); }
+.kpi.k-fire::before  { background: linear-gradient(90deg, var(--c-fire), var(--c-fire2)); }
+.kpi.k-acid::before  { background: var(--c-acid); }
+.kpi.k-spark::before { background: var(--c-spark); }
+.kpi-lbl { font-family: var(--f-mono); font-size: 8px; color: var(--c-tx3); letter-spacing: 1.5px; margin-bottom: 5px; }
+.kpi-val { font-family: var(--f-hd); font-size: 34px; font-weight: 600; color: var(--c-tx); line-height: 1; letter-spacing: 1px; }
+.kpi-unit { font-family: var(--f-mono); font-size: 8px; color: var(--c-tx3); margin-top: 2px; }
+
+.sec-hd { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; margin-bottom: 9px; }
+.sec-title { font-family: var(--f-hd); font-size: 22px; font-weight: 600; letter-spacing: 2px; color: var(--c-tx); }
+.sec-more  { font-family: var(--f-mono); font-size: 9px; color: var(--c-neon); cursor: pointer; border: none; background: none; letter-spacing: 1px; }
+
+/* =========================================================
+   FIGURE CARD (shared)
+   ========================================================= */
+.fig-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.fig-card {
+  background: var(--c-pl); border: 1px solid var(--c-wr); border-radius: 8px;
+  display: flex; gap: 11px; padding: 11px; cursor: pointer; transition: .12s;
+  position: relative; overflow: hidden;
+}
+.fig-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--c-neon2); opacity: 0; transition: .12s; }
+.fig-card:hover  { background: var(--c-pl2); border-color: var(--c-wr2); }
+.fig-card:hover::before { opacity: 1; }
+.fig-thumb {
+  width: 60px; height: 60px; border-radius: 5px; border: 1px solid var(--c-wr);
+  background: var(--c-bg3); flex-shrink: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.fig-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.fig-info { flex: 1; min-width: 0; }
+.fig-char {
+  font-family: var(--f-hd); font-size: 20px; font-weight: 600; letter-spacing: 1px; color: var(--c-tx);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.1; margin-bottom: 3px;
+}
+.fig-meta  { font-family: var(--f-mono); font-size: 9px; color: var(--c-tx3); margin-bottom: 5px; }
+.fig-tags  { display: flex; flex-wrap: wrap; gap: 3px; }
+.fig-price { flex-shrink: 0; text-align: right; }
+.price-val  { font-family: var(--f-hd); font-size: 22px; font-weight: 600; color: var(--c-neon); line-height: 1; }
+.price-lbl  { font-family: var(--f-mono); font-size: 8px; color: var(--c-tx3); margin-top: 2px; }
+.price-paid { font-family: var(--f-mono); font-size: 9px; color: var(--c-tx3); margin-top: 3px; }
+
+.empty-box  { padding: 50px 20px; text-align: center; }
+.empty-ico  { font-size: 50px; opacity: .22; margin-bottom: 12px; }
+.empty-title { font-family: var(--f-hd); font-size: 24px; letter-spacing: 2px; color: var(--c-tx2); margin-bottom: 6px; }
+.empty-text  { font-family: var(--f-mono); font-size: 10px; color: var(--c-tx3); line-height: 1.7; }
+
+/* =========================================================
+   SCAN PAGE
+   ========================================================= */
+.scan-drop {
+  margin: 14px 16px; height: 248px; border: 2px dashed var(--c-wr2);
+  border-radius: 10px; background: var(--c-bg3); position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: .2s;
+}
+.scan-drop.has-img { border: 2px solid var(--c-neon2); background: rgba(0,204,255,.025); }
+.scan-drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.corner { position: absolute; width: 18px; height: 18px; border-color: var(--c-neon); border-style: solid; opacity: .4; }
+.c-tl { top: 8px; left: 8px;  border-width: 2px 0 0 2px; }
+.c-tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+.c-bl { bottom: 8px; left: 8px;  border-width: 0 0 2px 2px; }
+.c-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+.scan-ico  { font-size: 44px; opacity: .28; }
+.scan-hint { font-family: var(--f-mono); font-size: 10px; color: var(--c-tx3); text-align: center; letter-spacing: .5px; line-height: 1.7; }
+
+.img-btn-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 16px; }
+.analyze-wrap { margin: 10px 16px 0; }
+
+/* =========================================================
+   RESULT FORM
+   ========================================================= */
+.rform { margin: 12px 16px 28px; display: flex; flex-direction: column; gap: 11px; }
+
+/* confidence bar */
+.conf-bar { background: var(--c-pl); border: 1px solid var(--c-wr); border-radius: 6px; padding: 9px 13px; display: flex; align-items: center; justify-content: space-between; }
+.conf-label { font-family: var(--f-mono); font-size: 9px; color: var(--c-tx3); letter-spacing: 1px; }
+.conf-pips  { display: flex; gap: 3px; align-items: center; }
+.pip { width: 16px; height: 5px; border-radius: 2px; background: var(--c-wr); }
+.pip.on      { background: var(--c-neon); }
+.pip.on.mid  { background: var(--c-spark); }
+.pip.on.low  { background: var(--c-fire2); }
+.conf-pct { font-family: var(--f-mono); font-size: 11px; color: var(--c-tx2); margin-left: 7px; }
+
+/* section label */
+.form-sec-lbl { font-family: var(--f-mono); font-size: 10px; letter-spacing: 2px; display: block; margin-bottom: 9px; }
+
+/* accessories grid */
+.acc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.acc-item {
+  background: var(--c-bg3); border: 1px solid var(--c-wr); border-radius: 4px;
+  padding: 8px 10px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: .12s;
+}
+.acc-item.on { border-color: var(--c-neon2); background: rgba(0,204,255,.055); }
+.acc-chk {
+  width: 14px; height: 14px; border: 1px solid var(--c-wr2); border-radius: 2px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 9px; transition: .12s;
+}
+.acc-item.on .acc-chk { background: var(--c-neon); border-color: var(--c-neon); color: var(--c-bg); }
+.acc-name { font-family: var(--f-body); font-size: 12px; font-weight: 600; color: var(--c-tx2); }
+
+/* photo strip */
+.photo-strip { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.photo-strip::-webkit-scrollbar { display: none; }
+.photo-th {
+  width: 68px; height: 68px; flex-shrink: 0; border-radius: 5px;
+  border: 1px solid var(--c-wr); background: var(--c-bg3);
+  overflow: hidden; position: relative; cursor: pointer;
+}
+.photo-th img { width: 100%; height: 100%; object-fit: cover; }
+.photo-del {
+  position: absolute; top: 2px; right: 2px; width: 17px; height: 17px;
+  background: rgba(255,34,68,.88); border-radius: 2px;
+  display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff;
+}
+.photo-add {
+  width: 68px; height: 68px; flex-shrink: 0; border-radius: 5px;
+  border: 2px dashed var(--c-wr2); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; cursor: pointer;
+  gap: 2px; transition: .14s; color: var(--c-tx3); font-family: var(--f-mono); font-size: 8px; letter-spacing: .5px;
+}
+.photo-add:hover { border-color: var(--c-neon2); color: var(--c-neon); }
+
+/* valuation panel */
+.val-panel {
+  background: linear-gradient(135deg, rgba(0,204,255,.055), rgba(255,102,0,.03));
+  border: 1px solid var(--c-neon2); border-radius: 8px; padding: 13px;
+}
+.val-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 11px; text-align: center; }
+.val-lbl { font-family: var(--f-mono); font-size: 8px; color: var(--c-tx3); letter-spacing: 1px; margin-bottom: 3px; }
+.val-num { font-family: var(--f-hd); font-size: 22px; font-weight: 600; color: var(--c-tx); }
+.val-num.vn { color: var(--c-neon); }
+.val-num.vf { color: var(--c-fire2); }
+.val-num.va { color: var(--c-acid); }
+
+/* ai description box */
+.ai-desc { background: var(--c-bg3); border: 1px solid var(--c-wr); border-radius: 4px; padding: 10px 12px; font-family: var(--f-mono); font-size: 10px; color: var(--c-tx3); line-height: 1.7; max-height: 96px; overflow-y: auto; word-break: break-word; }
+
+/* =========================================================
+   COLLECTION PAGE
+   ========================================================= */
+.col-toolbar { padding: 11px 16px 0; display: flex; gap: 8px; }
+.srch-wrap { flex: 1; position: relative; }
+.srch-wrap input { padding-left: 32px; }
+.srch-ico { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--c-tx3); font-size: 13px; pointer-events: none; }
+
+.filter-pills { padding: 8px 16px; display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--c-wr); }
+.filter-pills::-webkit-scrollbar { display: none; }
+.pill { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--c-wr); background: transparent; color: var(--c-tx3); font-family: var(--f-mono); font-size: 9px; cursor: pointer; transition: .12s; white-space: nowrap; letter-spacing: .5px; }
+.pill.on { background: rgba(0,204,255,.1); border-color: var(--c-neon2); color: var(--c-neon); }
+
+.col-stats { display: flex; padding: 10px 16px; border-bottom: 1px solid var(--c-wr); overflow-x: auto; scrollbar-width: none; }
+.col-stats::-webkit-scrollbar { display: none; }
+.cst { padding: 0 14px; border-right: 1px solid var(--c-wr); text-align: center; flex-shrink: 0; }
+.cst:first-child { padding-left: 0; }
+.cst:last-child  { border-right: none; }
+.cst-val { font-family: var(--f-hd); font-size: 21px; font-weight: 600; color: var(--c-neon); }
+.cst-lbl { font-family: var(--f-mono); font-size: 8px; color: var(--c-tx3); letter-spacing: .5px; }
+
+/* =========================================================
+   DETAIL MODAL (bottom sheet)
+   ========================================================= */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.84); z-index: 200; backdrop-filter: blur(6px); align-items: flex-end; }
+.overlay.open { display: flex; animation: ov-in .15s ease; }
+@keyframes ov-in { from { opacity: 0; } to { opacity: 1; } }
+.sheet { width: 100%; max-height: 92vh; background: var(--c-bg2); border-top: 1px solid var(--c-wr); border-radius: 20px 20px 0 0; overflow-y: auto; animation: sh-up .2s ease; padding-bottom: calc(14px + var(--safe-b)); }
+@keyframes sh-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sh-handle { width: 36px; height: 4px; background: var(--c-wr2); border-radius: 2px; margin: 10px auto; }
+
+.sh-header { padding: 0 16px 14px; border-bottom: 1px solid var(--c-wr); display: flex; gap: 13px; align-items: flex-start; }
+.sh-thumb { width: 78px; height: 78px; border-radius: 8px; border: 1px solid var(--c-wr); background: var(--c-bg3); flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+.sh-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.sh-title { font-family: var(--f-hd); font-size: 25px; font-weight: 600; letter-spacing: 1px; color: var(--c-tx); line-height: 1.1; margin-bottom: 4px; }
+.sh-sub   { font-family: var(--f-mono); font-size: 9px; color: var(--c-tx3); }
+
+.sh-body { padding: 16px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 16px; }
+.d-lbl { font-family: var(--f-mono); font-size: 8px; color: var(--c-tx3); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
+.d-val { font-size: 14px; font-weight: 600; color: var(--c-tx); }
+
+.price-box { background: var(--c-pl); border: 1px solid var(--c-wr); border-radius: 8px; padding: 13px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; text-align: center; }
+.pb-lbl { font-family: var(--f-mono); font-size: 8px; color: var(--c-tx3); letter-spacing: .5px; margin-bottom: 4px; }
+.pb-val { font-family: var(--f-hd); font-size: 26px; font-weight: 600; }
+.pb-val.pn { color: var(--c-neon); }
+.pb-val.pa { color: var(--c-acid); }
+
+.detail-strip { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; margin-bottom: 14px; }
+.detail-strip::-webkit-scrollbar { display: none; }
+.d-photo { width: 80px; height: 80px; flex-shrink: 0; border-radius: 6px; border: 1px solid var(--c-wr); overflow: hidden; cursor: pointer; }
+.d-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+.detail-notes { font-size: 13px; color: var(--c-tx2); line-height: 1.6; background: var(--c-pl); border: 1px solid var(--c-wr); border-radius: 5px; padding: 11px 12px; margin-bottom: 14px; white-space: pre-wrap; }
+.modal-actions { display: flex; gap: 8px; }
+
+/* =========================================================
+   SETTINGS PAGE
+   ========================================================= */
+.sett-group { background: var(--c-pl); border: 1px solid var(--c-wr); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+.sett-head { padding: 10px 14px; font-family: var(--f-mono); font-size: 9px; color: var(--c-tx3); letter-spacing: 2px; text-transform: uppercase; background: var(--c-bg3); border-bottom: 1px solid var(--c-wr); }
+.sett-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--c-wr); }
+.sett-row:last-child { border-bottom: none; }
+.sett-row.full-col { flex-direction: column; align-items: flex-start; gap: 7px; }
+.sett-lbl { font-size: 13px; font-weight: 600; color: var(--c-tx); }
+.sett-desc { font-family: var(--f-mono); font-size: 10px; color: var(--c-tx3); margin-top: 2px; }
+.sett-inp { width: 100%; background: var(--c-bg3); border: 1px solid var(--c-wr); border-radius: 4px; color: var(--c-tx); font-family: var(--f-mono); font-size: 11px; padding: 8px 10px; outline: none; transition: border-color .14s; }
+.sett-inp:focus { border-color: var(--c-neon2); }
+
+.info-box { background: rgba(0,204,255,.04); border: 1px solid rgba(0,204,255,.15); border-radius: 7px; padding: 13px 14px; font-family: var(--f-mono); font-size: 10px; color: var(--c-neon); line-height: 1.75; margin-bottom: 14px; }
+.info-box strong { color: var(--c-neon2); }
+.info-box.fire { border-color: rgba(255,102,0,.25); color: var(--c-fire2); }
+.info-box.fire strong { color: var(--c-fire2); }
+
+/* =========================================================
+   LOADING OVERLAY
+   ========================================================= */
+.loader { display: none; position: fixed; inset: 0; background: rgba(6,16,31,.9); z-index: 300; flex-direction: column; align-items: center; justify-content: center; gap: 14px; backdrop-filter: blur(8px); }
+.loader.open { display: flex; animation: ov-in .14s ease; }
+.spinner { width: 40px; height: 40px; border: 2px solid var(--c-wr); border-top-color: var(--c-neon); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-txt { font-family: var(--f-mono); font-size: 11px; color: var(--c-tx3); letter-spacing: 2px; }
+.loader-steps { display: flex; flex-direction: column; gap: 7px; }
+.lstep { font-family: var(--f-mono); font-size: 10px; color: var(--c-tx3); display: flex; align-items: center; gap: 7px; }
+.lstep.done { color: var(--c-acid); }
+.lstep.act  { color: var(--c-neon); }
+.lstep-dot  { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.lstep.act .lstep-dot { animation: dot-pulse .55s ease-in-out infinite alternate; }
+@keyframes dot-pulse { to { opacity: .2; } }
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+.toast-wrap { position: fixed; bottom: calc(20px + var(--safe-b)); left: 50%; transform: translateX(-50%); z-index: 500; display: flex; flex-direction: column; gap: 7px; align-items: center; pointer-events: none; }
+.toast { background: var(--c-pl2); border: 1px solid var(--c-wr2); color: var(--c-tx); font-family: var(--f-mono); font-size: 11px; padding: 9px 16px; border-radius: 6px; animation: toast-in .18s ease; white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis; }
+.toast.ok { border-color: rgba(51,255,153,.35); color: var(--c-acid); }
+.toast.er { border-color: rgba(255,34,68,.35); color: var(--c-red); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* =========================================================
+   PHOTO VIEWER
+   ========================================================= */
+.pv-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.96); z-index: 400; align-items: center; justify-content: center; }
+.pv-overlay.open { display: flex; animation: ov-in .14s ease; }
+.pv-overlay img { max-width: 95vw; max-height: 90vh; object-fit: contain; border-radius: 4px; }
+.pv-close { position: absolute; top: calc(var(--safe-t) + 14px); right: 16px; font-size: 28px; color: var(--c-tx2); cursor: pointer; line-height: 1; }
+</style>
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header class="hdr">
+  <div class="hdr-row">
+    <div class="logo">
+      <div class="logo-hex">&#9881;</div>
+      <div class="logo-txt">
+        <div class="logo-name">TF VAULT</div>
+        <div class="logo-sub">TRANSFORMERS COLLECTOR</div>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <button class="hbtn" onclick="showPage('scan')" title="Dodaj figurk&#281;">&#128247;</button>
+      <button class="hbtn" onclick="showPage('settings')" title="Ustawienia">&#9881;</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== NAV ===================== -->
+<nav class="nav">
+  <button class="ntab on" id="ntab-dash"     onclick="showPage('dash')">    <span class="ni">&#128202;</span>Pulpit</button>
+  <button class="ntab"    id="ntab-scan"     onclick="showPage('scan')">    <span class="ni">&#128269;</span>Skanuj</button>
+  <button class="ntab"    id="ntab-col"      onclick="showPage('col')">     <span class="ni">&#128230;</span>Kolekcja</button>
+  <button class="ntab"    id="ntab-settings" onclick="showPage('settings')"><span class="ni">&#9881;</span>Ustawienia</button>
+</nav>
+
+<!-- ===================== PAGES ===================== -->
+<div class="pages">
+
+<!-- ─── DASHBOARD ─── -->
+<div class="pg on" id="pg-dash">
+  <div class="dash-hero">
+    <div class="hero-tag">// REJESTR KOLEKCJI</div>
+    <div class="hero-h">TWOJA<br>KOLEKCJA</div>
+    <div class="hero-desc">FIGURKI TRANSFORMERS &bull; OFICJALNE I THIRD PARTY</div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-lbl">FIGURKI</div>
+      <div class="kpi-val" id="kv-count">0</div>
+      <div class="kpi-unit">sztuk w kolekcji</div>
+    </div>
+    <div class="kpi k-acid">
+      <div class="kpi-lbl">WARTO&#346;&#262; RYNKOWA</div>
+      <div class="kpi-val" id="kv-mkt">&#8212;</div>
+      <div class="kpi-unit" id="ku-mkt">brak wycen</div>
+    </div>
+    <div class="kpi k-fire">
+      <div class="kpi-lbl">ZAP&#321;ACONO</div>
+      <div class="kpi-val" id="kv-paid">&#8212;</div>
+      <div class="kpi-unit" id="ku-paid">brak danych</div>
+    </div>
+    <div class="kpi k-spark">
+      <div class="kpi-lbl">ZYSK / STRATA</div>
+      <div class="kpi-val" id="kv-diff">&#8212;</div>
+      <div class="kpi-unit" id="ku-diff">szacunkowo</div>
+    </div>
+  </div>
+  <div class="divl"></div>
+  <div class="sec">
+    <div class="sec-hd mt-8">
+      <span class="sec-title">OSTATNIO DODANE</span>
+      <button class="sec-more" onclick="showPage('col')">WSZYSTKIE &#8594;</button>
+    </div>
+    <div class="fig-list" id="dash-recent">
+      <div class="empty-box">
+        <div class="empty-ico">&#129302;</div>
+        <div class="empty-title">BRAK FIGUREK</div>
+        <div class="empty-text">U&#380;yj zak&#322;adki Skanuj<br>aby doda&#263; pierwsz&#261; figurk&#281;</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCAN / ADD ─── -->
+<div class="pg" id="pg-scan">
+  <!-- Image drop zone -->
+  <div class="scan-drop" id="scan-drop">
+    <div class="corner c-tl"></div><div class="corner c-tr"></div>
+    <div class="corner c-bl"></div><div class="corner c-br"></div>
+    <div class="scan-ico" id="scan-ico">&#129302;</div>
+    <div class="scan-hint" id="scan-hint">Wybierz zdj&#281;cie figurki<br>aparatem lub z galerii</div>
+    <img id="scan-preview" style="display:none" alt="podgl&#261;d">
+  </div>
+
+  <!-- Two separate file inputs: camera vs gallery -->
+  <input type="file" id="inp-cam" accept="image/*" capture="environment" style="display:none" onchange="handleImage(event)">
+  <input type="file" id="inp-gal" accept="image/*"                        style="display:none" onchange="handleImage(event)">
+
+  <div class="img-btn-row">
+    <button class="btn btn-neon" onclick="document.getElementById('inp-cam').click()">&#128247; APARAT</button>
+    <button class="btn"          onclick="document.getElementById('inp-gal').click()">&#128444; GALERIA</button>
+  </div>
+  <div class="analyze-wrap">
+    <button class="btn btn-fire btn-full" id="btn-analyze" disabled onclick="runAnalysis()">
+      &#128269; ROZPOZNAJ FIGURK&#280;
+    </button>
+  </div>
+
+  <!-- Result form – hidden until analysis -->
+  <div class="rform hidden" id="rform">
+
+    <!-- Confidence indicator -->
+    <div class="conf-bar">
+      <span class="conf-label" id="conf-label">PEWNO&#346;&#262; ROZPOZNANIA</span>
+      <div class="conf-pips">
+        <div class="pip" id="pip0"></div><div class="pip" id="pip1"></div>
+        <div class="pip" id="pip2"></div><div class="pip" id="pip3"></div><div class="pip" id="pip4"></div>
+        <span class="conf-pct" id="conf-pct">&#8211;</span>
+      </div>
+    </div>
+
+    <!-- AI raw description (toggled in settings) -->
+    <div id="ai-desc-wrap" class="hidden">
+      <label class="lbl">OPIS AI (SUROWY)</label>
+      <div class="ai-desc" id="ai-desc-box"></div>
+    </div>
+
+    <!-- IDENTYFIKACJA -->
+    <div>
+      <span class="form-sec-lbl" style="color:var(--c-neon)">&#9656; IDENTYFIKACJA</span>
+      <div class="fg">
+        <label class="lbl">POSTA&#262; / NAZWA MODELU</label>
+        <input class="inp" id="f-char" placeholder="np. Optimus Prime, Starscream, Megatron...">
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label class="lbl">PRODUCENT</label>
+          <select class="sel" id="f-manu">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <optgroup label="Oficjalni">
+              <option>Hasbro</option>
+              <option>Takara Tomy</option>
+              <option>Takara Tomy / Hasbro</option>
+            </optgroup>
+            <optgroup label="Third Party">
+              <option>FansProject</option><option>iGear</option><option>MakeToys</option>
+              <option>Mastermind Creations (MMC)</option><option>DX9 Toys</option>
+              <option>Fans Toys</option><option>Iron Factory</option><option>BadCube</option>
+              <option>Unique Toys</option><option>Planet X</option><option>Zeta Toys</option>
+              <option>ToyWorld</option><option>Wei Jiang</option><option>Magic Square</option>
+              <option>X-Transbots</option><option>Newage</option><option>Hero Horizon</option>
+              <option>KFC (Keith's Fantasy Club)</option>
+              <option value="other-tp">Inny third party...</option>
+            </optgroup>
+            <option value="other">Inny producent...</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">ROK WYDANIA</label>
+          <input class="inp" id="f-year" placeholder="np. 1984, 2023">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="fg">
+          <label class="lbl">SERIA</label>
+          <select class="sel" id="f-series">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <optgroup label="Oficjalne linie">
+              <option>Generation 1 (G1)</option><option>Generation 2 (G2)</option>
+              <option>Beast Wars</option><option>Beast Machines</option>
+              <option>Robots in Disguise (2001)</option><option>Armada / Energon / Cybertron</option>
+              <option>Animated</option><option>Movie (2007)</option><option>ROTF</option>
+              <option>DOTM</option><option>AOE</option><option>TLK</option>
+              <option>Cyberverse</option><option>War for Cybertron (WFC)</option>
+              <option>Kingdom</option><option>Legacy</option><option>Studio Series</option>
+              <option>Masterpiece (MP)</option><option>Masterpiece Movie (MPM)</option>
+              <option>Unite Warriors</option><option>Titan Returns</option>
+              <option>Power of the Primes</option><option>Rise of the Beasts (ROTB)</option>
+              <option>One (2024)</option>
+            </optgroup>
+            <optgroup label="Third Party / Custom">
+              <option>Third Party G1-inspired</option><option>Third Party MP-scale</option>
+              <option>Third Party Legends-scale</option>
+              <option value="other-s">Inna / Niestandardowa</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">KLASA / SKALA</label>
+          <select class="sel" id="f-class">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <option>Legends / Core Class</option><option>Scout / Basic Class</option>
+            <option>Deluxe Class</option><option>Voyager Class</option>
+            <option>Leader Class</option><option>Commander Class</option>
+            <option>Titan Class</option><option>Masterpiece Scale</option>
+            <option>MP-scale (Third Party)</option><option>1/6 scale</option>
+            <option>Combiner</option><option>Inny</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="lbl">NR KATALOGOWY / SKU</label>
+        <input class="inp" id="f-sku" placeholder="np. MP-44, WFC-K1, FP-09...">
+      </div>
+    </div>
+
+    <!-- STAN -->
+    <div>
+      <span class="form-sec-lbl" style="color:var(--c-fire2)">&#9656; STAN FIGURKI</span>
+      <div class="row2">
+        <div class="fg">
+          <label class="lbl">OCENA STANU</label>
+          <select class="sel" id="f-cond">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <option>MISB &#8211; zapiecz&#281;towany</option>
+            <option>MIB &#8211; Mint in Box</option>
+            <option>C10 &#8211; Perfekcyjny</option>
+            <option>C9 &#8211; Doskona&#322;y</option>
+            <option>C8 &#8211; Bardzo dobry</option>
+            <option>C7 &#8211; Dobry</option>
+            <option>C6 &#8211; &#346;redni</option>
+            <option>C5 &#8211; Przeci&#281;tny</option>
+            <option>Loose &#8211; bez opakowania</option>
+            <option>Do naprawy / cz&#281;&#347;ci</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">PUDE&#321;KO</label>
+          <select class="sel" id="f-box">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <option>Oryginalne &#8211; stan idealny</option>
+            <option>Oryginalne &#8211; uszkodzone</option>
+            <option>Oryginalne &#8211; otwarte</option>
+            <option>Brak pude&#322;ka</option>
+            <option>Zast&#281;pcze / w&#322;asne</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="lbl">OPIS STANU (szczeg&oacute;&lstrok;owy)</label>
+        <textarea class="ta" id="f-cond-desc" placeholder="&#379;&#243;&#322;kni&#281;cie plastiku, z&#322;amania, retapy, odklejenia, przebarwienia..."></textarea>
+      </div>
+    </div>
+
+    <!-- AKCESORIA -->
+    <div>
+      <span class="form-sec-lbl" style="color:var(--c-acid)">&#9656; AKCESORIA</span>
+      <div class="acc-grid" id="acc-grid">
+        <div class="acc-item" data-ac="Instrukcja"         onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128196; Instrukcja</span></div>
+        <div class="acc-item" data-ac="Ulotka/katalog"     onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128240; Ulotka</span></div>
+        <div class="acc-item" data-ac="Bron glowna"        onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128299; Bro&#324; g&#322;.</span></div>
+        <div class="acc-item" data-ac="Bron dodatkowa"     onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#9876; Bro&#324; dod.</span></div>
+        <div class="acc-item" data-ac="Glowa zamienna"     onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#127917; G&#322;owa zam.</span></div>
+        <div class="acc-item" data-ac="Dlonie zamienne"    onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#9995; D&#322;onie zam.</span></div>
+        <div class="acc-item" data-ac="Efekty specjalne"   onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#10024; Efekty</span></div>
+        <div class="acc-item" data-ac="Podstawka/stand"    onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#127991; Podstawka</span></div>
+        <div class="acc-item" data-ac="Mini-figurka"       onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128126; Mini-fig.</span></div>
+        <div class="acc-item" data-ac="Chip Energon"       onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128142; Chip</span></div>
+        <div class="acc-item" data-ac="Certyfikat"         onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128220; Certyfikat</span></div>
+        <div class="acc-item" data-ac="Adapter/ladowarka"  onclick="toggleAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128267; &#321;adowarka</span></div>
+      </div>
+      <div class="fg mt-8">
+        <label class="lbl">INNE AKCESORIA (opis)</label>
+        <input class="inp" id="f-acc-extra" placeholder="Dodatkowe elementy, dedykowane cz&#281;&#347;ci...">
+      </div>
+    </div>
+
+    <!-- ZDJECIA -->
+    <div>
+      <span class="form-sec-lbl" style="color:var(--c-spark)">&#9656; ZDJ&#280;CIA FIGURKI</span>
+      <div class="photo-strip" id="photo-strip">
+        <div class="photo-add" onclick="triggerAddPhoto()">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;opacity:.45"><path d="M12 4a8 8 0 100 16A8 8 0 0012 4zm1 7V7h-2v4H7v2h4v4h2v-4h4v-2h-4z"/></svg>
+          <span>DODAJ</span>
+        </div>
+      </div>
+      <input type="file" id="inp-photo" accept="image/*" style="display:none" onchange="handleAddPhoto(event)">
+    </div>
+
+    <!-- WYCENA -->
+    <div>
+      <span class="form-sec-lbl" style="color:var(--c-neon)">&#9656; WYCENA &#8212; eBay Sold Listings (darmowe, bez klucza API)</span>
+      <div class="val-panel">
+        <div class="val-grid">
+          <div><div class="val-lbl">MINIMUM</div><div class="val-num va" id="vp-lo">&#8212;</div></div>
+          <div><div class="val-lbl">MEDIANA</div><div class="val-num vn" id="vp-med">&#8212;</div></div>
+          <div><div class="val-lbl">MAKS.</div>   <div class="val-num vf" id="vp-hi">&#8212;</div></div>
+        </div>
+        <button class="btn btn-neon btn-full btn-sm" id="val-btn" onclick="runValuation()">
+          &#128176; SZUKAJ CEN NA EBAY (DARMOWE)
+        </button>
+        <div id="val-result" class="hidden mt-8"></div>
+      </div>
+      <div class="row2 mt-8">
+        <div class="fg">
+          <label class="lbl">CENA RYNKOWA (USD)</label>
+          <input type="number" class="inp" id="f-mktprice" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="fg">
+          <label class="lbl">CENA ZAKUPU (USD)</label>
+          <input type="number" class="inp" id="f-paidprice" placeholder="0.00" step="0.01" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTATKI -->
+    <div>
+      <span class="form-sec-lbl" style="color:var(--c-tx2)">&#9656; NOTATKI</span>
+      <textarea class="ta" id="f-notes" placeholder="Historia zakupu, plany sprzeda&#380;y, dodatkowe uwagi..."></textarea>
+    </div>
+
+    <!-- FORM ACTIONS -->
+    <div style="display:flex;gap:8px;padding-bottom:6px">
+      <button class="btn btn-red"            onclick="clearForm()">&#10005; ANULUJ</button>
+      <button class="btn btn-acid btn-full"  onclick="saveFigure()">&#128190; ZAPISZ DO KOLEKCJI</button>
+    </div>
+
+  </div><!-- /rform -->
+</div><!-- /pg-scan -->
+
+<!-- ─── COLLECTION ─── -->
+<div class="pg" id="pg-col">
+  <div class="col-toolbar">
+    <div class="srch-wrap">
+      <span class="srch-ico">&#128269;</span>
+      <input class="inp" id="srch-inp" placeholder="Szukaj figurki..." oninput="onSearch(this.value)">
+    </div>
+    <button class="btn btn-sm" onclick="cycleSort()" title="Zmie&#324; sortowanie">&#8645;</button>
+  </div>
+  <div class="filter-pills">
+    <button class="pill on" data-f="all"    onclick="setFilter('all',this)">WSZYSTKIE</button>
+    <button class="pill"    data-f="hasbro" onclick="setFilter('hasbro',this)">HASBRO</button>
+    <button class="pill"    data-f="takara" onclick="setFilter('takara',this)">TAKARA</button>
+    <button class="pill"    data-f="tp"     onclick="setFilter('tp',this)">3RD PARTY</button>
+    <button class="pill"    data-f="mp"     onclick="setFilter('mp',this)">MASTERPIECE</button>
+    <button class="pill"    data-f="g1"     onclick="setFilter('g1',this)">G1</button>
+    <button class="pill"    data-f="boxed"  onclick="setFilter('boxed',this)">Z PUDE&#321;KEM</button>
+  </div>
+  <div class="col-stats">
+    <div class="cst"><div class="cst-val" id="cs-tot">0</div><div class="cst-lbl">&#321;&#260;CZNIE</div></div>
+    <div class="cst"><div class="cst-val" id="cs-hb">0</div><div class="cst-lbl">HASBRO</div></div>
+    <div class="cst"><div class="cst-val" id="cs-tk">0</div><div class="cst-lbl">TAKARA</div></div>
+    <div class="cst"><div class="cst-val" id="cs-tp">0</div><div class="cst-lbl">3RD PARTY</div></div>
+    <div class="cst"><div class="cst-val" id="cs-mp">0</div><div class="cst-lbl">MP</div></div>
+    <div class="cst"><div class="cst-val" id="cs-usd">&#8212;</div><div class="cst-lbl">USD &#321;&#260;CZ.</div></div>
+  </div>
+  <div class="fig-list" id="col-list">
+    <div class="empty-box">
+      <div class="empty-ico">&#128230;</div>
+      <div class="empty-title">PUSTA KOLEKCJA</div>
+      <div class="empty-text">Dodaj figurk&#281; w zak&#322;adce Skanuj</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SETTINGS ─── -->
+<div class="pg" id="pg-settings">
+  <div class="sec">
+
+    <div class="sett-group">
+      <div class="sett-head">GEMINI API &#8212; ROZPOZNAWANIE FIGUREK</div>
+      <div class="sett-row full-col">
+        <div>
+          <div class="sett-lbl">Gemini API Key</div>
+          <div class="sett-desc">aistudio.google.com &#8594; Get API key &#8594; bezp&#322;atny (15&nbsp;req/min, 1500/dzie&#324;)</div>
+        </div>
+        <input type="password" class="sett-inp" id="si-gemini" placeholder="AIza..." oninput="saveSetting('geminiKey', this.value)">
+      </div>
+    </div>
+
+    <div class="sett-group">
+      <div class="sett-head">PREFERENCJE</div>
+      <div class="sett-row">
+        <div>
+          <div class="sett-lbl">Waluta</div>
+        </div>
+        <select class="sel" style="width:auto;padding:7px 11px" id="si-currency" onchange="saveSetting('currency', this.value)">
+          <option value="USD">USD $</option>
+          <option value="EUR">EUR &#8364;</option>
+          <option value="PLN">PLN z&#322;</option>
+          <option value="GBP">GBP &#163;</option>
+        </select>
+      </div>
+      <div class="sett-row">
+        <div>
+          <div class="sett-lbl">Poka&#380; opis AI</div>
+          <div class="sett-desc">Surowy tekst z Gemini po analizie</div>
+        </div>
+        <div class="tog" id="tog-ai" onclick="toggleSetting('showAI')"></div>
+      </div>
+      <div class="sett-row">
+        <div>
+          <div class="sett-lbl">Auto-wycena po skanie</div>
+          <div class="sett-desc">Automatycznie szukaj cen eBay</div>
+        </div>
+        <div class="tog on" id="tog-av" onclick="toggleSetting('autoVal')"></div>
+      </div>
+    </div>
+
+    <div class="sett-group">
+      <div class="sett-head">KOLEKCJA &#8212; EKSPORT / IMPORT</div>
+      <div class="sett-row">
+        <div><div class="sett-lbl">Eksportuj JSON</div><div class="sett-desc">Kopia zapasowa kolekcji</div></div>
+        <button class="btn btn-neon btn-sm" onclick="exportJSON()">&#8595; JSON</button>
+      </div>
+      <div class="sett-row">
+        <div><div class="sett-lbl">Importuj JSON</div><div class="sett-desc">Wczytaj poprzedni backup</div></div>
+        <button class="btn btn-sm" onclick="document.getElementById('inp-import').click()">&#8593; IMPORT</button>
+        <input type="file" id="inp-import" accept=".json" style="display:none" onchange="importJSON(event)">
+      </div>
+      <div class="sett-row">
+        <div><div class="sett-lbl">Eksportuj CSV</div><div class="sett-desc">Do arkusza kalkulacyjnego</div></div>
+        <button class="btn btn-sm" onclick="exportCSV()">&#128202; CSV</button>
+      </div>
+      <div class="sett-row">
+        <div><div class="sett-lbl">Wyczy&#347;&#263; kolekcj&#281;</div><div class="sett-desc">Usuwa wszystkie dane &#8212; nieodwracalne!</div></div>
+        <button class="btn btn-red btn-sm" onclick="wipeAll()">&#128465; WYCZY&#346;&#262;</button>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>JAK UZYSKA&#262; GEMINI API KEY (bezp&#322;atnie):</strong><br><br>
+      1. Wejd&#378; na <strong>aistudio.google.com</strong> i zaloguj si&#281; kontem Google<br>
+      2. Kliknij <strong>"Get API key"</strong> &#8594; <strong>"Create API key"</strong><br>
+      3. Skopiuj klucz zaczynaj&#261;cy si&#281; od <strong>AIza...</strong><br>
+      4. Wklej go w pole powy&#380;ej<br><br>
+      Limit darmowy: <strong>15 zapyta&#324;/min, 1500/dzie&#324;</strong> &#8212; wystarczy do kolekcjonowania.<br><br>
+      <strong>WYCENA:</strong> Ceny pobierane s&#261; ze <strong>zako&#324;czonych aukcji eBay</strong> przez darmowy serwis proxy. Nie wymaga &#380;adnego klucza API ani rejestracji.
+    </div>
+
+    <div class="info-box fire">
+      <strong>INSTALACJA NA TELEFONIE (darmowe, bez Netlify):</strong><br><br>
+      <strong>&#9312; GitHub Pages:</strong><br>
+      github.com &#8594; nowe repo (publiczne) &#8594; wgraj plik jako <strong>index.html</strong><br>
+      Settings &#8594; Pages &#8594; Source: main / root &#8594; Save<br>
+      Link: <em>tw&oacute;jlogin.github.io/nazwarepo</em><br><br>
+      <strong>&#9313; Cloudflare Pages (najszybciej):</strong><br>
+      pages.cloudflare.com &#8594; Create &#8594; <strong>Direct Upload</strong> &#8594; przeci&#261;gnij plik &#8594; Deploy<br>
+      Gotowy link HTTPS w ok. 30 sekund<br><br>
+      <strong>&#9314; Vercel:</strong><br>
+      vercel.com &#8594; Add New &#8594; Project &#8594; Browse &#8594; wgraj folder &#8594; Deploy<br><br>
+      <strong>Po uzyskaniu linku HTTPS w Chrome Android:</strong><br>
+      Menu &#8942; &#8594; &#8222;Dodaj do ekranu g&#322;&oacute;wnego&#8221; &#8594; aplikacja dzia&#322;a jak natywna
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /pages -->
+
+<!-- ===================== DETAIL MODAL ===================== -->
+<div class="overlay" id="detail-overlay" onclick="closeModalIfBg(event)">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-header">
+      <div class="sh-thumb" id="m-thumb">&#129302;</div>
+      <div style="flex:1">
+        <div class="sh-title" id="m-title">&#8212;</div>
+        <div class="sh-sub"   id="m-sub">&#8212;</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px" id="m-badges"></div>
+      </div>
+    </div>
+    <div class="sh-body">
+      <div class="detail-grid">
+        <div><div class="d-lbl">Producent</div>    <div class="d-val" id="md-manu">&#8212;</div></div>
+        <div><div class="d-lbl">Rok</div>          <div class="d-val" id="md-year">&#8212;</div></div>
+        <div><div class="d-lbl">Seria</div>        <div class="d-val" id="md-series">&#8212;</div></div>
+        <div><div class="d-lbl">Klasa/Skala</div>  <div class="d-val" id="md-class">&#8212;</div></div>
+        <div><div class="d-lbl">Nr katalogowy</div><div class="d-val" id="md-sku">&#8212;</div></div>
+        <div><div class="d-lbl">Pude&#322;ko</div>   <div class="d-val" id="md-box">&#8212;</div></div>
+        <div><div class="d-lbl">Stan</div>          <div class="d-val" id="md-cond">&#8212;</div></div>
+        <div><div class="d-lbl">Dodano</div>        <div class="d-val" id="md-date">&#8212;</div></div>
+      </div>
+
+      <div class="price-box">
+        <div><div class="pb-lbl">RYNKOWA</div>    <div class="pb-val pn" id="md-mkt">&#8212;</div></div>
+        <div><div class="pb-lbl">ZAP&#321;ACONO</div><div class="pb-val"    id="md-paid">&#8212;</div></div>
+        <div><div class="pb-lbl">R&Oacute;&#379;NICA</div>   <div class="pb-val pa" id="md-diff">&#8212;</div></div>
+      </div>
+
+      <div id="md-accs-wrap" class="hidden">
+        <div class="d-lbl" style="margin-bottom:6px">AKCESORIA</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px" id="md-accs"></div>
+      </div>
+
+      <div id="md-photos-wrap" class="hidden">
+        <div class="d-lbl" style="margin-bottom:6px">ZDJ&#280;CIA</div>
+        <div class="detail-strip" id="md-photos"></div>
+      </div>
+
+      <div id="md-cond-wrap" class="hidden">
+        <div class="d-lbl" style="margin-bottom:5px">OPIS STANU</div>
+        <div class="detail-notes" id="md-cond-desc"></div>
+      </div>
+
+      <div id="md-notes-wrap" class="hidden">
+        <div class="d-lbl" style="margin-bottom:5px">NOTATKI</div>
+        <div class="detail-notes" id="md-notes"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-red"          onclick="deleteFigure()">&#128465; USU&#323;</button>
+        <button class="btn"                  onclick="editFigure()">&#9998; EDYTUJ</button>
+        <button class="btn" style="flex:1"   onclick="closeModal()">&#10005; ZAMKNIJ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== LOADING ===================== -->
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+  <div class="loader-txt" id="loader-txt">ANALIZUJ&#280;...</div>
+  <div class="loader-steps" id="loader-steps"></div>
+</div>
+
+<!-- ===================== TOASTS ===================== -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- ===================== PHOTO VIEWER ===================== -->
+<div class="pv-overlay" id="pv-overlay" onclick="closePV()">
+  <span class="pv-close">&#10005;</span>
+  <img id="pv-img" src="" alt="">
+</div>
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+const DB_KEY  = 'tfvault_db_v2';
+const CFG_KEY = 'tfvault_cfg_v2';
+
+let DB  = [];          // collection array
+let CFG = {            // user settings
+  geminiKey: '',
+  currency:  'USD',
+  showAI:    false,
+  autoVal:   true,
+};
+
+let editId       = null;   // null = new, number = editing existing
+let modalId      = null;   // currently open modal figure id
+let extraPhotos  = [];     // base64 photo strings for current form
+let scanImage    = null;   // { b64, mime, dataUrl } of current scan
+let activeFilter = 'all';
+let sortOrder    = 'newest';
+let searchTerm   = '';
+
+// ═══════════════════════════════════════════════════════
+//  PERSISTENCE
+// ═══════════════════════════════════════════════════════
+function loadAll() {
+  try { DB  = JSON.parse(localStorage.getItem(DB_KEY)  || '[]'); } catch { DB  = []; }
+  try { CFG = { ...CFG, ...JSON.parse(localStorage.getItem(CFG_KEY) || '{}') }; } catch {}
+}
+function saveDB()  { localStorage.setItem(DB_KEY,  JSON.stringify(DB)); }
+function saveCFG() { localStorage.setItem(CFG_KEY, JSON.stringify(CFG)); }
+function saveSetting(key, val) { CFG[key] = val; saveCFG(); }
+function toggleSetting(key) {
+  CFG[key] = !CFG[key]; saveCFG();
+  const map = { showAI: 'tog-ai', autoVal: 'tog-av' };
+  const el  = document.getElementById(map[key]);
+  if (el) el.classList.toggle('on', !!CFG[key]);
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showPage(pg) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('on'));
+  document.getElementById('pg-' + pg).classList.add('on');
+  document.getElementById('ntab-' + pg).classList.add('on');
+  if (pg === 'dash')     renderDash();
+  if (pg === 'col')      renderCol();
+  if (pg === 'settings') renderSettings();
+}
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+function SYM() { return { USD:'$', EUR:'€', PLN:'zł ', GBP:'£' }[CFG.currency] || '$'; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setVal(id, v)  { const e = document.getElementById(id); if (e) e.value = v || ''; }
+function setTxt(id, v)  { const e = document.getElementById(id); if (e) e.textContent = v || '—'; }
+function show(id)  { document.getElementById(id)?.classList.remove('hidden'); }
+function hide(id)  { document.getElementById(id)?.classList.add('hidden'); }
+
+function isThirdParty(fig) {
+  const tpKw = ['fanstoys','fans toys','maketoys','mastermind','mmc','dx9','unique toys',
+    'iron factory','badcube','newage','kfc','zeta toys','toyworld','weijiang','magic square',
+    'x-transbots','hero horizon','fansproject','igear','planet x','mechanic studio'];
+  const m = (fig.manufacturer || '').toLowerCase();
+  return tpKw.some(k => m.includes(k));
+}
+
+function tfEmoji(fig) {
+  const s = ((fig.charName||'') + (fig.series||'') + (fig.manufacturer||'')).toLowerCase();
+  if (s.includes('optimus') || s.includes('prime'))   return '🔴';
+  if (s.includes('megatron') || s.includes('galvatron')) return '⚫';
+  if (s.includes('bumblebee'))  return '🟡';
+  if (s.includes('starscream')) return '✈️';
+  if (s.includes('soundwave'))  return '📻';
+  if (s.includes('grimlock'))   return '🦖';
+  if (s.includes('devastator') || s.includes('combiner')) return '🧱';
+  if (s.includes('beast'))      return '🦁';
+  return '⚙️';
+}
+
+function emptyBox(ico, title, sub) {
+  return `<div class="empty-box"><div class="empty-ico">${ico}</div><div class="empty-title">${title}</div><div class="empty-text">${sub}</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDash() {
+  const sym  = SYM();
+  const mkt  = DB.reduce((s, f) => s + (+f.mktPrice  || 0), 0);
+  const paid = DB.reduce((s, f) => s + (+f.paidPrice || 0), 0);
+  const diff = mkt - paid;
+
+  document.getElementById('kv-count').textContent = DB.length;
+
+  function setKPI(vId, uId, val, emptyTxt) {
+    if (val > 0) {
+      document.getElementById(vId).textContent = sym + Math.round(val);
+      document.getElementById(uId).textContent = CFG.currency;
+    } else {
+      document.getElementById(vId).textContent = '—';
+      document.getElementById(uId).textContent = emptyTxt;
+    }
+  }
+  setKPI('kv-mkt',  'ku-mkt',  mkt,  'brak wycen');
+  setKPI('kv-paid', 'ku-paid', paid, 'brak danych');
+
+  if (mkt && paid) {
+    document.getElementById('kv-diff').textContent  = (diff >= 0 ? '+' : '') + sym + Math.round(diff);
+    document.getElementById('ku-diff').textContent  = diff >= 0 ? 'zysk szacunkowy' : 'strata szacunkowa';
+  } else {
+    document.getElementById('kv-diff').textContent = '—';
+    document.getElementById('ku-diff').textContent = 'szacunkowo';
+  }
+
+  const recent = [...DB].sort((a, b) => b.ts - a.ts).slice(0, 5);
+  const el = document.getElementById('dash-recent');
+  el.innerHTML = recent.length
+    ? recent.map(figCardHTML).join('')
+    : emptyBox('&#129302;', 'BRAK FIGUREK', 'Użyj zakładki Skanuj aby dodać pierwszą figurkę');
+}
+
+// ═══════════════════════════════════════════════════════
+//  FIGURE CARD HTML
+// ═══════════════════════════════════════════════════════
+function figCardHTML(fig) {
+  const sym  = SYM();
+  const tp   = isThirdParty(fig);
+  const thumb = (fig.photos && fig.photos[0])
+    ? `<img src="${fig.photos[0]}" alt="${esc(fig.charName)}">`
+    : tfEmoji(fig);
+
+  return `<div class="fig-card" onclick="openModal(${fig.id})">
+    <div class="fig-thumb">${thumb}</div>
+    <div class="fig-info">
+      <div class="fig-char">${esc(fig.charName) || 'Bez nazwy'}</div>
+      <div class="fig-meta">${[fig.manufacturer, fig.year].filter(Boolean).join(' · ') || '—'}</div>
+      <div class="fig-tags">
+        ${fig.series    ? `<span class="badge bg-n">${esc(fig.series.slice(0,18))}</span>` : ''}
+        ${tp            ? `<span class="badge bg-f">3RD PARTY</span>` : fig.manufacturer ? `<span class="badge bg-n">${esc(fig.manufacturer.slice(0,12))}</span>` : ''}
+        ${fig.condition ? `<span class="badge bg-a">${esc(fig.condition.slice(0,12))}</span>` : ''}
+      </div>
+    </div>
+    <div class="fig-price">
+      ${fig.mktPrice
+        ? `<div class="price-val">${sym}${(+fig.mktPrice).toFixed(0)}</div><div class="price-lbl">rynkowa</div>`
+        : `<div class="price-lbl" style="color:var(--c-tx3)">brak wyceny</div>`}
+      ${fig.paidPrice ? `<div class="price-paid">zapł. ${sym}${(+fig.paidPrice).toFixed(0)}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  IMAGE LOADING + COMPRESSION
+// ═══════════════════════════════════════════════════════
+function compressImage(file) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1280; let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = cv.toDataURL('image/jpeg', 0.85);
+      resolve({ b64: dataUrl.split(',')[1], mime: 'image/jpeg', dataUrl });
+    };
+    img.onerror = () => {
+      const r = new FileReader();
+      r.onload = e => {
+        const dataUrl = e.target.result;
+        resolve({ b64: dataUrl.split(',')[1], mime: file.type || 'image/jpeg', dataUrl });
+      };
+      r.readAsDataURL(file);
+    };
+    img.src = url;
+  });
+}
+
+async function handleImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = '';
+  try {
+    const c = await compressImage(file);
+    scanImage = c;
+    const prev = document.getElementById('scan-preview');
+    prev.src = c.dataUrl; prev.style.display = 'block';
+    document.getElementById('scan-ico').style.display  = 'none';
+    document.getElementById('scan-hint').style.display = 'none';
+    document.getElementById('scan-drop').classList.add('has-img');
+    document.getElementById('btn-analyze').disabled = false;
+    // Reset result form and prices when a new image is loaded
+    hide('rform');
+    hide('val-result');
+    resetPrices();
+  } catch(err) {
+    toast('Błąd ładowania zdjęcia', 'er');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  GEMINI VISION ANALYSIS
+//
+//  KEY FIXES applied here:
+//  1. NO responseMimeType in generationConfig — this causes HTTP 400 on
+//     free-tier accounts. Gemini returns JSON-formatted text naturally
+//     when the prompt requests it; we parse it manually with extractJSON().
+//  2. Primary model: gemini-1.5-flash (most stable free tier: 1500 req/day).
+//     Fallback: gemini-1.5-flash-8b.
+//  3. HTTP 429 (quota exceeded) is now caught and handled gracefully —
+//     the loop tries the next model instead of crashing.
+// ═══════════════════════════════════════════════════════
+function extractJSON(text) {
+  // Strategy 1: entire response is valid JSON
+  try { return JSON.parse(text.trim()); } catch {}
+  // Strategy 2: JSON inside ```json ... ``` fences
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fence) try { return JSON.parse(fence[1].trim()); } catch {}
+  // Strategy 3: find first { ... last }
+  const s = text.indexOf('{'), e = text.lastIndexOf('}');
+  if (s !== -1 && e > s) try { return JSON.parse(text.slice(s, e + 1)); } catch {}
+  throw new Error('Nie można sparsować odpowiedzi JSON z Gemini');
+}
+
+async function runAnalysis() {
+  if (!scanImage)       return toast('Najpierw wybierz zdjęcie', 'er');
+  if (!CFG.geminiKey)   return toast('Ustaw klucz Gemini API w Ustawieniach', 'er');
+
+  showLoader('ANALIZUJĘ ZDJĘCIE...', [
+    { k: 'upload', t: 'Wysyłanie obrazu do Gemini Vision' },
+    { k: 'recog',  t: 'Rozpoznawanie figurki' },
+    { k: 'parse',  t: 'Ekstrakcja danych' },
+  ]);
+  setStep('upload', 'act');
+
+  const PROMPT = `You are a world-class expert on Transformers collectible figures — both official Hasbro/Takara Tomy releases AND all major third-party (TP) manufacturers.
+
+Analyze this image carefully and identify the figure shown.
+
+Return ONLY a valid JSON object. No markdown fences, no extra text before or after the JSON:
+{
+  "charName": "full character name and version, e.g. Optimus Prime G1 or Starscream MP-03",
+  "manufacturer": "exact manufacturer, e.g. Hasbro, Takara Tomy, Fans Toys, Mastermind Creations",
+  "isThirdParty": true,
+  "year": "release year as string, e.g. 1984 or 2023",
+  "series": "main product line, e.g. Generation 1, Masterpiece, Kingdom, Studio Series, Legacy",
+  "subLine": "sub-line or wave if applicable, e.g. Siege, Earthrise, Wave 3, Retro Collection",
+  "catalogId": "catalog number if identifiable, e.g. MP-44 or WFC-K1, empty string if unknown",
+  "figClass": "size class, e.g. Deluxe Class, Voyager Class, Leader Class, Masterpiece",
+  "confidence": 0.85,
+  "description": "detailed description: colors, alt mode, visible accessories, condition notes"
+}
+
+IMPORTANT: confidence must be a NUMBER between 0.0 and 1.0, never a string.
+If uncertain, provide your best guess with lower confidence rather than leaving fields empty.
+Always return valid JSON — this is the only output expected.`;
+
+  try {
+    setStep('upload', 'done'); setStep('recog', 'act');
+
+    // gemini-1.5-flash is the most reliable free-tier model (1500 req/day, 15 req/min)
+    // gemini-1.5-flash-8b as fallback
+    const MODELS = ['gemini-1.5-flash', 'gemini-1.5-flash-8b'];
+    let responseData = null;
+    let lastErrMsg   = '';
+
+    for (const model of MODELS) {
+      let resp;
+      try {
+        resp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${CFG.geminiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [
+                { inline_data: { mime_type: scanImage.mime, data: scanImage.b64 } },
+                { text: PROMPT },
+              ]}],
+              generationConfig: {
+                temperature:    0.1,
+                maxOutputTokens: 1024,
+                // ⚠️  NO responseMimeType here — it causes HTTP 400 on free-tier
+                //     accounts and is unnecessary since we parse JSON manually.
+              },
+            }),
+          }
+        );
+      } catch (networkErr) {
+        lastErrMsg = 'Brak połączenia: ' + networkErr.message;
+        continue;
+      }
+
+      if (resp.ok) {
+        responseData = await resp.json();
+        break;
+      }
+
+      // Parse error from failed response
+      const errBody  = await resp.json().catch(() => ({}));
+      lastErrMsg = errBody?.error?.message || `HTTP ${resp.status}`;
+
+      // 429 = quota exceeded, 400/404 = model unavailable → try next model
+      if (resp.status === 429 || resp.status === 400 || resp.status === 404) continue;
+
+      // Any other HTTP error is fatal
+      throw new Error(lastErrMsg);
+    }
+
+    if (!responseData) throw new Error(lastErrMsg || 'Brak odpowiedzi z API — sprawdź klucz Gemini');
+
+    setStep('recog', 'done'); setStep('parse', 'act');
+
+    const rawText = responseData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!rawText) throw new Error('Pusta odpowiedź z Gemini — sprawdź limity konta');
+
+    const parsed = extractJSON(rawText);
+
+    // Normalise & sanitise all fields
+    const result = {
+      charName:    String(parsed.charName    || '').trim(),
+      manufacturer:String(parsed.manufacturer|| '').trim(),
+      year:        String(parsed.year        || '').trim(),
+      series:      String(parsed.series      || '').trim(),
+      subLine:     String(parsed.subLine     || '').trim(),
+      catalogId:   String(parsed.catalogId   || '').trim(),
+      figClass:    String(parsed.figClass    || '').trim(),
+      confidence:  Math.min(1, Math.max(0, parseFloat(parsed.confidence) || 0)),
+      description: String(parsed.description || '').trim(),
+    };
+
+    setStep('parse', 'done');
+    hideLoader();
+    populateForm(result);
+    toast('✓ Figurka rozpoznana!', 'ok');
+
+    // Auto-fetch prices if enabled
+    if (CFG.autoVal && result.charName) setTimeout(() => runValuation(true), 600);
+
+  } catch (err) {
+    hideLoader();
+    const msg = err.message.toLowerCase().includes('api_key')     ? 'Nieprawidłowy klucz Gemini API'
+              : err.message.toLowerCase().includes('quota')       ? 'Limit zapytań przekroczony — spróbuj za chwilę'
+              : err.message.includes('429')                       ? 'Limit zapytań przekroczony — spróbuj za chwilę'
+              : err.message;
+    toast('Błąd rozpoznania: ' + msg, 'er');
+    // Show empty form so user can fill manually
+    populateForm({ charName:'', manufacturer:'', year:'', series:'', subLine:'', catalogId:'', figClass:'', confidence: 0, description: '' });
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  POPULATE FORM WITH ANALYSIS RESULTS
+// ═══════════════════════════════════════════════════════
+function populateForm(d) {
+  setVal('f-char', d.charName);
+  setVal('f-year', d.year);
+  setVal('f-sku',  d.catalogId);
+
+  // Match manufacturer select option
+  const manuSel = document.getElementById('f-manu');
+  const mLow    = (d.manufacturer || '').toLowerCase();
+  let mFound    = false;
+  for (const opt of manuSel.options) {
+    if (opt.value && mLow.includes(opt.value.toLowerCase().replace(/\s*\(.*\)$/, '').trim())) {
+      manuSel.value = opt.value; mFound = true; break;
+    }
+  }
+  if (!mFound) manuSel.value = '';
+
+  // Match series select option
+  const serSel = document.getElementById('f-series');
+  const sLow   = (d.series || '').toLowerCase();
+  for (const opt of serSel.options) {
+    const ov = opt.value.toLowerCase().replace(/\s*\(.*\)$/, '').trim();
+    if (ov && (sLow.includes(ov.split(' ')[0]) || ov.includes(sLow.split(' ')[0]))) {
+      serSel.value = opt.value; break;
+    }
+  }
+
+  // Match class select option
+  const clsSel = document.getElementById('f-class');
+  const cLow   = (d.figClass || '').toLowerCase();
+  for (const opt of clsSel.options) {
+    if (opt.value && cLow.includes(opt.value.toLowerCase().split(' ')[0])) {
+      clsSel.value = opt.value; break;
+    }
+  }
+
+  // Render confidence pips
+  const pct = Math.round(d.confidence * 100);
+  document.getElementById('conf-pct').textContent = pct + '%';
+  for (let i = 0; i < 5; i++) {
+    const pip = document.getElementById('pip' + i);
+    const on  = i < Math.round(d.confidence * 5);
+    pip.className = 'pip' + (on ? ' on' + (d.confidence < .4 ? ' low' : d.confidence < .7 ? ' mid' : '') : '');
+  }
+
+  // AI description
+  const descWrap = document.getElementById('ai-desc-wrap');
+  if (d.description) {
+    document.getElementById('ai-desc-box').textContent = d.description;
+    descWrap.classList.toggle('hidden', !CFG.showAI);
+  } else {
+    hide('ai-desc-wrap');
+  }
+
+  // Add scan photo to strip
+  extraPhotos = [];
+  if (scanImage) extraPhotos = [scanImage.dataUrl];
+  renderPhotoStrip();
+
+  // Show form and scroll to it
+  show('rform');
+  setTimeout(() => document.getElementById('rform').scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+}
+
+// ═══════════════════════════════════════════════════════
+//  ACCESSORIES
+// ═══════════════════════════════════════════════════════
+function toggleAcc(el) {
+  el.classList.toggle('on');
+  el.querySelector('.acc-chk').textContent = el.classList.contains('on') ? '✓' : '';
+}
+function getAccs() {
+  return [...document.querySelectorAll('#acc-grid .acc-item.on')].map(e => e.dataset.ac);
+}
+function resetAccs() {
+  document.querySelectorAll('#acc-grid .acc-item').forEach(el => {
+    el.classList.remove('on');
+    el.querySelector('.acc-chk').textContent = '';
+  });
+}
+function setAccs(accs = []) {
+  resetAccs();
+  accs.forEach(ac => {
+    const el = [...document.querySelectorAll('#acc-grid .acc-item')].find(e => e.dataset.ac === ac);
+    if (el) { el.classList.add('on'); el.querySelector('.acc-chk').textContent = '✓'; }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  PHOTO STRIP
+// ═══════════════════════════════════════════════════════
+function triggerAddPhoto() { document.getElementById('inp-photo').click(); }
+
+async function handleAddPhoto(e) {
+  const file = e.target.files[0]; if (!file) return; e.target.value = '';
+  const c = await compressImage(file);
+  extraPhotos.push(c.dataUrl);
+  renderPhotoStrip();
+}
+
+function renderPhotoStrip() {
+  const strip = document.getElementById('photo-strip');
+  const thumbs = extraPhotos.map((src, i) => `
+    <div class="photo-th">
+      <img src="${src}" alt="zdjecie ${i+1}">
+      <div class="photo-del" onclick="removePhoto(${i})">&#10005;</div>
+    </div>`).join('');
+  const addBtn = `<div class="photo-add" onclick="triggerAddPhoto()">
+    <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;opacity:.4"><path d="M12 4a8 8 0 100 16A8 8 0 0012 4zm1 7V7h-2v4H7v2h4v4h2v-4h4v-2h-4z"/></svg>
+    <span>DODAJ</span></div>`;
+  strip.innerHTML = thumbs + addBtn;
+}
+
+function removePhoto(i) { extraPhotos.splice(i, 1); renderPhotoStrip(); }
+
+// ═══════════════════════════════════════════════════════
+//  VALUATION — eBay Sold Listings (FREE, no API key)
+//
+//  Uses allorigins.win as a free CORS proxy to fetch completed
+//  eBay auction results. No registration or API key required.
+//  Falls back to direct search links if the proxy is unavailable.
+// ═══════════════════════════════════════════════════════
+async function runValuation(silent = false) {
+  const charName = document.getElementById('f-char').value.trim();
+  if (!charName) return toast('Uzupełnij najpierw nazwę postaci/modelu', 'er');
+
+  const series = document.getElementById('f-series').value.trim();
+  const manu   = document.getElementById('f-manu').value.trim();
+  const q      = [charName, series, isThirdParty({ manufacturer: manu }) ? manu : '', 'transformers']
+                   .filter(Boolean).join(' ');
+
+  const btn = document.getElementById('val-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ SZUKAM NA EBAY...';
+  hide('val-result');
+
+  try {
+    const ebayURL  = 'https://www.ebay.com/sch/i.html?_nkw=' + encodeURIComponent(q)
+                   + '&LH_Complete=1&LH_Sold=1&_ipg=60';
+    const proxyURL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(ebayURL);
+
+    const resp = await fetch(proxyURL, { signal: AbortSignal.timeout(16000) });
+    if (!resp.ok) throw new Error('Proxy niedostępny (' + resp.status + ')');
+    const json = await resp.json();
+    const html = json.contents || '';
+    if (!html) throw new Error('Pusta odpowiedź proxy');
+
+    // Extract all USD prices from HTML
+    const raw = [];
+    const re  = /\$\s*([\d,]+(?:\.\d{1,2})?)/g;
+    let m;
+    while ((m = re.exec(html)) !== null) {
+      const v = parseFloat(m[1].replace(/,/g, ''));
+      if (v > 2 && v < 40000) raw.push(v);
+    }
+    if (raw.length < 3) throw new Error(`Za mało wyników cenowych (${raw.length}). Spróbuj z krótszą nazwą.`);
+
+    raw.sort((a, b) => a - b);
+    const trim   = Math.max(1, Math.floor(raw.length * 0.1));
+    const prices = raw.slice(trim, raw.length - trim);
+    const median = prices[Math.floor(prices.length / 2)];
+    const lo     = prices[Math.floor(prices.length * 0.10)] || prices[0];
+    const hi     = prices[Math.floor(prices.length * 0.85)] || prices[prices.length - 1];
+
+    // Update display
+    document.getElementById('vp-lo').textContent  = '$' + lo.toFixed(2);
+    document.getElementById('vp-med').textContent = '$' + median.toFixed(2);
+    document.getElementById('vp-hi').textContent  = '$' + hi.toFixed(2);
+    document.getElementById('f-mktprice').value   = median.toFixed(2);
+
+    const ebayLink = 'https://www.ebay.com/sch/i.html?_nkw=' + encodeURIComponent(q) + '&LH_Complete=1&LH_Sold=1';
+    const resEl    = document.getElementById('val-result');
+    resEl.innerHTML = `
+      <div style="background:var(--c-bg3);border:1px solid var(--c-neon2);border-radius:6px;padding:11px 13px">
+        <div style="font-family:var(--f-mono);font-size:9px;color:var(--c-neon);letter-spacing:1px;margin-bottom:9px">
+          &#10003; EBAY SOLD LISTINGS &bull; ${raw.length} ZAKOŃCZONYCH AUKCJI
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:10px">
+          <div>
+            <div style="font-family:var(--f-mono);font-size:8px;color:var(--c-tx3);margin-bottom:3px">MINIMUM</div>
+            <div style="font-family:var(--f-hd);font-size:21px;color:var(--c-acid)">$${lo.toFixed(2)}</div>
+          </div>
+          <div>
+            <div style="font-family:var(--f-mono);font-size:8px;color:var(--c-tx3);margin-bottom:3px">MEDIANA</div>
+            <div style="font-family:var(--f-hd);font-size:21px;color:var(--c-neon)">$${median.toFixed(2)}</div>
+          </div>
+          <div>
+            <div style="font-family:var(--f-mono);font-size:8px;color:var(--c-tx3);margin-bottom:3px">MAKS.</div>
+            <div style="font-family:var(--f-hd);font-size:21px;color:var(--c-fire2)">$${hi.toFixed(2)}</div>
+          </div>
+        </div>
+        <a href="${ebayLink}" target="_blank" rel="noopener"
+           style="display:block;text-align:center;font-family:var(--f-mono);font-size:9px;
+                  color:var(--c-neon2);text-decoration:none;padding-top:8px;border-top:1px solid var(--c-wr)">
+          &#8594; OTWÓRZ WYNIKI NA EBAY.COM
+        </a>
+      </div>`;
+    show('val-result');
+    if (!silent) toast('✓ Ceny z eBay załadowane!', 'ok');
+
+  } catch (err) {
+    if (!silent) {
+      toast('Wycena: ' + err.message, 'er');
+      // Fallback: show manual search links
+      const q2 = encodeURIComponent(charName + ' transformers');
+      document.getElementById('val-result').innerHTML = `
+        <div style="background:var(--c-bg3);border:1px solid var(--c-wr);border-radius:6px;padding:11px 13px">
+          <div style="font-family:var(--f-mono);font-size:9px;color:var(--c-tx3);margin-bottom:9px">
+            Auto-pobieranie nieudane. Sprawdź ręcznie:
+          </div>
+          <a href="https://www.ebay.com/sch/i.html?_nkw=${q2}&LH_Complete=1&LH_Sold=1" target="_blank" rel="noopener"
+             style="display:block;font-family:var(--f-mono);font-size:10px;color:var(--c-neon);
+                    text-decoration:none;padding:7px 0;border-top:1px solid var(--c-wr)">
+            &#8594; eBay Zakończone aukcje
+          </a>
+          <a href="https://myfigurecollection.net/search.php?type=0&q=${encodeURIComponent(charName + ' transformers')}" target="_blank" rel="noopener"
+             style="display:block;font-family:var(--f-mono);font-size:10px;color:var(--c-tx2);
+                    text-decoration:none;padding:7px 0;border-top:1px solid var(--c-wr)">
+            &#8594; MyFigureCollection (ceny społeczności)
+          </a>
+          <a href="https://www.tftrades.com/" target="_blank" rel="noopener"
+             style="display:block;font-family:var(--f-mono);font-size:10px;color:var(--c-tx2);
+                    text-decoration:none;padding:7px 0;border-top:1px solid var(--c-wr)">
+            &#8594; TFTrades.com (rynek Transformers)
+          </a>
+        </div>`;
+      show('val-result');
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💰 SZUKAJ CEN NA EBAY (DARMOWE)';
+  }
+}
+
+function resetPrices() {
+  ['vp-lo','vp-med','vp-hi'].forEach(id => document.getElementById(id).textContent = '—');
+  setVal('f-mktprice', '');
+}
+
+// ═══════════════════════════════════════════════════════
+//  SAVE FIGURE
+// ═══════════════════════════════════════════════════════
+function saveFigure() {
+  const charName = document.getElementById('f-char').value.trim();
+  if (!charName) return toast('Podaj nazwę postaci / modelu', 'er');
+
+  const manuEl  = document.getElementById('f-manu');
+  const manuVal = manuEl.value;
+  const manu    = (manuVal === 'other' || manuVal === 'other-tp')
+    ? manuEl.options[manuEl.selectedIndex].text.replace('...', '').trim()
+    : manuVal;
+
+  const fig = {
+    id:        editId || (Date.now() + Math.floor(Math.random() * 9999)),
+    ts:        editId ? (DB.find(f => f.id === editId)?.ts || Date.now()) : Date.now(),
+    charName,
+    manufacturer: manu,
+    year:         document.getElementById('f-year').value.trim(),
+    series:       document.getElementById('f-series').value,
+    figClass:     document.getElementById('f-class').value,
+    catalogId:    document.getElementById('f-sku').value.trim(),
+    condition:    document.getElementById('f-cond').value,
+    boxState:     document.getElementById('f-box').value,
+    condDesc:     document.getElementById('f-cond-desc').value.trim(),
+    accs:         getAccs(),
+    accsExtra:    document.getElementById('f-acc-extra').value.trim(),
+    notes:        document.getElementById('f-notes').value.trim(),
+    mktPrice:     parseFloat(document.getElementById('f-mktprice').value)  || null,
+    paidPrice:    parseFloat(document.getElementById('f-paidprice').value) || null,
+    currency:     CFG.currency,
+    photos:       [...extraPhotos],
+  };
+
+  if (editId) {
+    const idx = DB.findIndex(f => f.id === editId);
+    if (idx !== -1) DB[idx] = fig;
+    toast('✓ Figurka zaktualizowana!', 'ok');
+  } else {
+    DB.push(fig);
+    toast('✓ Zapisano do kolekcji!', 'ok');
+  }
+
+  saveDB();
+  clearForm();
+  showPage('col');
+}
+
+// ═══════════════════════════════════════════════════════
+//  CLEAR / RESET FORM
+// ═══════════════════════════════════════════════════════
+function clearForm() {
+  scanImage   = null;
+  editId      = null;
+  extraPhotos = [];
+
+  const prev = document.getElementById('scan-preview');
+  prev.style.display = 'none'; prev.src = '';
+  document.getElementById('scan-ico').style.display  = '';
+  document.getElementById('scan-hint').style.display = '';
+  document.getElementById('scan-drop').classList.remove('has-img');
+  document.getElementById('btn-analyze').disabled = true;
+
+  document.getElementById('inp-cam').value   = '';
+  document.getElementById('inp-gal').value   = '';
+
+  hide('rform');
+  hide('val-result');
+  resetPrices();
+  resetAccs();
+
+  ['f-char','f-year','f-sku','f-cond-desc','f-acc-extra','f-notes','f-mktprice','f-paidprice']
+    .forEach(id => setVal(id, ''));
+  ['f-manu','f-series','f-class','f-cond','f-box']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+
+  for (let i = 0; i < 5; i++) document.getElementById('pip' + i).className = 'pip';
+  document.getElementById('conf-pct').textContent = '–';
+  document.getElementById('conf-label').textContent = 'PEWNOŚĆ ROZPOZNANIA';
+}
+
+// ═══════════════════════════════════════════════════════
+//  COLLECTION
+// ═══════════════════════════════════════════════════════
+function onSearch(v)           { searchTerm = v; renderCol(); }
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderCol();
+}
+function cycleSort() {
+  const orders = ['newest','oldest','name','price-hi','price-lo'];
+  const labels = ['Najnowsze','Najstarsze','Nazwa A-Z','Cena ↓','Cena ↑'];
+  const i = orders.indexOf(sortOrder);
+  sortOrder = orders[(i + 1) % orders.length];
+  toast('Sortowanie: ' + labels[orders.indexOf(sortOrder)]);
+  renderCol();
+}
+
+function renderCol() {
+  let items = [...DB];
+
+  // Filter
+  switch (activeFilter) {
+    case 'hasbro': items = items.filter(f => (f.manufacturer||'').toLowerCase().includes('hasbro')); break;
+    case 'takara': items = items.filter(f => (f.manufacturer||'').toLowerCase().includes('takara')); break;
+    case 'tp':     items = items.filter(f => isThirdParty(f)); break;
+    case 'mp':     items = items.filter(f => (f.series||'').toLowerCase().includes('masterpiece') || (f.figClass||'').toLowerCase().includes('masterpiece')); break;
+    case 'g1':     items = items.filter(f => (f.series||'').toLowerCase().includes('generation 1')); break;
+    case 'boxed':  items = items.filter(f => f.boxState && !f.boxState.toLowerCase().includes('brak')); break;
+  }
+
+  // Search
+  if (searchTerm) {
+    const q = searchTerm.toLowerCase();
+    items = items.filter(f =>
+      (f.charName||'').toLowerCase().includes(q)    ||
+      (f.manufacturer||'').toLowerCase().includes(q)||
+      (f.series||'').toLowerCase().includes(q)      ||
+      (f.catalogId||'').toLowerCase().includes(q)   ||
+      (f.condition||'').toLowerCase().includes(q)
+    );
+  }
+
+  // Sort
+  switch (sortOrder) {
+    case 'oldest':   items.sort((a,b) => a.ts - b.ts); break;
+    case 'name':     items.sort((a,b) => (a.charName||'').localeCompare(b.charName||'')); break;
+    case 'price-hi': items.sort((a,b) => (b.mktPrice||0) - (a.mktPrice||0)); break;
+    case 'price-lo': items.sort((a,b) => (a.mktPrice||0) - (b.mktPrice||0)); break;
+    default:         items.sort((a,b) => b.ts - a.ts);
+  }
+
+  // Stats bar
+  document.getElementById('cs-tot').textContent = DB.length;
+  document.getElementById('cs-hb').textContent  = DB.filter(f => (f.manufacturer||'').toLowerCase().includes('hasbro')).length;
+  document.getElementById('cs-tk').textContent  = DB.filter(f => (f.manufacturer||'').toLowerCase().includes('takara')).length;
+  document.getElementById('cs-tp').textContent  = DB.filter(f => isThirdParty(f)).length;
+  document.getElementById('cs-mp').textContent  = DB.filter(f => (f.series||'').toLowerCase().includes('masterpiece')).length;
+  const totalVal = DB.reduce((s,f) => s + (+f.mktPrice||0), 0);
+  document.getElementById('cs-usd').textContent = totalVal > 0 ? SYM() + Math.round(totalVal) : '—';
+
+  // List
+  const el = document.getElementById('col-list');
+  el.innerHTML = items.length
+    ? items.map(figCardHTML).join('')
+    : emptyBox('📦', searchTerm ? 'BRAK WYNIKÓW' : 'PUSTA KOLEKCJA', searchTerm ? 'Spróbuj innej frazy' : 'Dodaj figurkę w zakładce Skanuj');
+}
+
+// ═══════════════════════════════════════════════════════
+//  DETAIL MODAL
+// ═══════════════════════════════════════════════════════
+function openModal(id) {
+  const fig = DB.find(f => f.id === id);
+  if (!fig) return;
+  modalId = id;
+  const sym = SYM();
+
+  // Thumbnail
+  const th = document.getElementById('m-thumb');
+  if (fig.photos && fig.photos[0]) th.innerHTML = `<img src="${fig.photos[0]}" alt="${esc(fig.charName)}">`;
+  else th.textContent = tfEmoji(fig);
+
+  document.getElementById('m-title').textContent = fig.charName || '—';
+  document.getElementById('m-sub').textContent   = [fig.series, fig.figClass].filter(Boolean).join(' · ') || '—';
+
+  // Badges
+  const tp = isThirdParty(fig);
+  document.getElementById('m-badges').innerHTML = [
+    fig.manufacturer ? `<span class="badge bg-n">${esc(fig.manufacturer)}</span>` : '',
+    tp               ? `<span class="badge bg-f">3RD PARTY</span>`                : '',
+    fig.condition    ? `<span class="badge bg-a">${esc(fig.condition.slice(0,14))}</span>` : '',
+    fig.boxState && !fig.boxState.toLowerCase().includes('brak') ? `<span class="badge bg-s">BOX</span>` : '',
+  ].join('');
+
+  // Detail grid
+  setTxt('md-manu',   fig.manufacturer);
+  setTxt('md-year',   fig.year);
+  setTxt('md-series', fig.series);
+  setTxt('md-class',  fig.figClass);
+  setTxt('md-sku',    fig.catalogId || '—');
+  setTxt('md-box',    fig.boxState  || '—');
+  setTxt('md-cond',   fig.condition || '—');
+  setTxt('md-date',   new Date(fig.ts).toLocaleDateString('pl-PL'));
+
+  // Prices
+  document.getElementById('md-mkt').textContent  = fig.mktPrice  ? sym + (+fig.mktPrice).toFixed(2)  : '—';
+  document.getElementById('md-paid').textContent = fig.paidPrice ? sym + (+fig.paidPrice).toFixed(2) : '—';
+  if (fig.mktPrice && fig.paidPrice) {
+    const diff = (+fig.mktPrice) - (+fig.paidPrice);
+    const dEl  = document.getElementById('md-diff');
+    dEl.textContent = (diff >= 0 ? '+' : '') + sym + diff.toFixed(2);
+    dEl.style.color = diff >= 0 ? 'var(--c-acid)' : 'var(--c-red)';
+  } else {
+    setTxt('md-diff', '—');
+    document.getElementById('md-diff').style.color = 'var(--c-tx)';
+  }
+
+  // Accessories
+  const allAccs = [...(fig.accs || []), fig.accsExtra || ''].filter(Boolean);
+  const accWrap = document.getElementById('md-accs-wrap');
+  if (allAccs.length) {
+    document.getElementById('md-accs').innerHTML = allAccs.map(a => `<span class="badge bg-n">${esc(a)}</span>`).join('');
+    show('md-accs-wrap');
+  } else hide('md-accs-wrap');
+
+  // Photos
+  const photoWrap = document.getElementById('md-photos-wrap');
+  if (fig.photos && fig.photos.length) {
+    document.getElementById('md-photos').innerHTML = fig.photos
+      .map(src => `<div class="d-photo" onclick="openPhotoViewer('${src}')"><img src="${src}" alt=""></div>`)
+      .join('');
+    show('md-photos-wrap');
+  } else hide('md-photos-wrap');
+
+  // Condition desc
+  if (fig.condDesc) { document.getElementById('md-cond-desc').textContent = fig.condDesc; show('md-cond-wrap'); }
+  else hide('md-cond-wrap');
+
+  // Notes
+  if (fig.notes) { document.getElementById('md-notes').textContent = fig.notes; show('md-notes-wrap'); }
+  else hide('md-notes-wrap');
+
+  document.getElementById('detail-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  modalId = null;
+}
+function closeModalIfBg(e) {
+  if (e.target === document.getElementById('detail-overlay')) closeModal();
+}
+
+function deleteFigure() {
+  if (modalId == null) return;
+  if (!confirm('Usunąć tę figurkę z kolekcji?')) return;
+  DB = DB.filter(f => f.id !== modalId);
+  saveDB();
+  closeModal();
+  renderCol();
+  renderDash();
+  toast('Figurka usunięta');
+}
+
+// ═══════════════════════════════════════════════════════
+//  EDIT FIGURE
+//
+//  BUG FIX: Previous version crashed silently because it called
+//  getElementById('cbar') — but 'cbar' is a CSS class name, not
+//  an element id. getElementById returns null, and then calling
+//  .querySelector() on null throws a TypeError, making the EDYTUJ
+//  button appear to do nothing.
+//
+//  Fix: The confidence bar label now has id="conf-label", and we
+//  directly call getElementById('conf-label') which is guaranteed
+//  to return a valid element.
+// ═══════════════════════════════════════════════════════
+function editFigure() {
+  const fig = DB.find(f => f.id === modalId);
+  if (!fig) return;
+  closeModal();
+
+  editId      = fig.id;
+  extraPhotos = [...(fig.photos || [])];
+
+  // Restore image preview if figure has photos
+  if (fig.photos && fig.photos[0]) {
+    scanImage = { dataUrl: fig.photos[0], b64: fig.photos[0].split(',')[1] || '', mime: 'image/jpeg' };
+    const prev = document.getElementById('scan-preview');
+    prev.src = fig.photos[0]; prev.style.display = 'block';
+    document.getElementById('scan-ico').style.display  = 'none';
+    document.getElementById('scan-hint').style.display = 'none';
+    document.getElementById('scan-drop').classList.add('has-img');
+    document.getElementById('btn-analyze').disabled = false;
+  }
+
+  // Populate all form fields
+  setVal('f-char',       fig.charName);
+  setVal('f-year',       fig.year);
+  setVal('f-sku',        fig.catalogId);
+  setVal('f-cond-desc',  fig.condDesc);
+  setVal('f-acc-extra',  fig.accsExtra);
+  setVal('f-notes',      fig.notes);
+  setVal('f-mktprice',   fig.mktPrice  || '');
+  setVal('f-paidprice',  fig.paidPrice || '');
+
+  document.getElementById('f-manu').value   = fig.manufacturer || '';
+  document.getElementById('f-series').value = fig.series       || '';
+  document.getElementById('f-class').value  = fig.figClass     || '';
+  document.getElementById('f-cond').value   = fig.condition    || '';
+  document.getElementById('f-box').value    = fig.boxState     || '';
+
+  setAccs(fig.accs || []);
+  renderPhotoStrip();
+
+  // FIX: Use getElementById('conf-label') — the element has id="conf-label".
+  // The old code used getElementById('cbar') which doesn't exist as an ID —
+  // 'cbar' is a CSS class — so it returned null and crashed silently.
+  const confLabel = document.getElementById('conf-label');
+  if (confLabel) confLabel.textContent = 'TRYB EDYCJI';
+
+  // Reset confidence pips to neutral state
+  for (let i = 0; i < 5; i++) document.getElementById('pip' + i).className = 'pip';
+  document.getElementById('conf-pct').textContent = '—';
+
+  show('rform');
+  showPage('scan');
+  setTimeout(() => document.getElementById('rform').scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PHOTO VIEWER
+// ═══════════════════════════════════════════════════════
+function openPhotoViewer(src) {
+  document.getElementById('pv-img').src = src;
+  document.getElementById('pv-overlay').classList.add('open');
+}
+function closePV() { document.getElementById('pv-overlay').classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════
+//  EXPORT / IMPORT / CSV
+// ═══════════════════════════════════════════════════════
+function exportJSON() {
+  if (!DB.length) return toast('Kolekcja jest pusta', 'er');
+  const blob = new Blob(
+    [JSON.stringify({ version: 2, exportDate: new Date().toISOString(), collection: DB }, null, 2)],
+    { type: 'application/json' }
+  );
+  download(blob, `tfvault_${new Date().toISOString().slice(0,10)}.json`);
+  toast('✓ Eksport JSON gotowy!', 'ok');
+}
+
+function importJSON(e) {
+  const file = e.target.files[0]; if (!file) return; e.target.value = '';
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const data     = JSON.parse(ev.target.result);
+      const imported = data.collection || data;
+      if (!Array.isArray(imported)) throw new Error('Nieprawidłowy format pliku');
+      if (!confirm(`Importować ${imported.length} figurek? (duplikaty zostaną pominięte)`)) return;
+      const existing = new Set(DB.map(f => f.id));
+      let added = 0;
+      imported.forEach(f => { if (!existing.has(f.id)) { DB.push(f); added++; } });
+      saveDB(); renderCol(); renderDash();
+      toast(`✓ Zaimportowano ${added} figurek`, 'ok');
+    } catch (err) { toast('Błąd importu: ' + err.message, 'er'); }
+  };
+  r.readAsText(file);
+}
+
+function exportCSV() {
+  if (!DB.length) return toast('Kolekcja jest pusta', 'er');
+  const cols = ['charName','manufacturer','year','series','figClass','catalogId','condition','boxState','mktPrice','paidPrice','currency','condDesc','notes'];
+  const header = cols.join(',') + '\n';
+  const rows   = DB.map(f => cols.map(c => `"${(f[c]||'').toString().replace(/"/g,'""')}"`).join(','));
+  const blob   = new Blob(['\uFEFF' + header + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+  download(blob, `tfvault_${new Date().toISOString().slice(0,10)}.csv`);
+  toast('✓ Eksport CSV gotowy!', 'ok');
+}
+
+function download(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function wipeAll() {
+  if (!confirm('Usunąć CAŁĄ kolekcję? Tej operacji nie można cofnąć!')) return;
+  if (!confirm('Absolutnie pewny? Wszystkie figurki i dane zostaną usunięte.')) return;
+  DB = []; saveDB(); renderDash(); renderCol();
+  toast('Kolekcja wyczyszczona');
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════════
+function renderSettings() {
+  const gk = document.getElementById('si-gemini'); if (gk) gk.value = CFG.geminiKey || '';
+  const cu = document.getElementById('si-currency'); if (cu) cu.value = CFG.currency || 'USD';
+  document.getElementById('tog-ai').classList.toggle('on', !!CFG.showAI);
+  document.getElementById('tog-av').classList.toggle('on', !!CFG.autoVal);
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOADER OVERLAY
+// ═══════════════════════════════════════════════════════
+function showLoader(txt, steps) {
+  document.getElementById('loader-txt').textContent = txt;
+  document.getElementById('loader-steps').innerHTML = steps
+    .map(s => `<div class="lstep" id="lstep-${s.k}"><div class="lstep-dot"></div>${s.t}</div>`)
+    .join('');
+  document.getElementById('loader').classList.add('open');
+}
+function setStep(k, state) {
+  const el = document.getElementById('lstep-' + k); if (!el) return;
+  el.className = 'lstep ' + (state === 'done' ? 'done' : state === 'act' ? 'act' : '');
+}
+function hideLoader() { document.getElementById('loader').classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+function toast(msg, type = '') {
+  const wrap = document.getElementById('toast-wrap');
+  const el   = document.createElement('div');
+  el.className   = 'toast ' + (type === 'ok' ? 'ok' : type === 'er' ? 'er' : '');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 320); }, 2800);
+}
+
+// ═══════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════
+loadAll();
+renderDash();
+renderSettings();
+</script>
+</body>
+</html>
