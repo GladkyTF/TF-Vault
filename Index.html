@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#070d1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TF Vault">
+<title>TF Vault – Kolekcja Transformers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Teko:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────── TOKENS */
+:root{
+  --ink:#070d1a; --ink2:#0c1525; --ink3:#111e33;
+  --pl:#162035;  --pl2:#1c2a42;  --pl3:#223250;
+  --wr:#253047;  --wr2:#2f3e5c;  --wr3:#3a4e70;
+  --neon:#00c8ff; --neon2:#40daff; --neon3:#007a99; --neon4:#004d61;
+  --fire:#ff6200; --fire2:#ff8533; --fire3:#cc4e00;
+  --spark:#ffe033; --acid:#39ff80; --red:#ff3352;
+  --tx:#d0e4f8; --tx2:#6e90b4; --tx3:#364d6b;
+  --R:'Rajdhani',sans-serif; --M:'Share Tech Mono',monospace; --T:'Teko',sans-serif;
+  --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--ink)}
+body{color:var(--tx);font-family:var(--R);display:flex;flex-direction:column}
+
+/* grid bg */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,200,255,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,200,255,.035) 1px,transparent 1px);
+  background-size:48px 48px}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 100% 60% at 50% 0%,rgba(0,120,180,.1),transparent 70%)}
+
+/* ─────────────────────────────── HEADER */
+.hdr{
+  flex-shrink:0;position:relative;z-index:50;
+  padding:calc(var(--st) + 8px) 14px 0;
+  background:rgba(7,13,26,.96);border-bottom:1px solid var(--wr);
+  backdrop-filter:blur(12px);
+}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-hex{
+  width:34px;height:34px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--neon4),var(--neon3));
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  animation:hpulse 3.5s ease-in-out infinite;
+}
+@keyframes hpulse{0%,100%{filter:drop-shadow(0 0 4px rgba(0,200,255,.5))}50%{filter:drop-shadow(0 0 10px rgba(0,200,255,.8))}}
+.logo-stack{line-height:1}
+.logo-name{font-family:var(--T);font-size:28px;font-weight:600;letter-spacing:4px;color:var(--tx)}
+.logo-sub{font-family:var(--M);font-size:8px;color:var(--neon);letter-spacing:3px}
+.hdr-btns{display:flex;gap:6px}
+.ihbtn{width:32px;height:32px;border-radius:4px;border:1px solid var(--wr);background:var(--pl);
+  color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:.15s}
+.ihbtn:hover{border-color:var(--neon3);color:var(--neon)}
+
+/* ─────────────────────────────── NAV */
+.nav{flex-shrink:0;display:flex;overflow-x:auto;scrollbar-width:none;
+  background:var(--ink2);border-bottom:1px solid var(--wr);position:relative;z-index:49}
+.nav::-webkit-scrollbar{display:none}
+.nt{flex:1;min-width:68px;padding:8px 4px 6px;border:none;background:none;
+  color:var(--tx3);cursor:pointer;font-family:var(--M);font-size:9px;
+  letter-spacing:.5px;text-transform:uppercase;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  border-bottom:2px solid transparent;transition:.15s}
+.nt .ni{font-size:17px}
+.nt.on{color:var(--neon);border-bottom-color:var(--neon)}
+.nt:hover:not(.on){color:var(--tx2)}
+
+/* ─────────────────────────────── PAGES */
+.pages{flex:1;overflow:hidden;position:relative;z-index:1}
+.pg{display:none;height:100%;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.pg.on{display:block;animation:fin .18s ease}
+@keyframes fin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.pg::-webkit-scrollbar{width:2px}
+.pg::-webkit-scrollbar-thumb{background:var(--wr2)}
+
+/* ─────────────────────────────── ATOMS */
+.lbl{font-family:var(--M);font-size:9px;color:var(--tx3);letter-spacing:1.5px;
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.inp,.sel,.ta{width:100%;background:var(--ink3);border:1px solid var(--wr);border-radius:4px;
+  color:var(--tx);font-family:var(--R);font-size:14px;font-weight:500;
+  padding:9px 11px;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--neon3);box-shadow:0 0 0 2px rgba(0,200,255,.07)}
+.inp::placeholder,.ta::placeholder{color:var(--tx3)}
+.ta{min-height:70px;resize:vertical;line-height:1.5}
+.sel{cursor:pointer}.sel option{background:var(--ink3)}
+.frow{display:flex;gap:10px;margin-bottom:12px}
+.frow>.fg{flex:1;min-width:0}
+.fg{margin-bottom:12px}
+.sec{padding:14px 16px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 16px;border-radius:5px;border:1px solid var(--wr);background:var(--pl);
+  color:var(--tx);font-family:var(--R);font-size:13px;font-weight:600;
+  letter-spacing:.5px;cursor:pointer;transition:.15s;white-space:nowrap;text-transform:uppercase}
+.btn:hover{background:var(--pl2);border-color:var(--wr2)}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-neon{background:rgba(0,200,255,.1);border-color:var(--neon3);color:var(--neon)}
+.btn-neon:hover:not(:disabled){background:rgba(0,200,255,.2)}
+.btn-fire{background:rgba(255,98,0,.12);border-color:var(--fire3);color:var(--fire2)}
+.btn-fire:hover{background:rgba(255,98,0,.22)}
+.btn-acid{background:rgba(57,255,128,.08);border-color:rgba(57,255,128,.3);color:var(--acid)}
+.btn-red{border-color:rgba(255,51,82,.35);color:var(--red)}
+.btn-red:hover{background:rgba(255,51,82,.1)}
+.btn-w{width:100%}
+.btn-sm{padding:7px 11px;font-size:11px}
+
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;
+  font-family:var(--M);font-size:9px;letter-spacing:.5px}
+.bn{background:rgba(0,200,255,.1);color:var(--neon);border:1px solid rgba(0,200,255,.2)}
+.bf{background:rgba(255,98,0,.1);color:var(--fire2);border:1px solid rgba(255,98,0,.2)}
+.ba{background:rgba(57,255,128,.08);color:var(--acid);border:1px solid rgba(57,255,128,.2)}
+.bs{background:rgba(255,224,51,.08);color:var(--spark);border:1px solid rgba(255,224,51,.2)}
+.br{background:rgba(255,51,82,.08);color:var(--red);border:1px solid rgba(255,51,82,.2)}
+
+.divl{height:1px;background:var(--wr);margin:0 16px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.hidden{display:none!important}
+
+/* ─────────────────────────────── DASHBOARD */
+.dash-hero{
+  padding:18px 16px 16px;
+  background:linear-gradient(140deg,rgba(0,200,255,.05) 0%,transparent 55%),
+             linear-gradient(220deg,rgba(255,98,0,.05) 0%,transparent 55%);
+  border-bottom:1px solid var(--wr);position:relative;overflow:hidden;
+}
+.dash-hero::after{
+  content:'';position:absolute;top:-30px;right:-30px;width:150px;height:150px;
+  background:conic-gradient(from 0deg,transparent 0,rgba(0,200,255,.04) 60deg,transparent 120deg);
+  animation:rot 22s linear infinite;border-radius:50%;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+.hero-ey{font-family:var(--M);font-size:8px;color:var(--neon);letter-spacing:3px;margin-bottom:4px}
+.hero-h{font-family:var(--T);font-size:42px;font-weight:600;letter-spacing:3px;line-height:.95;color:var(--tx)}
+.hero-s{font-family:var(--M);font-size:9px;color:var(--tx3);margin-top:6px;letter-spacing:1px}
+
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px 16px}
+.kpi{background:var(--pl);border:1px solid var(--wr);border-radius:6px;padding:12px;overflow:hidden;position:relative}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--neon)}
+.kpi.kf::before{background:linear-gradient(90deg,var(--fire),var(--fire2))}
+.kpi.ka::before{background:var(--acid)}
+.kpi.ks::before{background:var(--spark)}
+.kpi-l{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1.5px;margin-bottom:5px}
+.kpi-v{font-family:var(--T);font-size:32px;font-weight:600;color:var(--tx);line-height:1;letter-spacing:1px}
+.kpi-u{font-family:var(--M);font-size:8px;color:var(--tx3);margin-top:2px}
+
+.sh{display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:8px}
+.sh-t{font-family:var(--T);font-size:20px;font-weight:600;letter-spacing:2px;color:var(--tx)}
+.sh-a{font-family:var(--M);font-size:9px;color:var(--neon);cursor:pointer;border:none;background:none;letter-spacing:1px}
+
+/* ─────────────────────────────── FIGURE CARD */
+.flist{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px}
+.fc{
+  background:var(--pl);border:1px solid var(--wr);border-radius:8px;
+  display:flex;gap:11px;padding:11px;cursor:pointer;transition:.12s;
+  position:relative;overflow:hidden;
+}
+.fc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--neon3);opacity:0;transition:.12s}
+.fc:hover{background:var(--pl2);border-color:var(--wr2)}
+.fc:hover::before{opacity:1}
+.fc-thumb{
+  width:60px;height:60px;border-radius:5px;border:1px solid var(--wr);
+  background:var(--ink3);flex-shrink:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+}
+.fc-thumb img{width:100%;height:100%;object-fit:cover}
+.fc-info{flex:1;min-width:0}
+.fc-char{font-family:var(--T);font-size:19px;font-weight:600;letter-spacing:1px;color:var(--tx);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;margin-bottom:3px}
+.fc-meta{font-family:var(--M);font-size:9px;color:var(--tx3);margin-bottom:5px}
+.fc-tags{display:flex;flex-wrap:wrap;gap:3px}
+.fc-price{flex-shrink:0;text-align:right}
+.pv{font-family:var(--T);font-size:21px;font-weight:600;color:var(--neon);line-height:1}
+.pl2{font-family:var(--M);font-size:8px;color:var(--tx3);margin-top:2px;letter-spacing:.5px}
+.pp{font-family:var(--M);font-size:9px;color:var(--tx3);margin-top:3px}
+
+.empty{padding:50px 20px;text-align:center}
+.ei{font-size:50px;opacity:.25;margin-bottom:12px}
+.et{font-family:var(--T);font-size:24px;letter-spacing:2px;color:var(--tx2);margin-bottom:6px}
+.es{font-family:var(--M);font-size:10px;color:var(--tx3);line-height:1.7}
+
+/* ─────────────────────────────── SCAN PAGE */
+.szone{
+  margin:14px 16px;height:250px;border:2px dashed var(--wr2);border-radius:10px;
+  background:var(--ink3);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:.2s;
+}
+.szone.lit{border:2px solid var(--neon3);background:rgba(0,200,255,.02)}
+.szone img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.sc{position:absolute;width:18px;height:18px;border-color:var(--neon);border-style:solid;opacity:.45}
+.sc.tl{top:8px;left:8px;border-width:2px 0 0 2px}
+.sc.tr{top:8px;right:8px;border-width:2px 2px 0 0}
+.sc.bl{bottom:8px;left:8px;border-width:0 0 2px 2px}
+.sc.br{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.si{font-size:42px;opacity:.3}
+.sh2{font-family:var(--M);font-size:10px;color:var(--tx3);text-align:center;letter-spacing:.5px;line-height:1.7}
+
+.src-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px}
+.go-btn{margin:10px 16px 0}
+
+/* ─────────────────────────────── RESULT */
+.rform{margin:12px 16px 24px;display:flex;flex-direction:column;gap:11px}
+
+.cbar{background:var(--pl);border:1px solid var(--wr);border-radius:6px;
+  padding:9px 13px;display:flex;align-items:center;justify-content:space-between}
+.cbarlbl{font-family:var(--M);font-size:9px;color:var(--tx3);letter-spacing:1px}
+.cpips{display:flex;gap:3px;align-items:center}
+.cpip{width:16px;height:5px;border-radius:2px;background:var(--wr)}
+.cpip.on{background:var(--neon)}
+.cpip.on.mid{background:var(--spark)}
+.cpip.on.lo{background:var(--fire2)}
+.cpct{font-family:var(--M);font-size:11px;color:var(--tx2);margin-left:6px}
+
+/* AI description box */
+.ai-box{background:var(--ink3);border:1px solid var(--wr);border-radius:5px;
+  padding:10px 12px;font-family:var(--M);font-size:10px;color:var(--tx3);
+  line-height:1.7;max-height:100px;overflow-y:auto;word-break:break-word}
+
+/* photo strip */
+.pstrip{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.pstrip::-webkit-scrollbar{display:none}
+.pth{width:68px;height:68px;flex-shrink:0;border-radius:5px;border:1px solid var(--wr);
+  background:var(--ink3);overflow:hidden;position:relative;cursor:pointer}
+.pth img{width:100%;height:100%;object-fit:cover}
+.pdel{position:absolute;top:2px;right:2px;width:17px;height:17px;background:rgba(255,51,82,.9);
+  border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+.padd{width:68px;height:68px;flex-shrink:0;border-radius:5px;border:2px dashed var(--wr2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;gap:2px;transition:.15s;color:var(--tx3);font-family:var(--M);font-size:8px}
+.padd:hover{border-color:var(--neon3);color:var(--neon)}
+
+/* accessories */
+.acgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.acitem{background:var(--ink3);border:1px solid var(--wr);border-radius:4px;
+  padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:.12s}
+.acitem.on{border-color:var(--neon3);background:rgba(0,200,255,.05)}
+.acck{width:14px;height:14px;border:1px solid var(--wr2);border-radius:2px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:.12s;font-size:9px}
+.acitem.on .acck{background:var(--neon);border-color:var(--neon);color:var(--ink)}
+.acn{font-size:12px;font-weight:600;color:var(--tx2);font-family:var(--R)}
+
+/* value panel */
+.vpanel{
+  background:linear-gradient(135deg,rgba(0,200,255,.05),rgba(255,98,0,.03));
+  border:1px solid var(--neon3);border-radius:8px;padding:13px;
+}
+.vgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:11px;text-align:center}
+.vl{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;margin-bottom:3px}
+.vv{font-family:var(--T);font-size:23px;font-weight:600;color:var(--tx)}
+.vv.vn{color:var(--neon)}.vv.vf{color:var(--fire2)}
+
+/* ─────────────────────────────── COLLECTION */
+.coltb{padding:11px 16px 0;display:flex;gap:8px}
+.swrap{flex:1;position:relative}
+.swrap input{padding-left:32px}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);
+  font-size:13px;pointer-events:none}
+.fbar{padding:8px 16px;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;
+  border-bottom:1px solid var(--wr)}
+.fbar::-webkit-scrollbar{display:none}
+.fpill{padding:5px 12px;border-radius:20px;border:1px solid var(--wr);background:transparent;
+  color:var(--tx3);font-family:var(--M);font-size:9px;cursor:pointer;transition:.12s;white-space:nowrap;letter-spacing:.5px}
+.fpill.on{background:rgba(0,200,255,.1);border-color:var(--neon3);color:var(--neon)}
+
+.cstats{display:flex;gap:0;padding:10px 16px;border-bottom:1px solid var(--wr);overflow-x:auto;scrollbar-width:none}
+.cstats::-webkit-scrollbar{display:none}
+.cst{padding:0 14px;border-right:1px solid var(--wr);text-align:center;flex-shrink:0}
+.cst:first-child{padding-left:0}
+.cst:last-child{border-right:none}
+.csvv{font-family:var(--T);font-size:20px;font-weight:600;color:var(--neon)}
+.csl{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:.5px}
+
+/* ─────────────────────────────── DETAIL MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;
+  backdrop-filter:blur(5px);align-items:flex-end}
+.overlay.open{display:flex;animation:fdi .15s ease}
+@keyframes fdi{from{opacity:0}to{opacity:1}}
+.sheet{width:100%;max-height:92vh;background:var(--ink2);border-top:1px solid var(--wr);
+  border-radius:18px 18px 0 0;overflow-y:auto;animation:sui .2s ease;
+  padding-bottom:calc(16px + var(--sb))}
+@keyframes sui{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.shandle{width:36px;height:4px;background:var(--wr2);border-radius:2px;margin:10px auto}
+.shdr{padding:0 16px 14px;border-bottom:1px solid var(--wr);display:flex;gap:13px;align-items:flex-start}
+.sth{width:78px;height:78px;border-radius:8px;border:1px solid var(--wr);background:var(--ink3);
+  flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sth img{width:100%;height:100%;object-fit:cover}
+.stg{flex:1}
+.smn{font-family:var(--T);font-size:24px;font-weight:600;letter-spacing:1px;color:var(--tx);
+  line-height:1.1;margin-bottom:4px}
+.smm{font-family:var(--M);font-size:9px;color:var(--tx3);letter-spacing:.5px}
+
+.sbody{padding:16px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px}
+.di-l{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.di-v{font-size:14px;font-weight:600;color:var(--tx)}
+
+.phigh{background:var(--pl);border:1px solid var(--wr);border-radius:8px;padding:13px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;text-align:center}
+.phl{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:.5px;margin-bottom:4px}
+.phv{font-family:var(--T);font-size:24px;font-weight:600}
+.phv.n{color:var(--neon)}.phv.a{color:var(--acid)}
+
+/* photos in detail */
+.dstrip{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px}
+.dstrip::-webkit-scrollbar{display:none}
+.dpt{width:80px;height:80px;flex-shrink:0;border-radius:6px;border:1px solid var(--wr);
+  overflow:hidden;cursor:pointer}
+.dpt img{width:100%;height:100%;object-fit:cover}
+
+.mact{display:flex;gap:8px}
+
+/* ─────────────────────────────── SETTINGS */
+.ssec{background:var(--pl);border:1px solid var(--wr);border-radius:8px;overflow:hidden;margin-bottom:16px}
+.sst{padding:10px 14px;font-family:var(--M);font-size:9px;color:var(--tx3);
+  letter-spacing:2px;text-transform:uppercase;background:var(--ink3);border-bottom:1px solid var(--wr)}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--wr)}
+.srow:last-child{border-bottom:none}
+.srl{font-size:13px;font-weight:600;color:var(--tx)}
+.srd{font-family:var(--M);font-size:10px;color:var(--tx3);margin-top:2px}
+.srow.sfull{flex-direction:column;align-items:flex-start;gap:6px}
+.sinp{width:100%;background:var(--ink3);border:1px solid var(--wr);border-radius:4px;
+  color:var(--tx);font-family:var(--M);font-size:11px;padding:8px 10px;outline:none;transition:border-color .15s}
+.sinp:focus{border-color:var(--neon3)}
+
+.tog{width:42px;height:22px;background:var(--ink3);border:1px solid var(--wr);border-radius:11px;
+  cursor:pointer;position:relative;transition:.2s;flex-shrink:0}
+.tog.on{background:var(--neon3);border-color:var(--neon3)}
+.tog::after{content:'';position:absolute;width:16px;height:16px;background:var(--tx3);
+  border-radius:50%;top:2px;left:2px;transition:.2s}
+.tog.on::after{transform:translateX(20px);background:#fff}
+
+.anote{background:rgba(0,200,255,.05);border:1px solid rgba(0,200,255,.15);
+  border-radius:7px;padding:12px 13px;font-family:var(--M);font-size:10px;
+  color:var(--neon);line-height:1.7;margin-top:4px}
+.anote strong{color:var(--neon2)}
+
+/* ─────────────────────────────── LOADING */
+.loading{display:none;position:fixed;inset:0;background:rgba(7,13,26,.88);z-index:300;
+  flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(7px)}
+.loading.open{display:flex;animation:fdi .15s ease}
+.spinner{width:40px;height:40px;border:2px solid var(--wr);border-top-color:var(--neon);
+  border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ltxt{font-family:var(--M);font-size:11px;color:var(--tx3);letter-spacing:2px}
+.lsteps{display:flex;flex-direction:column;gap:7px}
+.lstep{font-family:var(--M);font-size:10px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.lstep.done{color:var(--acid)}.lstep.act{color:var(--neon)}
+.ldot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.lstep.act .ldot{animation:pl .5s ease-in-out infinite alternate}
+@keyframes pl{to{opacity:.2}}
+
+/* ─────────────────────────────── TOAST */
+.tc{position:fixed;bottom:calc(20px + var(--sb));left:50%;transform:translateX(-50%);
+  z-index:500;display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none}
+.toast{background:var(--pl2);border:1px solid var(--wr2);color:var(--tx);
+  font-family:var(--M);font-size:11px;padding:9px 16px;border-radius:6px;
+  animation:tin .2s ease;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis}
+.toast.ok{border-color:rgba(57,255,128,.35);color:var(--acid)}
+.toast.er{border-color:rgba(255,51,82,.35);color:var(--red)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ─────────────────────────────── PHOTO VIEWER */
+.pview{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:400;
+  align-items:center;justify-content:center}
+.pview.open{display:flex;animation:fdi .15s ease}
+.pview img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:4px}
+.pvcl{position:absolute;top:calc(var(--st)+12px);right:14px;font-size:28px;color:var(--tx2);cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-row">
+    <div class="logo">
+      <div class="logo-hex">⚙️</div>
+      <div class="logo-stack">
+        <div class="logo-name">TF VAULT</div>
+        <div class="logo-sub">TRANSFORMERS COLLECTOR</div>
+      </div>
+    </div>
+    <div class="hdr-btns">
+      <button class="ihbtn" onclick="nav('scan')" title="Dodaj figurkę">📷</button>
+      <button class="ihbtn" onclick="nav('settings')" title="Ustawienia">⚙️</button>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nt on" id="nt-dash"    onclick="nav('dash')"><span class="ni">📊</span>Pulpit</button>
+  <button class="nt"    id="nt-scan"    onclick="nav('scan')"><span class="ni">🔍</span>Skanuj</button>
+  <button class="nt"    id="nt-col"     onclick="nav('col')"><span class="ni">📦</span>Kolekcja</button>
+  <button class="nt"    id="nt-settings"onclick="nav('settings')"><span class="ni">⚙️</span>Ustawienia</button>
+</nav>
+
+<!-- PAGES -->
+<div class="pages">
+
+<!-- ════ DASHBOARD ════ -->
+<div class="pg on" id="pg-dash">
+  <div class="dash-hero">
+    <div class="hero-ey">// REJESTR KOLEKCJI</div>
+    <div class="hero-h">TWOJA<br>KOLEKCJA</div>
+    <div class="hero-s">FIGURKI TRANSFORMERS · OFICJALNE I THIRD PARTY</div>
+  </div>
+  <div class="kgrid">
+    <div class="kpi">
+      <div class="kpi-l">FIGURKI</div>
+      <div class="kpi-v" id="k-count">0</div>
+      <div class="kpi-u">sztuk w kolekcji</div>
+    </div>
+    <div class="kpi ka">
+      <div class="kpi-l">WARTOŚĆ RYNKOWA</div>
+      <div class="kpi-v" id="k-mkt">—</div>
+      <div class="kpi-u" id="k-mkt-u">brak wycen</div>
+    </div>
+    <div class="kpi kf">
+      <div class="kpi-l">ZAPŁACONO</div>
+      <div class="kpi-v" id="k-paid">—</div>
+      <div class="kpi-u" id="k-paid-u">brak danych</div>
+    </div>
+    <div class="kpi ks">
+      <div class="kpi-l">ZYSK / STRATA</div>
+      <div class="kpi-v" id="k-diff">—</div>
+      <div class="kpi-u" id="k-diff-u">szacunkowo</div>
+    </div>
+  </div>
+  <div class="divl"></div>
+  <div class="sec">
+    <div class="sh mt8">
+      <span class="sh-t">OSTATNIO DODANE</span>
+      <button class="sh-a" onclick="nav('col')">WSZYSTKIE →</button>
+    </div>
+    <div class="flist" id="d-recent">
+      <div class="empty"><div class="ei">🤖</div>
+        <div class="et">BRAK FIGUREK</div>
+        <div class="es">Użyj zakładki Skanuj<br>aby dodać pierwszą figurkę</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SCAN / ADD ════ -->
+<div class="pg" id="pg-scan">
+  <!-- Image zone -->
+  <div class="szone" id="szone">
+    <div class="sc tl"></div><div class="sc tr"></div>
+    <div class="sc bl"></div><div class="sc br"></div>
+    <div class="si" id="si">🤖</div>
+    <div class="sh2" id="sh2">Wybierz zdjęcie figurki<br>aparatem lub z galerii telefonu</div>
+    <img id="spreview" style="display:none" alt="">
+  </div>
+  <input type="file" id="inp-cam" accept="image/*" capture="environment" style="display:none" onchange="onImg(event)">
+  <input type="file" id="inp-gal" accept="image/*" style="display:none" onchange="onImg(event)">
+
+  <div class="src-btns">
+    <button class="btn btn-neon" onclick="document.getElementById('inp-cam').click()">📷 APARAT</button>
+    <button class="btn" onclick="document.getElementById('inp-gal').click()">🖼 GALERIA</button>
+  </div>
+  <button class="btn btn-fire btn-w go-btn" id="go-btn" disabled onclick="doAnalyze()">
+    🔍 ROZPOZNAJ FIGURKĘ
+  </button>
+
+  <!-- RESULT FORM (hidden until analysis) -->
+  <div class="rform hidden" id="rform">
+
+    <!-- confidence -->
+    <div class="cbar">
+      <span class="cbarlbl">PEWNOŚĆ ROZPOZNANIA</span>
+      <div class="cpips">
+        <div class="cpip" id="cp0"></div><div class="cpip" id="cp1"></div>
+        <div class="cpip" id="cp2"></div><div class="cpip" id="cp3"></div>
+        <div class="cpip" id="cp4"></div>
+        <span class="cpct" id="cpct">–</span>
+      </div>
+    </div>
+
+    <!-- AI raw desc toggle -->
+    <div id="ai-wrap" class="hidden">
+      <label class="lbl">OPIS AI (SUROWY)</label>
+      <div class="ai-box" id="ai-box"></div>
+    </div>
+
+    <!-- SECTION: Identyfikacja -->
+    <div>
+      <label class="lbl" style="color:var(--neon);font-size:10px;letter-spacing:2px">▸ IDENTYFIKACJA</label>
+      <div class="fg">
+        <label class="lbl">POSTAĆ / NAZWA MODELU</label>
+        <input class="inp" id="f-char" placeholder="np. Optimus Prime, Starscream, Megatron...">
+      </div>
+      <div class="frow">
+        <div class="fg">
+          <label class="lbl">PRODUCENT</label>
+          <select class="sel" id="f-manu">
+            <option value="">— wybierz —</option>
+            <optgroup label="Oficjalni">
+              <option>Hasbro</option><option>Takara Tomy</option>
+              <option>Takara Tomy / Hasbro</option>
+            </optgroup>
+            <optgroup label="Third Party">
+              <option>FansProject</option><option>iGear</option>
+              <option>MakeToys</option><option>Maketoys</option>
+              <option>Mastermind Creations (MMC)</option>
+              <option>DX9 Toys</option><option>Fans Toys</option>
+              <option>Iron Factory</option><option>BadCube</option>
+              <option>Unique Toys</option><option>Planet X</option>
+              <option>Zeta Toys</option><option>ToyWorld</option>
+              <option>Omnigonix</option><option>Wei Jiang</option>
+              <option>DNA Design</option><option>Magic Square</option>
+              <option>GT-03</option><option>X-Transbots</option>
+              <option>Newage</option><option>Hero Horizon</option>
+              <option>Mechanic Studio</option><option>Renegade Studio</option>
+              <option>Weijiang / Baiwei</option>
+              <option>KFC (Keith's Fantasy Club)</option>
+              <option>Azalea Studio</option>
+              <option value="other-tp">Inny third party</option>
+            </optgroup>
+            <option value="other">Inny</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">ROK WYDANIA</label>
+          <input class="inp" id="f-year" placeholder="np. 1984, 2023">
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg">
+          <label class="lbl">SERIA</label>
+          <select class="sel" id="f-series">
+            <option value="">— wybierz —</option>
+            <optgroup label="Oficjalne linie">
+              <option>Generation 1 (G1)</option>
+              <option>Generation 2 (G2)</option>
+              <option>Beast Wars</option>
+              <option>Beast Machines</option>
+              <option>Robots in Disguise (2001)</option>
+              <option>Armada / Energon / Cybertron</option>
+              <option>Animated</option>
+              <option>Movie (2007)</option>
+              <option>ROTF</option><option>DOTM</option>
+              <option>AOE</option><option>TLK</option>
+              <option>Cyberverse</option>
+              <option>War for Cybertron (WFC)</option>
+              <option>Kingdom</option><option>Legacy</option>
+              <option>Studio Series</option>
+              <option>Masterpiece (MP)</option>
+              <option>Masterpiece Movie (MPM)</option>
+              <option>Unite Warriors</option>
+              <option>Titan Returns</option>
+              <option>Power of the Primes</option>
+              <option>Rise of the Beasts (ROTB)</option>
+              <option>One (2024)</option>
+            </optgroup>
+            <optgroup label="Third Party / Custom">
+              <option>Third Party G1-inspired</option>
+              <option>Third Party MP-scale</option>
+              <option>Third Party Legends-scale</option>
+              <option>Third Party Comic-inspired</option>
+              <option value="other-s">Inna / Niestandardowa</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">SKALA / KLASA</label>
+          <select class="sel" id="f-class">
+            <option value="">— wybierz —</option>
+            <option>Legends / Core Class</option>
+            <option>Scout / Basic Class</option>
+            <option>Deluxe Class</option>
+            <option>Voyager Class</option>
+            <option>Leader Class</option>
+            <option>Commander Class</option>
+            <option>Titan Class</option>
+            <option>Masterpiece Scale</option>
+            <option>MP-scale (TP)</option>
+            <option>1/6 scale</option>
+            <option>Combiner</option>
+            <option>Inny</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="lbl">NUMER KATALOGOWY / ID</label>
+        <input class="inp" id="f-sku" placeholder="np. MP-44, WFC-K1, FP-09...">
+      </div>
+    </div>
+
+    <!-- SECTION: Stan -->
+    <div>
+      <label class="lbl" style="color:var(--fire2);font-size:10px;letter-spacing:2px">▸ STAN FIGURKI</label>
+      <div class="frow">
+        <div class="fg">
+          <label class="lbl">OCENA STANU</label>
+          <select class="sel" id="f-cond">
+            <option value="">— wybierz —</option>
+            <option>MISB (zapieczętowany)</option>
+            <option>MIB (Mint in Box)</option>
+            <option>C10 – Perfekcyjny</option>
+            <option>C9 – Doskonały</option>
+            <option>C8 – Bardzo dobry</option>
+            <option>C7 – Dobry</option>
+            <option>C6 – Środni</option>
+            <option>C5 – Przeciętny</option>
+            <option>Loose – bez opakowania</option>
+            <option>Do naprawy / części</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="lbl">PUDEŁKO</label>
+          <select class="sel" id="f-box">
+            <option value="">— wybierz —</option>
+            <option>Oryginalne, stan idealny</option>
+            <option>Oryginalne, uszkodzone</option>
+            <option>Oryginalne, otwarte</option>
+            <option>Brak pudełka</option>
+            <option>Zastępcze / własne</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="lbl">OPIS STANU (SZCZEGÓŁY)</label>
+        <textarea class="ta" id="f-cond-desc" placeholder="Żółknięcie, złamania, retapy, brakujące plastiki... opisz dokładnie stan figurki"></textarea>
+      </div>
+    </div>
+
+    <!-- SECTION: Akcesoria -->
+    <div>
+      <label class="lbl" style="color:var(--acid);font-size:10px;letter-spacing:2px">▸ AKCESORIA</label>
+      <div class="acgrid" id="ac-grid">
+        <div class="acitem" data-ac="Instrukcja" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">📄 Instrukcja</span></div>
+        <div class="acitem" data-ac="Ulotka/katalog" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">📰 Ulotka</span></div>
+        <div class="acitem" data-ac="Broń główna" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">🔫 Broń główna</span></div>
+        <div class="acitem" data-ac="Broń dodatkowa" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">⚔️ Broń dod.</span></div>
+        <div class="acitem" data-ac="Głowa zamienna" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">🎭 Głowa zam.</span></div>
+        <div class="acitem" data-ac="Dłonie zamienne" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">✋ Dłonie zam.</span></div>
+        <div class="acitem" data-ac="Efekty świetlne/dymowe" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">✨ Efekty</span></div>
+        <div class="acitem" data-ac="Podstawka/stand" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">🏷 Podstawka</span></div>
+        <div class="acitem" data-ac="Mini-figurka" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">👾 Mini-figurka</span></div>
+        <div class="acitem" data-ac="Chip Energon" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">💎 Chip Energon</span></div>
+        <div class="acitem" data-ac="Certyfikat autentyczności" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">📜 Certyfikat</span></div>
+        <div class="acitem" data-ac="Adapter do ładowania" onclick="toggleAcc(this)">
+          <div class="acck"></div><span class="acn">🔋 Ładowarka</span></div>
+      </div>
+      <div class="fg mt8">
+        <label class="lbl">AKCESORIA DODATKOWE (opis)</label>
+        <input class="inp" id="f-acc-extra" placeholder="Inne akcesoria, dedykowane części...">
+      </div>
+    </div>
+
+    <!-- SECTION: Zdjęcia -->
+    <div>
+      <label class="lbl" style="color:var(--spark);font-size:10px;letter-spacing:2px">▸ ZDJĘCIA</label>
+      <div class="pstrip" id="pstrip">
+        <div class="padd" onclick="addPhoto()">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;opacity:.5"><path d="M12 4a8 8 0 100 16A8 8 0 0012 4zm1 7V7h-2v4H7v2h4v4h2v-4h4v-2h-4z"/></svg>
+          <span>DODAJ</span>
+        </div>
+      </div>
+      <input type="file" id="inp-photo" accept="image/*" style="display:none" onchange="onAddPhoto(event)">
+    </div>
+
+    <!-- SECTION: Wycena -->
+    <div>
+      <label class="lbl" style="color:var(--neon);font-size:10px;letter-spacing:2px">▸ WYCENA</label>
+      <div class="vpanel">
+        <div class="vgrid">
+          <div><div class="vl">LOOSE</div><div class="vv vn" id="vp-loose">—</div></div>
+          <div><div class="vl">COMPLETE</div><div class="vv" id="vp-cib">—</div></div>
+          <div><div class="vl">SEALED</div><div class="vv vf" id="vp-new">—</div></div>
+        </div>
+        <button class="btn btn-neon btn-w btn-sm" id="pc-btn" onclick="doPC()">💰 SZUKAJ W PRICECHARTING</button>
+        <div id="pc-res" class="hidden mt8"></div>
+      </div>
+      <div class="frow mt8">
+        <div class="fg">
+          <label class="lbl">CENA RYNKOWA (USD)</label>
+          <input type="number" class="inp" id="f-mktprice" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="fg">
+          <label class="lbl">CENA ZAKUPU (USD)</label>
+          <input type="number" class="inp" id="f-paidprice" placeholder="0.00" step="0.01" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION: Notatki -->
+    <div>
+      <label class="lbl" style="color:var(--tx2);font-size:10px;letter-spacing:2px">▸ NOTATKI</label>
+      <textarea class="ta" id="f-notes" placeholder="Dodatkowe informacje, historia zakupu, plany sprzedaży..."></textarea>
+    </div>
+
+    <!-- ACTIONS -->
+    <div style="display:flex;gap:8px;padding-bottom:8px">
+      <button class="btn btn-red" onclick="clearScan()">✕ ANULUJ</button>
+      <button class="btn btn-acid btn-w" onclick="saveFig()">💾 ZAPISZ DO KOLEKCJI</button>
+    </div>
+
+  </div><!-- /rform -->
+</div><!-- /pg-scan -->
+
+<!-- ════ COLLECTION ════ -->
+<div class="pg" id="pg-col">
+  <div class="coltb">
+    <div class="swrap">
+      <span class="sico">🔍</span>
+      <input class="inp" id="srch" placeholder="Szukaj figurki..." oninput="doSearch(this.value)">
+    </div>
+    <button class="btn btn-sm" onclick="cycleSort()">⇅</button>
+  </div>
+  <div class="fbar">
+    <button class="fpill on" data-f="all" onclick="setFilter('all',this)">WSZYSTKIE</button>
+    <button class="fpill" data-f="hasbro" onclick="setFilter('hasbro',this)">HASBRO</button>
+    <button class="fpill" data-f="takara" onclick="setFilter('takara',this)">TAKARA</button>
+    <button class="fpill" data-f="tp" onclick="setFilter('tp',this)">THIRD PARTY</button>
+    <button class="fpill" data-f="mp" onclick="setFilter('mp',this)">MASTERPIECE</button>
+    <button class="fpill" data-f="g1" onclick="setFilter('g1',this)">G1</button>
+    <button class="fpill" data-f="boxed" onclick="setFilter('boxed',this)">Z PUDEŁKIEM</button>
+  </div>
+  <div class="cstats">
+    <div class="cst"><div class="csvv" id="cs-tot">0</div><div class="csl">ŁĄCZNIE</div></div>
+    <div class="cst"><div class="csvv" id="cs-hb">0</div><div class="csl">HASBRO</div></div>
+    <div class="cst"><div class="csvv" id="cs-tk">0</div><div class="csl">TAKARA</div></div>
+    <div class="cst"><div class="csvv" id="cs-tp">0</div><div class="csl">3RD PARTY</div></div>
+    <div class="cst"><div class="csvv" id="cs-mp">0</div><div class="csl">MP</div></div>
+    <div class="cst"><div class="csvv" id="cs-val">—</div><div class="csl">USD ŁĄCZNIE</div></div>
+  </div>
+  <div class="flist" id="col-list">
+    <div class="empty"><div class="ei">📦</div>
+      <div class="et">PUSTA KOLEKCJA</div>
+      <div class="es">Dodaj figurkę w zakładce Skanuj</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SETTINGS ════ -->
+<div class="pg" id="pg-settings">
+  <div class="sec">
+    <div class="ssec">
+      <div class="sst">KLUCZE API</div>
+      <div class="srow sfull">
+        <div><div class="srl">Gemini API Key (Google)</div>
+          <div class="srd">aistudio.google.com → Get API key → bezpłatny</div></div>
+        <input type="password" class="sinp" id="s-gemini" placeholder="AIza..."
+          oninput="SS('geminiKey',this.value)">
+      </div>
+      <div class="srow sfull">
+        <div><div class="srl">PriceCharting API Key</div>
+          <div class="srd">pricecharting.com → konto → API</div></div>
+        <input type="password" class="sinp" id="s-pc" placeholder="Twój klucz..."
+          oninput="SS('pcKey',this.value)">
+      </div>
+    </div>
+
+    <div class="ssec">
+      <div class="sst">PREFERENCJE</div>
+      <div class="srow">
+        <div><div class="srl">Waluta</div></div>
+        <select class="sel" style="width:auto;padding:6px 10px" id="s-cur" onchange="SS('currency',this.value)">
+          <option value="USD">USD $</option><option value="EUR">EUR €</option>
+          <option value="PLN">PLN zł</option><option value="GBP">GBP £</option>
+        </select>
+      </div>
+      <div class="srow">
+        <div><div class="srl">Pokaż opis AI</div><div class="srd">Surowy tekst z Gemini</div></div>
+        <div class="tog" id="tog-raw" onclick="togS('showRaw')"></div>
+      </div>
+      <div class="srow">
+        <div><div class="srl">Auto-szukaj cen</div><div class="srd">PriceCharting po rozpoznaniu</div></div>
+        <div class="tog on" id="tog-apc" onclick="togS('autoPC')"></div>
+      </div>
+    </div>
+
+    <div class="ssec">
+      <div class="sst">KOLEKCJA – DANE</div>
+      <div class="srow">
+        <div><div class="srl">Eksportuj JSON</div><div class="srd">Kopia zapasowa kolekcji</div></div>
+        <button class="btn btn-neon btn-sm" onclick="doExport()">⬇ EXPORT</button>
+      </div>
+      <div class="srow">
+        <div><div class="srl">Importuj JSON</div><div class="srd">Wczytaj poprzedni backup</div></div>
+        <button class="btn btn-sm" onclick="document.getElementById('inp-import').click()">⬆ IMPORT</button>
+        <input type="file" id="inp-import" accept=".json" style="display:none" onchange="doImport(event)">
+      </div>
+      <div class="srow">
+        <div><div class="srl">Eksportuj CSV</div><div class="srd">Do arkusza kalkulacyjnego</div></div>
+        <button class="btn btn-sm" onclick="doCSV()">📊 CSV</button>
+      </div>
+      <div class="srow">
+        <div><div class="srl">Wyczyść wszystko</div><div class="srd">Usuwa całą kolekcję!</div></div>
+        <button class="btn btn-red btn-sm" onclick="doWipe()">🗑 WYCZYŚĆ</button>
+      </div>
+    </div>
+
+    <div class="anote">
+      <strong>JAK UZYSKAĆ KLUCZE API (bezpłatnie):</strong><br><br>
+      <strong>Gemini (rozpoznawanie):</strong><br>
+      1. Wejdź na <strong>aistudio.google.com</strong><br>
+      2. Zaloguj się kontem Google<br>
+      3. Kliknij „Get API key" → „Create API key"<br>
+      Limit: 15 req/min, 1500/dzień – wystarczy<br><br>
+      <strong>PriceCharting (wycena):</strong><br>
+      1. Zarejestruj się na <strong>pricecharting.com</strong><br>
+      2. Ustawienia konta → sekcja API<br>
+      Podstawowy dostęp jest bezpłatny
+    </div>
+
+    <div class="anote mt12" style="border-color:rgba(255,98,0,.25);color:var(--fire2)">
+      <strong>JAK ZAINSTALOWAĆ NA TELEFONIE:</strong><br><br>
+      <strong>Opcja 1 – GitHub Pages (darmowy, bez rejestracji karty):</strong><br>
+      1. Utwórz konto na <strong>github.com</strong><br>
+      2. Nowe repo → wgraj plik <strong>index.html</strong><br>
+      3. Settings → Pages → Source: main → /root<br>
+      4. Twój link: <em>twójlogin.github.io/nazwarepo</em><br><br>
+      <strong>Opcja 2 – Cloudflare Pages (błyskawiczny):</strong><br>
+      1. Zarejestruj się na <strong>pages.cloudflare.com</strong><br>
+      2. „Direct Upload" → przeciągnij plik HTML<br>
+      3. Gotowy link HTTPS w 30 sekund<br><br>
+      <strong>Opcja 3 – Vercel (kliknij i gotowe):</strong><br>
+      1. <strong>vercel.com</strong> → „Add New" → „Project"<br>
+      2. „Browse" → wybierz folder z plikiem HTML<br>
+      3. Deploy → gotowy link<br><br>
+      Po otwarciu linku w Chrome Android:<br>
+      Menu ⋮ → „Dodaj do ekranu głównego"
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /pages -->
+
+<!-- ════ DETAIL MODAL ════ -->
+<div class="overlay" id="modal" onclick="closeIfBg(event)">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="shdr">
+      <div class="sth" id="m-thumb">🤖</div>
+      <div class="stg">
+        <div class="smn" id="m-name">—</div>
+        <div class="smm" id="m-sub">—</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px" id="m-tags"></div>
+      </div>
+    </div>
+    <div class="sbody">
+      <div class="dgrid">
+        <div><div class="di-l">Producent</div><div class="di-v" id="m-manu">—</div></div>
+        <div><div class="di-l">Rok</div><div class="di-v" id="m-year">—</div></div>
+        <div><div class="di-l">Seria</div><div class="di-v" id="m-series">—</div></div>
+        <div><div class="di-l">Klasa/Skala</div><div class="di-v" id="m-class">—</div></div>
+        <div><div class="di-l">Nr katalogowy</div><div class="di-v" id="m-sku">—</div></div>
+        <div><div class="di-l">Pudełko</div><div class="di-v" id="m-box">—</div></div>
+        <div><div class="di-l">Stan</div><div class="di-v" id="m-cond">—</div></div>
+        <div><div class="di-l">Dodano</div><div class="di-v" id="m-date">—</div></div>
+      </div>
+
+      <div class="phigh">
+        <div><div class="phl">RYNKOWA</div><div class="phv n" id="m-mkt">—</div></div>
+        <div><div class="phl">ZAPŁACONO</div><div class="phv" id="m-paid">—</div></div>
+        <div><div class="phl">RÓŻNICA</div><div class="phv a" id="m-diff">—</div></div>
+      </div>
+
+      <div id="m-acc-wrap" class="hidden">
+        <div class="di-l" style="margin-bottom:6px">AKCESORIA</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px" id="m-accs"></div>
+      </div>
+
+      <div id="m-photos-wrap" class="hidden">
+        <div class="di-l" style="margin-bottom:6px">ZDJĘCIA</div>
+        <div class="dstrip" id="m-photos"></div>
+      </div>
+
+      <div id="m-cond-desc-wrap" class="hidden">
+        <div class="di-l" style="margin-bottom:4px">OPIS STANU</div>
+        <div style="font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:14px;
+             background:var(--pl);border:1px solid var(--wr);border-radius:5px;padding:10px 12px"
+          id="m-cond-desc"></div>
+      </div>
+
+      <div id="m-notes-wrap" class="hidden">
+        <div class="di-l" style="margin-bottom:4px">NOTATKI</div>
+        <div style="font-size:13px;color:var(--tx2);line-height:1.6;margin-bottom:14px;
+             background:var(--pl);border:1px solid var(--wr);border-radius:5px;padding:10px 12px"
+          id="m-notes"></div>
+      </div>
+
+      <div class="mact">
+        <button class="btn btn-red" onclick="delFig()">🗑 USUŃ</button>
+        <button class="btn" onclick="editFig()">✎ EDYTUJ</button>
+        <button class="btn" style="flex:1" onclick="closeModal()">✕ ZAMKNIJ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="ltxt" id="ltxt">ANALIZUJĘ...</div>
+  <div class="lsteps" id="lsteps"></div>
+</div>
+
+<!-- TOAST -->
+<div class="tc" id="tc"></div>
+
+<!-- PHOTO VIEWER -->
+<div class="pview" id="pview" onclick="closePV()">
+  <span class="pvcl">✕</span>
+  <img id="pview-img" src="" alt="">
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+const DBKEY = 'tfvault_v2';
+const SKKEY = 'tfvault_settings';
+
+let DB   = [];   // collection
+let CFG  = { geminiKey:'', pcKey:'', currency:'USD', showRaw:false, autoPC:true };
+let EDIT = null; // id being edited
+let MODAL_ID = null;
+let FILTER = 'all';
+let SORT = 'newest';
+let EXTRA_PHOTOS = []; // base64 photos for current form
+let MAIN_IMG = null;   // {b64, mime} of the scan image
+
+// ═══════════════════════════════════════════
+//  PERSIST
+// ═══════════════════════════════════════════
+function load(){
+  try{ DB = JSON.parse(localStorage.getItem(DBKEY)||'[]'); }catch{ DB=[]; }
+  try{ CFG = {...CFG, ...JSON.parse(localStorage.getItem(SKKEY)||'{}')}; }catch{}
+}
+function save(){ localStorage.setItem(DBKEY, JSON.stringify(DB)); }
+function SS(k,v){ CFG[k]=v; localStorage.setItem(SKKEY,JSON.stringify(CFG)); }
+function togS(k){ CFG[k]=!CFG[k]; localStorage.setItem(SKKEY,JSON.stringify(CFG));
+  const m={showRaw:'tog-raw',autoPC:'tog-apc'};
+  const el=document.getElementById(m[k]); if(el) el.classList.toggle('on',!!CFG[k]); }
+
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+function nav(pg){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pg-'+pg).classList.add('on');
+  document.getElementById('nt-'+pg).classList.add('on');
+  if(pg==='dash') renderDash();
+  if(pg==='col') renderCol();
+  if(pg==='settings') renderSettings();
+}
+
+// ═══════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════
+function renderDash(){
+  const n=DB.length, sym=SYM();
+  document.getElementById('k-count').textContent=n;
+
+  const mkt=DB.reduce((s,f)=>s+(+f.mktPrice||0),0);
+  const pd =DB.reduce((s,f)=>s+(+f.paidPrice||0),0);
+  const df =mkt-pd;
+
+  setKPI('k-mkt','k-mkt-u', mkt, sym, 'brak wycen');
+  setKPI('k-paid','k-paid-u', pd, sym, 'brak danych');
+  if(mkt&&pd){
+    document.getElementById('k-diff').textContent=(df>=0?'+':'')+sym+Math.round(df);
+    document.getElementById('k-diff-u').textContent=df>=0?'zysk':'strata';
+  } else {
+    document.getElementById('k-diff').textContent='—';
+    document.getElementById('k-diff-u').textContent='szacunkowo';
+  }
+
+  const rec=[...DB].sort((a,b)=>b.ts-a.ts).slice(0,5);
+  const el=document.getElementById('d-recent');
+  el.innerHTML = rec.length ? rec.map(figCardHTML).join('') : emptyHTML('🤖','BRAK FIGUREK','Użyj zakładki Skanuj<br>aby dodać pierwszą figurkę');
+}
+function setKPI(vi,ui,val,sym,empty){
+  const v=document.getElementById(vi), u=document.getElementById(ui);
+  if(val>0){ v.textContent=sym+Math.round(val); u.textContent=CFG.currency; }
+  else{ v.textContent='—'; u.textContent=empty; }
+}
+function SYM(){ return {USD:'$',EUR:'€',PLN:'zł ',GBP:'£'}[CFG.currency]||'$'; }
+
+// ═══════════════════════════════════════════
+//  FIGURE CARD HTML
+// ═══════════════════════════════════════════
+function figCardHTML(f){
+  const thumb = f.photos&&f.photos[0]
+    ? `<img src="${f.photos[0]}" alt="${f.charName||''}">`
+    : tfEmoji(f);
+  const sym=SYM();
+  const tp=isTP(f);
+  return `<div class="fc" onclick="openModal(${f.id})">
+    <div class="fc-thumb">${thumb}</div>
+    <div class="fc-info">
+      <div class="fc-char">${f.charName||'Bez nazwy'}</div>
+      <div class="fc-meta">${[f.manufacturer,f.year].filter(Boolean).join(' · ')||'—'}</div>
+      <div class="fc-tags">
+        ${f.series?`<span class="badge bn">${f.series.slice(0,18)}</span>`:''}
+        ${tp?`<span class="badge bf">3RD PARTY</span>`:f.manufacturer?`<span class="badge bn">${f.manufacturer.slice(0,10)}</span>`:''}
+        ${f.condition?`<span class="badge ba">${f.condition.slice(0,10)}</span>`:''}
+      </div>
+    </div>
+    <div class="fc-price">
+      ${f.mktPrice?`<div class="pv">${sym}${(+f.mktPrice).toFixed(0)}</div><div class="pl2">rynkowa</div>`:'<div class="pl2" style="color:var(--tx3)">brak wyceny</div>'}
+      ${f.paidPrice?`<div class="pp">zapł. ${sym}${(+f.paidPrice).toFixed(0)}</div>`:''}
+    </div>
+  </div>`;
+}
+function tfEmoji(f){
+  const s=((f.charName||'')+(f.series||'')+(f.manufacturer||'')).toLowerCase();
+  if(s.includes('optimus')||s.includes('prime'))return'🔴';
+  if(s.includes('megatron')||s.includes('galvatron'))return'⚫';
+  if(s.includes('bumblebee'))return'🟡';
+  if(s.includes('starscream')||s.includes('seekers'))return'✈️';
+  if(s.includes('soundwave'))return'📻';
+  if(s.includes('grimlock'))return'🦖';
+  if(s.includes('devastator')||s.includes('combiner'))return'🧱';
+  if(s.includes('beast'))return'🦁';
+  return '⚙️';
+}
+function isTP(f){
+  const tp=['fanstoys','fans toys','maketoys','mastermind','mmcreation','dx9','uniquetoys',
+    'tobotworld','iron factory','badcube','newage','kfc','fanatical','zeta','toyworld',
+    'weijiang','magic square','x-transbots','hero horizon','fansproject','igear',
+    'planet x','mechanic'];
+  const m=(f.manufacturer||'').toLowerCase();
+  return tp.some(t=>m.includes(t));
+}
+function emptyHTML(i,t,s){
+  return `<div class="empty"><div class="ei">${i}</div><div class="et">${t}</div><div class="es">${s}</div></div>`;
+}
+
+// ═══════════════════════════════════════════
+//  SCAN PAGE – IMAGE LOADING
+// ═══════════════════════════════════════════
+function compressImg(file){
+  return new Promise(res=>{
+    const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const MAX=1280; let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){ if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
+      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      const du=cv.toDataURL('image/jpeg',.85);
+      res({b64:du.split(',')[1], mime:'image/jpeg', du});
+    };
+    img.onerror=()=>{
+      const r=new FileReader();
+      r.onload=e=>{ const du=e.target.result; res({b64:du.split(',')[1],mime:file.type||'image/jpeg',du}); };
+      r.readAsDataURL(file);
+    };
+    img.src=url;
+  });
+}
+async function onImg(e){
+  const file=e.target.files[0]; if(!file) return;
+  e.target.value='';
+  try{
+    const c=await compressImg(file);
+    MAIN_IMG=c;
+    const prev=document.getElementById('spreview');
+    prev.src=c.du; prev.style.display='block';
+    document.getElementById('si').style.display='none';
+    document.getElementById('sh2').style.display='none';
+    document.getElementById('szone').classList.add('lit');
+    document.getElementById('go-btn').disabled=false;
+    // hide old result
+    document.getElementById('rform').classList.add('hidden');
+    document.getElementById('pc-res').classList.add('hidden');
+    resetPrices();
+  }catch{ toast('Błąd ładowania zdjęcia','er'); }
+}
+
+// ═══════════════════════════════════════════
+//  GEMINI ANALYSIS
+// ═══════════════════════════════════════════
+function extractJSON(txt){
+  try{ return JSON.parse(txt.trim()); }catch{}
+  const m=txt.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if(m) try{ return JSON.parse(m[1].trim()); }catch{}
+  const s=txt.indexOf('{'), e2=txt.lastIndexOf('}');
+  if(s!==-1&&e2>s) try{ return JSON.parse(txt.slice(s,e2+1)); }catch{}
+  throw new Error('Nie można sparsować odpowiedzi Gemini');
+}
+
+async function doAnalyze(){
+  if(!MAIN_IMG) return toast('Najpierw wybierz zdjęcie','er');
+  if(!CFG.geminiKey) return toast('Ustaw klucz Gemini API w Ustawieniach','er');
+
+  showLoad('ANALIZUJĘ OBRAZ...',[
+    {k:'up',t:'Wysyłanie do Gemini Vision'},
+    {k:'id',t:'Identyfikacja figurki'},
+    {k:'ex',t:'Ekstrakcja danych'}
+  ]);
+  setLS('up','act');
+
+  const PROMPT=`You are a world-class expert on Transformers collectible figures, including all official Hasbro and Takara Tomy lines, AND third-party (TP) manufacturers. Analyze this image carefully.
+
+Return ONLY a valid JSON object, no markdown, no extra text:
+{
+  "charName": "character name + version (e.g. Optimus Prime G1, Starscream MP-03, Megatron WFC-K)",
+  "manufacturer": "exact manufacturer name (e.g. Hasbro, Takara Tomy, Fans Toys, Mastermind Creations)",
+  "isThirdParty": true or false,
+  "year": "release year (estimate if unsure, e.g. 1984, 2023)",
+  "series": "main line (e.g. Generation 1, Masterpiece, Kingdom, Studio Series, Legacy, Beast Wars)",
+  "subLine": "sub-line or wave if applicable (e.g. Siege, Earthrise, Wave 3, Retro)",
+  "catalogId": "catalog number if visible or known (e.g. MP-44, WFC-K1, 84513)",
+  "figClass": "size class (e.g. Deluxe Class, Voyager Class, Leader Class, Masterpiece, Legends)",
+  "confidence": 0.85,
+  "description": "detailed visual description: colors, alt mode, accessories visible, condition notes, distinctive features"
+}
+
+Rules:
+- confidence is a NUMBER 0.0-1.0, never a string
+- If you cannot identify with certainty, give best guess with lower confidence
+- Third party: check for FansProject, iGear, MakeToys, Fans Toys, MMC, DX9, Iron Factory, BadCube, Unique Toys, Planet X, KFC etc.
+- Always return valid JSON`;
+
+  try{
+    setLS('up','done'); setLS('id','act');
+    const models=['gemini-2.0-flash','gemini-1.5-flash'];
+    let data=null;
+    for(const mdl of models){
+      const r=await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${mdl}:generateContent?key=${CFG.geminiKey}`,
+        {method:'POST',headers:{'Content-Type':'application/json'},
+         body:JSON.stringify({
+           contents:[{parts:[
+             {inline_data:{mime_type:MAIN_IMG.mime,data:MAIN_IMG.b64}},
+             {text:PROMPT}
+           ]}],
+           generationConfig:{temperature:0.1,maxOutputTokens:1024,responseMimeType:'application/json'}
+         })}
+      );
+      if(r.ok){ data=await r.json(); break; }
+      if(r.status===400||r.status===404) continue;
+      const eb=await r.json().catch(()=>({}));
+      throw new Error(eb?.error?.message||`HTTP ${r.status}`);
+    }
+    if(!data) throw new Error('Brak odpowiedzi z API – sprawdź klucz');
+
+    setLS('id','done'); setLS('ex','act');
+    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    if(!raw) throw new Error('Pusta odpowiedź – sprawdź limity API');
+
+    const p=extractJSON(raw);
+    setLS('ex','done');
+    hideLoad();
+
+    fillForm({
+      charName:  String(p.charName||'').trim(),
+      manufacturer: String(p.manufacturer||'').trim(),
+      year:      String(p.year||'').trim(),
+      series:    String(p.series||'').trim(),
+      subLine:   String(p.subLine||'').trim(),
+      catalogId: String(p.catalogId||'').trim(),
+      figClass:  String(p.figClass||'').trim(),
+      confidence:parseFloat(p.confidence)||0,
+      description:String(p.description||p.rawDescription||'').trim()
+    });
+    toast('✓ Figurka rozpoznana!','ok');
+    if(CFG.autoPC && CFG.pcKey) setTimeout(()=>doPC(true),700);
+
+  }catch(e){
+    hideLoad();
+    const msg=e.message.includes('API_KEY')?'Nieprawidłowy klucz Gemini'
+             :e.message.includes('QUOTA')?'Przekroczono limit zapytań'
+             :e.message;
+    toast('Błąd: '+msg,'er');
+    fillForm({charName:'',manufacturer:'',year:'',series:'',subLine:'',catalogId:'',figClass:'',confidence:0,description:e.message});
+  }
+}
+
+function fillForm(d){
+  // Fill text fields
+  setV('f-char', d.charName);
+  setV('f-year', d.year);
+  setV('f-sku',  d.catalogId);
+
+  // Manufacturer – try to match select, else 'other'
+  const ms=document.getElementById('f-manu');
+  const opts=[...ms.options].map(o=>o.value.toLowerCase());
+  const mlow=(d.manufacturer||'').toLowerCase();
+  const mi=opts.findIndex(o=>o&&mlow.includes(o.replace(/ .*$/,'')));
+  ms.value = mi>0 ? ms.options[mi].value : (d.manufacturer||'');
+  // If not found in select, set custom via text (fall through to empty)
+
+  // Series – partial match
+  const ss=document.getElementById('f-series');
+  const sOpts=[...ss.options].map(o=>o.value.toLowerCase());
+  const sLow=(d.series||'').toLowerCase();
+  const si2=sOpts.findIndex(o=>o&&(sLow.includes(o.split(' ')[0].replace(/[()]/g,''))||o.includes(sLow.split(' ')[0])));
+  if(si2>0) ss.value=ss.options[si2].value;
+
+  // Class
+  const cs=document.getElementById('f-class');
+  const cLow=(d.figClass||'').toLowerCase();
+  const cOpts=[...cs.options].map(o=>o.value.toLowerCase());
+  const ci=cOpts.findIndex(o=>o&&cLow.includes(o.split(' ')[0]));
+  if(ci>0) cs.value=cs.options[ci].value;
+
+  // Confidence pips
+  const pct=Math.round(d.confidence*100);
+  document.getElementById('cpct').textContent=pct+'%';
+  for(let i=0;i<5;i++){
+    const pip=document.getElementById('cp'+i);
+    const on=i<Math.round(d.confidence*5);
+    pip.className='cpip'+(on?' on'+(d.confidence<.4?' lo':d.confidence<.7?' mid':''):'');
+  }
+
+  // AI description
+  const aiw=document.getElementById('ai-wrap');
+  const aib=document.getElementById('ai-box');
+  if(d.description){ aib.textContent=d.description; aiw.classList.toggle('hidden',!CFG.showRaw); }
+
+  // Add scan image to photos strip
+  EXTRA_PHOTOS=[];
+  if(MAIN_IMG){ EXTRA_PHOTOS=[MAIN_IMG.du]; }
+  renderPhotoStrip();
+
+  // Show form
+  document.getElementById('rform').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('rform').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+function setV(id,v){ const e=document.getElementById(id); if(e) e.value=v||''; }
+
+// ═══════════════════════════════════════════
+//  ACCESSORIES
+// ═══════════════════════════════════════════
+function toggleAcc(el){
+  el.classList.toggle('on');
+  el.querySelector('.acck').textContent = el.classList.contains('on') ? '✓' : '';
+}
+function getAccs(){
+  return [...document.querySelectorAll('#ac-grid .acitem.on')].map(e=>e.dataset.ac);
+}
+function resetAccs(){
+  document.querySelectorAll('#ac-grid .acitem').forEach(e=>{
+    e.classList.remove('on'); e.querySelector('.acck').textContent='';
+  });
+}
+
+// ═══════════════════════════════════════════
+//  PHOTOS
+// ═══════════════════════════════════════════
+function addPhoto(){ document.getElementById('inp-photo').click(); }
+async function onAddPhoto(e){
+  const file=e.target.files[0]; if(!file) return; e.target.value='';
+  const c=await compressImg(file);
+  EXTRA_PHOTOS.push(c.du);
+  renderPhotoStrip();
+}
+function renderPhotoStrip(){
+  const strip=document.getElementById('pstrip');
+  let html='';
+  EXTRA_PHOTOS.forEach((src,i)=>{
+    html+=`<div class="pth"><img src="${src}" alt=""><div class="pdel" onclick="removePhoto(${i})">✕</div></div>`;
+  });
+  html+=`<div class="padd" onclick="addPhoto()">
+    <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;opacity:.5"><path d="M12 4a8 8 0 100 16A8 8 0 0012 4zm1 7V7h-2v4H7v2h4v4h2v-4h4v-2h-4z"/></svg>
+    <span>DODAJ</span></div>`;
+  strip.innerHTML=html;
+}
+function removePhoto(i){ EXTRA_PHOTOS.splice(i,1); renderPhotoStrip(); }
+
+// ═══════════════════════════════════════════
+//  PRICECHARTING
+// ═══════════════════════════════════════════
+async function doPC(silent=false){
+  const name=document.getElementById('f-char').value.trim();
+  const series=document.getElementById('f-series').value.trim();
+  const q=[name,series].filter(Boolean).join(' ');
+  if(!q) return toast('Uzupełnij nazwę figurki','er');
+  if(!CFG.pcKey){ if(!silent) toast('Ustaw klucz PriceCharting w Ustawieniach','er'); return; }
+  const btn=document.getElementById('pc-btn');
+  btn.disabled=true; btn.textContent='⏳ SZUKAM...';
+  try{
+    const r=await fetch(`https://www.pricecharting.com/api/products?q=${encodeURIComponent(q)}&id=${CFG.pcKey}`);
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d=await r.json();
+    const prods=(d.products||[]).slice(0,8);
+    const res=document.getElementById('pc-res');
+    if(!prods.length){
+      res.innerHTML=`<div style="font-family:var(--M);font-size:10px;color:var(--tx3);padding:8px">Brak wyników dla: "${q}"</div>`;
+    } else {
+      res.innerHTML=`<div style="background:var(--ink3);border:1px solid var(--wr);border-radius:5px;overflow:hidden">`+
+        prods.map(p=>`<div onclick="selectPC('${p.id}','${escA(p['product-name'])}')"
+          style="padding:9px 12px;border-bottom:1px solid var(--wr);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:.1s"
+          onmouseover="this.style.background='var(--pl2)'" onmouseout="this.style.background=''">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--tx)">${p['product-name']}</div>
+            <div style="font-family:var(--M);font-size:9px;color:var(--tx3)">${p['console-name']||'Figurka'}</div>
+          </div>
+          <div style="font-family:var(--T);font-size:20px;font-weight:600;color:var(--neon)">
+            ${p['loose-price']?'$'+(p['loose-price']/100).toFixed(2):'—'}
+          </div>
+        </div>`).join('')+'</div>';
+    }
+    res.classList.remove('hidden');
+    if(!silent) toast(`Znaleziono ${prods.length} wyników`,'ok');
+  }catch(e){ if(!silent) toast('PC: '+e.message,'er'); }
+  finally{ btn.disabled=false; btn.textContent='💰 SZUKAJ W PRICECHARTING'; }
+}
+async function selectPC(id, name){
+  if(!CFG.pcKey) return;
+  showLoad('POBIERANIE CEN...',[]);
+  try{
+    const r=await fetch(`https://www.pricecharting.com/api/product?id=${id}&api_key=${CFG.pcKey}`);
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const p=await r.json();
+    const lo=p['loose-price']?(p['loose-price']/100).toFixed(2):null;
+    const ci=p['cib-price']?(p['cib-price']/100).toFixed(2):null;
+    const nw=p['new-price']?(p['new-price']/100).toFixed(2):null;
+    document.getElementById('vp-loose').textContent = lo?'$'+lo:'—';
+    document.getElementById('vp-cib').textContent   = ci?'$'+ci:'—';
+    document.getElementById('vp-new').textContent   = nw?'$'+nw:'—';
+    const best=ci||lo;
+    if(best) document.getElementById('f-mktprice').value=best;
+    hideLoad();
+    document.getElementById('pc-res').classList.add('hidden');
+    toast('✓ Ceny załadowane!','ok');
+  }catch(e){ hideLoad(); toast('PC: '+e.message,'er'); }
+}
+function resetPrices(){
+  ['vp-loose','vp-cib','vp-new'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('f-mktprice').value='';
+}
+function escA(s){ return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+// ═══════════════════════════════════════════
+//  SAVE FIGURE
+// ═══════════════════════════════════════════
+function saveFig(){
+  const char=document.getElementById('f-char').value.trim();
+  if(!char) return toast('Podaj nazwę postaci / modelu','er');
+  const manuSel=document.getElementById('f-manu');
+  const manuVal=manuSel.value;
+  // If 'other' or 'other-tp' selected, value is that option; use text representation
+  const manu = (manuVal==='other'||manuVal==='other-tp')
+    ? (manuSel.options[manuSel.selectedIndex].text)
+    : manuVal;
+
+  const fig={
+    id:      EDIT || Date.now(),
+    ts:      EDIT ? (DB.find(f=>f.id===EDIT)?.ts||Date.now()) : Date.now(),
+    charName:char,
+    manufacturer: manu,
+    year:    document.getElementById('f-year').value.trim(),
+    series:  document.getElementById('f-series').value,
+    figClass:document.getElementById('f-class').value,
+    catalogId:document.getElementById('f-sku').value.trim(),
+    condition:document.getElementById('f-cond').value,
+    boxState: document.getElementById('f-box').value,
+    condDesc: document.getElementById('f-cond-desc').value.trim(),
+    accs:     getAccs(),
+    accsExtra:document.getElementById('f-acc-extra').value.trim(),
+    notes:    document.getElementById('f-notes').value.trim(),
+    mktPrice: parseFloat(document.getElementById('f-mktprice').value)||null,
+    paidPrice:parseFloat(document.getElementById('f-paidprice').value)||null,
+    currency: CFG.currency,
+    photos:   [...EXTRA_PHOTOS],
+  };
+
+  if(EDIT){
+    const i=DB.findIndex(f=>f.id===EDIT);
+    if(i!==-1) DB[i]=fig;
+    toast('✓ Figurka zaktualizowana!','ok');
+  } else {
+    DB.push(fig);
+    toast('✓ Zapisano do kolekcji!','ok');
+  }
+  save();
+  clearScan();
+  nav('col');
+}
+
+// ═══════════════════════════════════════════
+//  CLEAR SCAN
+// ═══════════════════════════════════════════
+function clearScan(){
+  MAIN_IMG=null; EDIT=null; EXTRA_PHOTOS=[];
+  document.getElementById('spreview').style.display='none';
+  document.getElementById('spreview').src='';
+  document.getElementById('si').style.display='';
+  document.getElementById('sh2').style.display='';
+  document.getElementById('szone').classList.remove('lit');
+  document.getElementById('go-btn').disabled=true;
+  document.getElementById('rform').classList.add('hidden');
+  document.getElementById('inp-cam').value='';
+  document.getElementById('inp-gal').value='';
+  document.getElementById('pc-res').classList.add('hidden');
+  resetPrices(); resetAccs();
+  // reset all form fields
+  ['f-char','f-year','f-sku','f-cond-desc','f-acc-extra','f-notes','f-mktprice','f-paidprice'].forEach(id=>setV(id,''));
+  ['f-manu','f-series','f-class','f-cond','f-box'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  for(let i=0;i<5;i++) document.getElementById('cp'+i).className='cpip';
+  document.getElementById('cpct').textContent='–';
+}
+
+// ═══════════════════════════════════════════
+//  COLLECTION
+// ═══════════════════════════════════════════
+let SEARCH='';
+function doSearch(v){ SEARCH=v; renderCol(); }
+function setFilter(f,el){
+  FILTER=f;
+  document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderCol();
+}
+function cycleSort(){
+  const order=['newest','oldest','name','price-hi','price-lo'];
+  const labels=['Najnowsze','Najstarsze','Nazwa A-Z','Cena ↓','Cena ↑'];
+  const i=order.indexOf(SORT); SORT=order[(i+1)%order.length];
+  toast('Sortowanie: '+labels[order.indexOf(SORT)]);
+  renderCol();
+}
+function renderCol(){
+  let items=[...DB];
+  // filter
+  if(FILTER==='hasbro') items=items.filter(f=>(f.manufacturer||'').toLowerCase().includes('hasbro'));
+  else if(FILTER==='takara') items=items.filter(f=>(f.manufacturer||'').toLowerCase().includes('takara'));
+  else if(FILTER==='tp') items=items.filter(f=>isTP(f));
+  else if(FILTER==='mp') items=items.filter(f=>(f.series||'').toLowerCase().includes('masterpiece')||(f.figClass||'').toLowerCase().includes('masterpiece'));
+  else if(FILTER==='g1') items=items.filter(f=>(f.series||'').toLowerCase().includes('generation 1'));
+  else if(FILTER==='boxed') items=items.filter(f=>f.boxState&&!f.boxState.toLowerCase().includes('brak'));
+  // search
+  if(SEARCH){
+    const q=SEARCH.toLowerCase();
+    items=items.filter(f=>
+      (f.charName||'').toLowerCase().includes(q)||
+      (f.manufacturer||'').toLowerCase().includes(q)||
+      (f.series||'').toLowerCase().includes(q)||
+      (f.catalogId||'').toLowerCase().includes(q)||
+      (f.condition||'').toLowerCase().includes(q)
+    );
+  }
+  // sort
+  if(SORT==='oldest') items.sort((a,b)=>a.ts-b.ts);
+  else if(SORT==='name') items.sort((a,b)=>(a.charName||'').localeCompare(b.charName||''));
+  else if(SORT==='price-hi') items.sort((a,b)=>(b.mktPrice||0)-(a.mktPrice||0));
+  else if(SORT==='price-lo') items.sort((a,b)=>(a.mktPrice||0)-(b.mktPrice||0));
+  else items.sort((a,b)=>b.ts-a.ts);
+
+  // stats bar
+  document.getElementById('cs-tot').textContent=DB.length;
+  document.getElementById('cs-hb').textContent=DB.filter(f=>(f.manufacturer||'').toLowerCase().includes('hasbro')).length;
+  document.getElementById('cs-tk').textContent=DB.filter(f=>(f.manufacturer||'').toLowerCase().includes('takara')).length;
+  document.getElementById('cs-tp').textContent=DB.filter(f=>isTP(f)).length;
+  document.getElementById('cs-mp').textContent=DB.filter(f=>(f.series||'').toLowerCase().includes('masterpiece')).length;
+  const tv=DB.reduce((s,f)=>s+(+f.mktPrice||0),0);
+  document.getElementById('cs-val').textContent=tv>0?SYM()+Math.round(tv):'—';
+
+  const el=document.getElementById('col-list');
+  el.innerHTML=items.length?items.map(figCardHTML).join(''):emptyHTML('📦',SEARCH?'BRAK WYNIKÓW':'PUSTA KOLEKCJA',SEARCH?'Spróbuj innej frazy':'Dodaj figurkę w zakładce Skanuj');
+}
+
+// ═══════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════
+function openModal(id){
+  const f=DB.find(x=>x.id===id); if(!f) return;
+  MODAL_ID=id;
+  const sym=SYM();
+
+  // thumb
+  const th=document.getElementById('m-thumb');
+  if(f.photos&&f.photos[0]) th.innerHTML=`<img src="${f.photos[0]}" alt="${f.charName||''}">`;
+  else th.textContent=tfEmoji(f);
+
+  document.getElementById('m-name').textContent=f.charName||'—';
+  document.getElementById('m-sub').textContent=[f.series,f.figClass].filter(Boolean).join(' · ')||'—';
+
+  // tags
+  const tags=document.getElementById('m-tags');
+  const tp=isTP(f);
+  tags.innerHTML=[
+    f.manufacturer?`<span class="badge bn">${f.manufacturer}</span>`:'',
+    tp?`<span class="badge bf">3RD PARTY</span>`:'',
+    f.condition?`<span class="badge ba">${f.condition}</span>`:'',
+    f.boxState&&!f.boxState.includes('Brak')?`<span class="badge bs">BOX</span>`:'',
+  ].join('');
+
+  setText('m-manu',f.manufacturer);
+  setText('m-year',f.year);
+  setText('m-series',f.series);
+  setText('m-class',f.figClass);
+  setText('m-sku',f.catalogId||'—');
+  setText('m-box',f.boxState||'—');
+  setText('m-cond',f.condition||'—');
+  setText('m-date',new Date(f.ts).toLocaleDateString('pl-PL'));
+
+  // prices
+  document.getElementById('m-mkt').textContent=f.mktPrice?sym+(+f.mktPrice).toFixed(2):'—';
+  document.getElementById('m-paid').textContent=f.paidPrice?sym+(+f.paidPrice).toFixed(2):'—';
+  if(f.mktPrice&&f.paidPrice){
+    const d=(+f.mktPrice)-(+f.paidPrice);
+    const el=document.getElementById('m-diff');
+    el.textContent=(d>=0?'+':'')+sym+d.toFixed(2);
+    el.style.color=d>=0?'var(--acid)':'var(--red)';
+  } else { setText('m-diff','—'); document.getElementById('m-diff').style.color='var(--tx)'; }
+
+  // accessories
+  const aw=document.getElementById('m-acc-wrap');
+  const accs=[...(f.accs||[]), f.accsExtra?f.accsExtra:''].filter(Boolean);
+  if(accs.length){
+    document.getElementById('m-accs').innerHTML=accs.map(a=>`<span class="badge bn">${a}</span>`).join('');
+    aw.classList.remove('hidden');
+  } else aw.classList.add('hidden');
+
+  // photos
+  const pw=document.getElementById('m-photos-wrap');
+  if(f.photos&&f.photos.length){
+    document.getElementById('m-photos').innerHTML=f.photos.map(src=>`<div class="dpt" onclick="openPV('${src}')"><img src="${src}" alt=""></div>`).join('');
+    pw.classList.remove('hidden');
+  } else pw.classList.add('hidden');
+
+  // cond desc
+  const cdw=document.getElementById('m-cond-desc-wrap');
+  if(f.condDesc){ document.getElementById('m-cond-desc').textContent=f.condDesc; cdw.classList.remove('hidden'); }
+  else cdw.classList.add('hidden');
+
+  // notes
+  const nw=document.getElementById('m-notes-wrap');
+  if(f.notes){ document.getElementById('m-notes').textContent=f.notes; nw.classList.remove('hidden'); }
+  else nw.classList.add('hidden');
+
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function setText(id,v){ const e=document.getElementById(id); if(e) e.textContent=v||'—'; }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); document.body.style.overflow=''; MODAL_ID=null; }
+function closeIfBg(e){ if(e.target===document.getElementById('modal')) closeModal(); }
+function delFig(){
+  if(!MODAL_ID) return;
+  if(!confirm('Usunąć tę figurkę?')) return;
+  DB=DB.filter(f=>f.id!==MODAL_ID); save(); closeModal(); renderCol(); renderDash();
+  toast('Figurka usunięta');
+}
+function editFig(){
+  const f=DB.find(x=>x.id===MODAL_ID); if(!f) return;
+  closeModal(); EDIT=f.id; EXTRA_PHOTOS=[...(f.photos||[])];
+  // Restore image preview if available
+  if(f.photos&&f.photos[0]){
+    MAIN_IMG={du:f.photos[0],b64:f.photos[0].split(',')[1]||'',mime:'image/jpeg'};
+    const prev=document.getElementById('spreview');
+    prev.src=f.photos[0]; prev.style.display='block';
+    document.getElementById('si').style.display='none';
+    document.getElementById('sh2').style.display='none';
+    document.getElementById('szone').classList.add('lit');
+    document.getElementById('go-btn').disabled=false;
+  }
+  // Fill the form with existing data
+  setV('f-char',f.charName); setV('f-year',f.year); setV('f-sku',f.catalogId);
+  setV('f-cond-desc',f.condDesc); setV('f-acc-extra',f.accsExtra);
+  setV('f-notes',f.notes);
+  setV('f-mktprice',f.mktPrice||''); setV('f-paidprice',f.paidPrice||'');
+  document.getElementById('f-manu').value=f.manufacturer||'';
+  document.getElementById('f-series').value=f.series||'';
+  document.getElementById('f-class').value=f.figClass||'';
+  document.getElementById('f-cond').value=f.condition||'';
+  document.getElementById('f-box').value=f.boxState||'';
+  // Restore accessories
+  resetAccs();
+  (f.accs||[]).forEach(ac=>{
+    const el=[...document.querySelectorAll('#ac-grid .acitem')].find(e=>e.dataset.ac===ac);
+    if(el){ el.classList.add('on'); el.querySelector('.acck').textContent='✓'; }
+  });
+  renderPhotoStrip();
+  document.getElementById('conf-badge-dummy'); // unused, just ensuring form visible
+  document.getElementById('rform').classList.remove('hidden');
+  document.getElementById('cbar').querySelector('.cbarlbl').textContent='TRYB EDYCJI';
+  document.getElementById('cpct').textContent='—';
+  nav('scan');
+}
+
+// ═══════════════════════════════════════════
+//  PHOTO VIEWER
+// ═══════════════════════════════════════════
+function openPV(src){ document.getElementById('pview-img').src=src; document.getElementById('pview').classList.add('open'); }
+function closePV(){ document.getElementById('pview').classList.remove('open'); }
+
+// ═══════════════════════════════════════════
+//  EXPORT / IMPORT / CSV
+// ═══════════════════════════════════════════
+function doExport(){
+  if(!DB.length) return toast('Kolekcja jest pusta','er');
+  const blob=new Blob([JSON.stringify({v:2,date:new Date().toISOString(),collection:DB},null,2)],{type:'application/json'});
+  dl(blob,`tfvault_${new Date().toISOString().slice(0,10)}.json`);
+  toast('✓ Eksport gotowy!','ok');
+}
+function doImport(e){
+  const file=e.target.files[0]; if(!file) return; e.target.value='';
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      const imported=d.collection||d;
+      if(!Array.isArray(imported)) throw new Error('Nieprawidłowy format');
+      if(!confirm(`Importować ${imported.length} figurek? (dupliki zostaną pominięte)`)) return;
+      const ids=new Set(DB.map(f=>f.id)); let added=0;
+      imported.forEach(f=>{ if(!ids.has(f.id)){ DB.push(f); added++; } });
+      save(); renderCol(); renderDash();
+      toast(`✓ Zaimportowano ${added} figurek`,'ok');
+    }catch(err){ toast('Błąd importu: '+err.message,'er'); }
+  };
+  r.readAsText(file);
+}
+function doCSV(){
+  if(!DB.length) return toast('Kolekcja jest pusta','er');
+  const cols=['charName','manufacturer','year','series','figClass','catalogId','condition','boxState','mktPrice','paidPrice','currency','notes'];
+  const hdr=cols.join(',')+'\n';
+  const rows=DB.map(f=>cols.map(c=>`"${(f[c]||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+hdr+rows],{type:'text/csv;charset=utf-8'});
+  dl(blob,`tfvault_${new Date().toISOString().slice(0,10)}.csv`);
+  toast('✓ CSV gotowy!','ok');
+}
+function dl(blob,name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+function doWipe(){
+  if(!confirm('Usunąć CAŁĄ kolekcję? Tej operacji nie można cofnąć!')) return;
+  if(!confirm('Na pewno? Wszystkie dane zostaną utracone!')) return;
+  DB=[]; save(); renderDash(); renderCol(); toast('Kolekcja wyczyszczona');
+}
+
+// ═══════════════════════════════════════════
+//  SETTINGS RENDER
+// ═══════════════════════════════════════════
+function renderSettings(){
+  const sg=document.getElementById('s-gemini'); if(sg) sg.value=CFG.geminiKey||'';
+  const sp=document.getElementById('s-pc'); if(sp) sp.value=CFG.pcKey||'';
+  const sc=document.getElementById('s-cur'); if(sc) sc.value=CFG.currency||'USD';
+  document.getElementById('tog-raw').classList.toggle('on',!!CFG.showRaw);
+  document.getElementById('tog-apc').classList.toggle('on',!!CFG.autoPC);
+}
+
+// ═══════════════════════════════════════════
+//  LOADING
+// ═══════════════════════════════════════════
+let _lsteps={};
+function showLoad(txt,steps){
+  document.getElementById('ltxt').textContent=txt; _lsteps={};
+  document.getElementById('lsteps').innerHTML=steps.map(s=>`<div class="lstep" id="ls-${s.k}"><div class="ldot"></div>${s.t}</div>`).join('');
+  steps.forEach(s=>{ _lsteps[s.k]=''; });
+  document.getElementById('loading').classList.add('open');
+}
+function setLS(k,st){
+  const el=document.getElementById('ls-'+k); if(!el) return;
+  el.className='lstep '+(st==='done'?'done':st==='act'?'act':'');
+}
+function hideLoad(){ document.getElementById('loading').classList.remove('open'); }
+
+// ═══════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════
+function toast(msg,type=''){
+  const tc=document.getElementById('tc');
+  const t=document.createElement('div');
+  t.className='toast '+(type==='ok'?'ok':type==='er'?'er':'');
+  t.textContent=msg; tc.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); },2600);
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+load();
+renderDash();
+renderSettings();
+</script>
+</body>
+</html>
