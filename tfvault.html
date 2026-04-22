@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#070d1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TF Vault">
+<title>TF Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Teko:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070d1a;--bg2:#0c1525;--bg3:#111e33;
+  --pl:#162035;--pl2:#1c2e48;
+  --wr:#1e3050;--wr2:#2a4060;--wr3:#3a4e70;
+  --neon:#00ccff;--neon2:#007a99;--neon3:#004d61;
+  --fire:#ff6600;--fire2:#ff884d;--fire3:#993d00;
+  --acid:#33ff99;--spark:#ffdd00;--red:#ff2244;
+  --tx:#ccdff5;--tx2:#5d88aa;--tx3:#2e4e68;
+  --R:'Rajdhani',sans-serif;
+  --M:'Share Tech Mono',monospace;
+  --T:'Teko',sans-serif;
+  --st:env(safe-area-inset-top,0px);
+  --sb:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{color:var(--tx);font-family:var(--R);display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,204,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,204,255,.03) 1px,transparent 1px);
+  background-size:46px 46px}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 110% 50% at 50% 0%,rgba(0,100,160,.12),transparent 65%)}
+::-webkit-scrollbar{width:2px;height:2px}
+::-webkit-scrollbar-thumb{background:var(--wr2);border-radius:2px}
+
+/* HEADER */
+.hdr{flex-shrink:0;position:relative;z-index:60;padding:calc(var(--st)+8px) 14px 0;
+  background:rgba(7,13,26,.97);border-bottom:1px solid var(--wr);backdrop-filter:blur(14px)}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-hex{width:34px;height:34px;flex-shrink:0;
+  background:linear-gradient(145deg,var(--neon3),var(--neon2));
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  animation:hpulse 3.5s ease-in-out infinite}
+@keyframes hpulse{0%,100%{filter:drop-shadow(0 0 4px rgba(0,204,255,.5))}50%{filter:drop-shadow(0 0 12px rgba(0,204,255,.9))}}
+.logo-name{font-family:var(--T);font-size:28px;font-weight:600;letter-spacing:4px;color:var(--tx);line-height:1}
+.logo-sub{font-family:var(--M);font-size:8px;color:var(--neon);letter-spacing:3px}
+.hdr-btns{display:flex;gap:6px}
+.hbtn{width:32px;height:32px;border-radius:4px;border:1px solid var(--wr);background:var(--pl);
+  color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:.14s}
+.hbtn:hover{border-color:var(--neon2);color:var(--neon)}
+
+/* NAV */
+.nav{flex-shrink:0;display:flex;overflow-x:auto;scrollbar-width:none;
+  background:var(--bg2);border-bottom:1px solid var(--wr);position:relative;z-index:59}
+.nav::-webkit-scrollbar{display:none}
+.ntab{flex:1;min-width:70px;padding:8px 4px 6px;border:none;background:none;color:var(--tx3);cursor:pointer;
+  font-family:var(--M);font-size:9px;letter-spacing:.5px;text-transform:uppercase;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  border-bottom:2px solid transparent;transition:.13s}
+.ntab .ni{font-size:17px}
+.ntab.on{color:var(--neon);border-bottom-color:var(--neon)}
+.ntab:hover:not(.on){color:var(--tx2)}
+
+/* PAGES */
+.pages{flex:1;overflow:hidden;position:relative;z-index:1}
+.pg{display:none;height:100%;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.pg.on{display:block;animation:pfade .17s ease}
+@keyframes pfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.pg::-webkit-scrollbar{width:2px}
+.pg::-webkit-scrollbar-thumb{background:var(--wr2)}
+
+/* ATOMS */
+.lbl{font-family:var(--M);font-size:9px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:5px}
+.inp,.sel,.ta{width:100%;background:var(--bg3);border:1px solid var(--wr);border-radius:4px;
+  color:var(--tx);font-family:var(--R);font-size:14px;font-weight:500;padding:9px 11px;
+  outline:none;transition:border-color .14s;-webkit-appearance:none}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--neon2);box-shadow:0 0 0 2px rgba(0,204,255,.07)}
+.inp::placeholder,.ta::placeholder{color:var(--tx3)}
+.ta{min-height:70px;resize:vertical;line-height:1.5}
+.sel{cursor:pointer}.sel option{background:var(--bg3)}
+.r2{display:flex;gap:10px;margin-bottom:12px}
+.r2>.fg{flex:1;min-width:0}
+.fg{margin-bottom:12px}
+.sec{padding:14px 16px}
+.divl{height:1px;background:var(--wr);margin:0 16px}
+.hidden{display:none!important}
+.mt8{margin-top:8px}.mt12{margin-top:12px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;
+  border-radius:5px;border:1px solid var(--wr);background:var(--pl);color:var(--tx);
+  font-family:var(--R);font-size:13px;font-weight:600;letter-spacing:.5px;
+  cursor:pointer;transition:.13s;white-space:nowrap;text-transform:uppercase}
+.btn:hover{background:var(--pl2);border-color:var(--wr2)}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-n{background:rgba(0,204,255,.1);border-color:var(--neon2);color:var(--neon)}
+.btn-n:hover:not(:disabled){background:rgba(0,204,255,.2)}
+.btn-f{background:rgba(255,102,0,.12);border-color:var(--fire3);color:var(--fire2)}
+.btn-f:hover{background:rgba(255,102,0,.22)}
+.btn-a{background:rgba(51,255,153,.08);border-color:rgba(51,255,153,.3);color:var(--acid)}
+.btn-r{border-color:rgba(255,34,68,.35);color:var(--red)}
+.btn-r:hover{background:rgba(255,34,68,.1)}
+.btn-w{width:100%}
+.btn-sm{padding:7px 11px;font-size:11px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-family:var(--M);font-size:9px}
+.bn{background:rgba(0,204,255,.1);color:var(--neon);border:1px solid rgba(0,204,255,.2)}
+.bf{background:rgba(255,102,0,.1);color:var(--fire2);border:1px solid rgba(255,102,0,.2)}
+.ba{background:rgba(51,255,153,.07);color:var(--acid);border:1px solid rgba(51,255,153,.2)}
+.bs{background:rgba(255,221,0,.07);color:var(--spark);border:1px solid rgba(255,221,0,.2)}
+
+/* TOGGLES */
+.tog{width:42px;height:22px;background:var(--bg3);border:1px solid var(--wr);border-radius:11px;cursor:pointer;position:relative;transition:.2s;flex-shrink:0}
+.tog.on{background:var(--neon2);border-color:var(--neon2)}
+.tog::after{content:'';position:absolute;width:16px;height:16px;background:var(--tx3);border-radius:50%;top:2px;left:2px;transition:.2s}
+.tog.on::after{transform:translateX(20px);background:#fff}
+
+/* DASHBOARD */
+.dash-hero{padding:18px 16px 16px;border-bottom:1px solid var(--wr);
+  background:linear-gradient(140deg,rgba(0,204,255,.05) 0%,transparent 55%),linear-gradient(220deg,rgba(255,102,0,.05) 0%,transparent 55%);
+  position:relative;overflow:hidden}
+.dash-hero::after{content:'';position:absolute;top:-30px;right:-30px;width:150px;height:150px;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0,rgba(0,204,255,.04) 60deg,transparent 120deg);
+  animation:rot 22s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.hero-ey{font-family:var(--M);font-size:8px;color:var(--neon);letter-spacing:3px;margin-bottom:4px}
+.hero-h{font-family:var(--T);font-size:42px;font-weight:600;letter-spacing:3px;line-height:.95;color:var(--tx)}
+.hero-s{font-family:var(--M);font-size:9px;color:var(--tx3);margin-top:6px;letter-spacing:1px}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px 16px}
+.kpi{background:var(--pl);border:1px solid var(--wr);border-radius:6px;padding:12px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--neon)}
+.kpi.kf::before{background:linear-gradient(90deg,var(--fire),var(--fire2))}
+.kpi.ka::before{background:var(--acid)}
+.kpi.ks::before{background:var(--spark)}
+.kpi-l{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1.5px;margin-bottom:5px}
+.kpi-v{font-family:var(--T);font-size:32px;font-weight:600;color:var(--tx);line-height:1;letter-spacing:1px}
+.kpi-u{font-family:var(--M);font-size:8px;color:var(--tx3);margin-top:2px}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin-bottom:8px}
+.sh-t{font-family:var(--T);font-size:20px;font-weight:600;letter-spacing:2px;color:var(--tx)}
+.sh-a{font-family:var(--M);font-size:9px;color:var(--neon);cursor:pointer;border:none;background:none;letter-spacing:1px}
+
+/* FIGURE CARD */
+.flist{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px}
+.fc{background:var(--pl);border:1px solid var(--wr);border-radius:8px;display:flex;gap:11px;padding:11px;
+  cursor:pointer;transition:.12s;position:relative;overflow:hidden}
+.fc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon2);opacity:0;transition:.12s}
+.fc:hover{background:var(--pl2);border-color:var(--wr2)}
+.fc:hover::before{opacity:1}
+.fc-thumb{width:60px;height:60px;border-radius:5px;border:1px solid var(--wr);background:var(--bg3);
+  flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px}
+.fc-thumb img{width:100%;height:100%;object-fit:cover}
+.fc-info{flex:1;min-width:0}
+.fc-char{font-family:var(--T);font-size:19px;font-weight:600;letter-spacing:1px;color:var(--tx);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;margin-bottom:3px}
+.fc-meta{font-family:var(--M);font-size:9px;color:var(--tx3);margin-bottom:5px}
+.fc-tags{display:flex;flex-wrap:wrap;gap:3px}
+.fc-price{flex-shrink:0;text-align:right}
+.pv{font-family:var(--T);font-size:21px;font-weight:600;color:var(--neon);line-height:1}
+.pl2{font-family:var(--M);font-size:8px;color:var(--tx3);margin-top:2px}
+.pp{font-family:var(--M);font-size:9px;color:var(--tx3);margin-top:3px}
+.empty-box{padding:50px 20px;text-align:center}
+.ei{font-size:50px;opacity:.22;margin-bottom:12px}
+.et{font-family:var(--T);font-size:24px;letter-spacing:2px;color:var(--tx2);margin-bottom:6px}
+.es{font-family:var(--M);font-size:10px;color:var(--tx3);line-height:1.7}
+
+/* SCAN PAGE */
+.lookup-box{margin:14px 16px 0;background:var(--bg3);border:1px solid var(--wr2);border-radius:10px;padding:14px}
+.lookup-title{font-family:var(--M);font-size:9px;color:var(--neon);letter-spacing:2px;margin-bottom:10px}
+.lookup-row{display:flex;gap:8px}
+.lookup-hint{font-family:var(--M);font-size:9px;color:var(--tx3);margin-top:7px;line-height:1.6}
+.divider-or{display:flex;align-items:center;gap:10px;margin:14px 16px 0}
+.divider-or div{flex:1;height:1px;background:var(--wr)}
+.divider-or span{font-family:var(--M);font-size:9px;color:var(--tx3);letter-spacing:1px}
+
+.szone{margin:14px 16px;height:240px;border:2px dashed var(--wr2);border-radius:10px;
+  background:var(--bg3);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:.2s}
+.szone.lit{border:2px solid var(--neon2);background:rgba(0,204,255,.02)}
+.szone img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.sc{position:absolute;width:18px;height:18px;border-color:var(--neon);border-style:solid;opacity:.4}
+.sc.tl{top:8px;left:8px;border-width:2px 0 0 2px}
+.sc.tr{top:8px;right:8px;border-width:2px 2px 0 0}
+.sc.bl{bottom:8px;left:8px;border-width:0 0 2px 2px}
+.sc.br{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.si{font-size:42px;opacity:.28}
+.sh2{font-family:var(--M);font-size:10px;color:var(--tx3);text-align:center;letter-spacing:.5px;line-height:1.7}
+.src-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px}
+.go-btn{margin:10px 16px 0}
+
+/* RESULT FORM */
+.rform{margin:12px 16px 28px;display:flex;flex-direction:column;gap:11px}
+.cbar{background:var(--pl);border:1px solid var(--wr);border-radius:6px;padding:9px 13px;display:flex;align-items:center;justify-content:space-between}
+.cbar-lbl{font-family:var(--M);font-size:9px;color:var(--tx3);letter-spacing:1px}
+.cpips{display:flex;gap:3px;align-items:center}
+.pip{width:16px;height:5px;border-radius:2px;background:var(--wr)}
+.pip.on{background:var(--neon)}
+.pip.on.mid{background:var(--spark)}
+.pip.on.low{background:var(--fire2)}
+.cpct{font-family:var(--M);font-size:11px;color:var(--tx2);margin-left:7px}
+.ai-box{background:var(--bg3);border:1px solid var(--wr);border-radius:4px;padding:10px 12px;
+  font-family:var(--M);font-size:10px;color:var(--tx3);line-height:1.7;max-height:90px;overflow-y:auto}
+.fslbl{font-family:var(--M);font-size:10px;letter-spacing:2px;display:block;margin-bottom:9px}
+
+/* ACCESSORIES */
+.acc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.acc-item{background:var(--bg3);border:1px solid var(--wr);border-radius:4px;
+  padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:.12s}
+.acc-item.on{border-color:var(--neon2);background:rgba(0,204,255,.055)}
+.acc-chk{width:14px;height:14px;border:1px solid var(--wr2);border-radius:2px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:.12s;font-size:9px}
+.acc-item.on .acc-chk{background:var(--neon);border-color:var(--neon);color:var(--bg)}
+.acc-name{font-family:var(--R);font-size:12px;font-weight:600;color:var(--tx2)}
+
+/* PHOTOS */
+.pstrip{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.pstrip::-webkit-scrollbar{display:none}
+.pth{width:68px;height:68px;flex-shrink:0;border-radius:5px;border:1px solid var(--wr);background:var(--bg3);overflow:hidden;position:relative;cursor:pointer}
+.pth img{width:100%;height:100%;object-fit:cover}
+.pdel{position:absolute;top:2px;right:2px;width:17px;height:17px;background:rgba(255,34,68,.88);
+  border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+.padd{width:68px;height:68px;flex-shrink:0;border-radius:5px;border:2px dashed var(--wr2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;gap:2px;transition:.14s;color:var(--tx3);font-family:var(--M);font-size:8px}
+.padd:hover{border-color:var(--neon2);color:var(--neon)}
+
+/* VALUATION PANEL */
+.vpanel{background:linear-gradient(135deg,rgba(0,204,255,.055),rgba(255,102,0,.03));
+  border:1px solid var(--neon2);border-radius:8px;padding:13px}
+.vgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;text-align:center}
+.vl{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;margin-bottom:3px}
+.vn-n{font-family:var(--T);font-size:22px;font-weight:600;color:var(--neon)}
+.vn-a{font-family:var(--T);font-size:22px;font-weight:600;color:var(--acid)}
+.vn-f{font-family:var(--T);font-size:22px;font-weight:600;color:var(--fire2)}
+.vhint{font-family:var(--M);font-size:8px;color:var(--neon3);text-align:center;margin-bottom:10px;letter-spacing:.5px}
+.vapply{width:100%;padding:5px 4px;font-size:10px;margin-top:5px}
+
+/* COLLECTION */
+.coltb{padding:11px 16px 0;display:flex;gap:8px}
+.swrap{flex:1;position:relative}
+.swrap input{padding-left:32px}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:13px;pointer-events:none}
+.fpills{padding:8px 16px;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--wr)}
+.fpills::-webkit-scrollbar{display:none}
+.pill{padding:5px 12px;border-radius:20px;border:1px solid var(--wr);background:transparent;
+  color:var(--tx3);font-family:var(--M);font-size:9px;cursor:pointer;transition:.12s;white-space:nowrap;letter-spacing:.5px}
+.pill.on{background:rgba(0,204,255,.1);border-color:var(--neon2);color:var(--neon)}
+.cstats{display:flex;padding:10px 16px;border-bottom:1px solid var(--wr);overflow-x:auto;scrollbar-width:none}
+.cstats::-webkit-scrollbar{display:none}
+.cst{padding:0 14px;border-right:1px solid var(--wr);text-align:center;flex-shrink:0}
+.cst:first-child{padding-left:0}
+.cst:last-child{border-right:none}
+.csvv{font-family:var(--T);font-size:20px;font-weight:600;color:var(--neon)}
+.csl{font-family:var(--M);font-size:8px;color:var(--tx3)}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.84);z-index:200;backdrop-filter:blur(6px);align-items:flex-end}
+.overlay.open{display:flex;animation:foi .15s ease}
+@keyframes foi{from{opacity:0}to{opacity:1}}
+.sheet{width:100%;max-height:92vh;background:var(--bg2);border-top:1px solid var(--wr);
+  border-radius:20px 20px 0 0;overflow-y:auto;animation:fup .2s ease;padding-bottom:calc(16px + var(--sb))}
+@keyframes fup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.shandle{width:36px;height:4px;background:var(--wr2);border-radius:2px;margin:10px auto}
+.shdr{padding:0 16px 14px;border-bottom:1px solid var(--wr);display:flex;gap:13px;align-items:flex-start}
+.sth{width:78px;height:78px;border-radius:8px;border:1px solid var(--wr);background:var(--bg3);
+  flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px}
+.sth img{width:100%;height:100%;object-fit:cover}
+.stg{flex:1}
+.smn{font-family:var(--T);font-size:24px;font-weight:600;letter-spacing:1px;color:var(--tx);line-height:1.1;margin-bottom:4px}
+.smm{font-family:var(--M);font-size:9px;color:var(--tx3)}
+.sbody{padding:16px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px}
+.dl{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.dv{font-size:14px;font-weight:600;color:var(--tx)}
+.pbox{background:var(--pl);border:1px solid var(--wr);border-radius:8px;padding:13px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;text-align:center}
+.pbl{font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:.5px;margin-bottom:4px}
+.pbv{font-family:var(--T);font-size:24px;font-weight:600}
+.pbv.pn{color:var(--neon)}.pbv.pa{color:var(--acid)}
+.dstrip{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px}
+.dstrip::-webkit-scrollbar{display:none}
+.dpt{width:80px;height:80px;flex-shrink:0;border-radius:6px;border:1px solid var(--wr);overflow:hidden;cursor:pointer}
+.dpt img{width:100%;height:100%;object-fit:cover}
+.dnotes{font-size:13px;color:var(--tx2);line-height:1.6;background:var(--pl);border:1px solid var(--wr);
+  border-radius:5px;padding:11px 12px;margin-bottom:14px;white-space:pre-wrap}
+.mact{display:flex;gap:8px}
+
+/* SETTINGS */
+.sgrp{background:var(--pl);border:1px solid var(--wr);border-radius:8px;overflow:hidden;margin-bottom:16px}
+.sgh{padding:10px 14px;font-family:var(--M);font-size:9px;color:var(--tx3);
+  letter-spacing:2px;text-transform:uppercase;background:var(--bg3);border-bottom:1px solid var(--wr)}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--wr)}
+.srow:last-child{border-bottom:none}
+.srow.sfull{flex-direction:column;align-items:flex-start;gap:7px}
+.srl{font-size:13px;font-weight:600;color:var(--tx)}
+.srd{font-family:var(--M);font-size:10px;color:var(--tx3);margin-top:2px}
+.sinp{width:100%;background:var(--bg3);border:1px solid var(--wr);border-radius:4px;
+  color:var(--tx);font-family:var(--M);font-size:11px;padding:8px 10px;outline:none;transition:border-color .14s}
+.sinp:focus{border-color:var(--neon2)}
+.infobox{background:rgba(0,204,255,.04);border:1px solid rgba(0,204,255,.15);border-radius:7px;
+  padding:12px 13px;font-family:var(--M);font-size:10px;color:var(--neon);line-height:1.75;margin-bottom:14px}
+.infobox strong{color:var(--neon2)}
+.infobox.fire{border-color:rgba(255,102,0,.25);color:var(--fire2)}
+.infobox.fire strong{color:var(--fire2)}
+
+/* LOADER */
+.loader{display:none;position:fixed;inset:0;background:rgba(7,13,26,.9);z-index:300;
+  flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(8px)}
+.loader.open{display:flex;animation:foi .14s ease}
+.spinner{width:40px;height:40px;border:2px solid var(--wr);border-top-color:var(--neon);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ltxt{font-family:var(--M);font-size:11px;color:var(--tx3);letter-spacing:2px}
+.lsteps{display:flex;flex-direction:column;gap:7px}
+.lstep{font-family:var(--M);font-size:10px;color:var(--tx3);display:flex;align-items:center;gap:7px}
+.lstep.done{color:var(--acid)}.lstep.act{color:var(--neon)}
+.ldot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.lstep.act .ldot{animation:dp .55s ease-in-out infinite alternate}
+@keyframes dp{to{opacity:.2}}
+
+/* TOAST */
+.tc{position:fixed;bottom:calc(20px + var(--sb));left:50%;transform:translateX(-50%);
+  z-index:500;display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none}
+.toast{background:var(--pl2);border:1px solid var(--wr2);color:var(--tx);font-family:var(--M);
+  font-size:11px;padding:9px 16px;border-radius:6px;animation:tin .18s ease;
+  white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+.toast.ok{border-color:rgba(51,255,153,.35);color:var(--acid)}
+.toast.er{border-color:rgba(255,34,68,.35);color:var(--red)}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* PASSWORD GATE */
+.pw-gate{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:0}
+.pw-logo{font-family:var(--T);font-size:52px;font-weight:600;letter-spacing:6px;color:var(--tx);margin-bottom:4px}
+.pw-sub{font-family:var(--M);font-size:9px;color:var(--neon);letter-spacing:3px;margin-bottom:36px}
+.pw-label{font-family:var(--M);font-size:10px;color:var(--tx3);letter-spacing:2px;margin-bottom:10px;align-self:flex-start;width:100%;max-width:320px}
+.pw-inp-wrap{width:100%;max-width:320px;position:relative;margin-bottom:12px}
+.pw-inp{width:100%;background:var(--bg3);border:1px solid var(--wr2);border-radius:6px;color:var(--tx);font-family:var(--M);font-size:15px;padding:13px 44px 13px 16px;outline:none;transition:border-color .15s;letter-spacing:2px}
+.pw-inp:focus{border-color:var(--neon2);box-shadow:0 0 0 2px rgba(0,204,255,.08)}
+.pw-eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:4px}
+.pw-btn{width:100%;max-width:320px;background:linear-gradient(135deg,var(--neon3),var(--neon2));border:none;border-radius:6px;color:#fff;font-family:var(--T);font-size:18px;font-weight:600;letter-spacing:3px;padding:13px;cursor:pointer;transition:.15s}
+.pw-btn:hover{filter:brightness(1.15)}
+.pw-err{font-family:var(--M);font-size:10px;color:var(--red);margin-top:8px;letter-spacing:.5px;min-height:16px;text-align:center;width:100%;max-width:320px}
+.pw-hint{font-family:var(--M);font-size:8px;color:var(--tx3);margin-top:28px;letter-spacing:1px;text-align:center;opacity:.5}
+@keyframes pw-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* PHOTO VIEWER */
+.pview{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:400;align-items:center;justify-content:center}
+.pview.open{display:flex;animation:foi .14s ease}
+.pview img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:4px}
+.pvcl{position:absolute;top:calc(var(--st)+14px);right:16px;font-size:28px;color:var(--tx2);cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="pw-gate" class="pw-gate">
+  <div class="pw-logo">TF VAULT</div>
+  <div class="pw-sub">TRANSFORMERS COLLECTOR</div>
+  <div class="pw-label">HASLO DOSTEPU</div>
+  <div class="pw-inp-wrap">
+    <input class="pw-inp" id="pw-inp" type="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+      onkeydown="if(event.key==='Enter')checkPW()"
+      oninput="document.getElementById('pw-err').textContent=''">
+    <button class="pw-eye" onclick="togglePWvis()" title="Pokaz/ukryj">&#128065;</button>
+  </div>
+  <button class="pw-btn" onclick="checkPW()">WEJD&#379;</button>
+  <div class="pw-err" id="pw-err"></div>
+  <div class="pw-hint">TF VAULT &bull; PRYWATNA KOLEKCJA</div>
+</div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-row">
+    <div class="logo">
+      <div class="logo-hex">&#9881;</div>
+      <div>
+        <div class="logo-name">TF VAULT</div>
+        <div class="logo-sub">TRANSFORMERS COLLECTOR</div>
+      </div>
+    </div>
+    <div class="hdr-btns">
+      <button class="hbtn" onclick="showPage('scan')">&#128247;</button>
+      <button class="hbtn" onclick="showPage('settings')">&#9881;</button>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="ntab on" id="nt-dash"     onclick="showPage('dash')">    <span class="ni">&#128202;</span>Pulpit</button>
+  <button class="ntab"    id="nt-scan"     onclick="showPage('scan')">    <span class="ni">&#128269;</span>Skanuj</button>
+  <button class="ntab"    id="nt-col"      onclick="showPage('col')">     <span class="ni">&#128230;</span>Kolekcja</button>
+  <button class="ntab"    id="nt-settings" onclick="showPage('settings')"><span class="ni">&#9881;</span>Ustawienia</button>
+</nav>
+
+<div class="pages">
+
+<!-- ── DASHBOARD ── -->
+<div class="pg on" id="pg-dash">
+  <div class="dash-hero">
+    <div class="hero-ey">// REJESTR KOLEKCJI</div>
+    <div class="hero-h">TWOJA<br>KOLEKCJA</div>
+    <div class="hero-s">FIGURKI TRANSFORMERS &bull; OFICJALNE I THIRD PARTY</div>
+  </div>
+  <div class="kgrid">
+    <div class="kpi">     <div class="kpi-l">FIGURKI</div>        <div class="kpi-v" id="kv-cnt">0</div>  <div class="kpi-u">sztuk</div></div>
+    <div class="kpi ka">  <div class="kpi-l">WARTO&#346;&#262; RYN.</div><div class="kpi-v" id="kv-mkt">&#8212;</div><div class="kpi-u" id="ku-mkt">brak wycen</div></div>
+    <div class="kpi kf">  <div class="kpi-l">ZAP&#321;ACONO</div>  <div class="kpi-v" id="kv-paid">&#8212;</div><div class="kpi-u" id="ku-paid">brak danych</div></div>
+    <div class="kpi ks">  <div class="kpi-l">ZYSK / STRATA</div>  <div class="kpi-v" id="kv-diff">&#8212;</div><div class="kpi-u" id="ku-diff">szacunkowo</div></div>
+  </div>
+  <div class="divl"></div>
+  <div class="sec">
+    <div class="sh mt8"><span class="sh-t">OSTATNIO DODANE</span>
+      <button class="sh-a" onclick="showPage('col')">WSZYSTKIE &#8594;</button></div>
+    <div class="flist" id="d-recent">
+      <div class="empty-box"><div class="ei">&#129302;</div><div class="et">BRAK FIGUREK</div>
+        <div class="es">U&#380;yj zak&#322;adki Skanuj aby doda&#263; pierwsz&#261;</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCAN / ADD ── -->
+<div class="pg" id="pg-scan">
+
+  <!-- TEXT LOOKUP — redesigned with two source buttons -->
+  <div class="lookup-box">
+    <div class="lookup-title">&#9656; SZUKAJ DANYCH PO NAZWIE / NR KATALOGOWYM</div>
+    <input class="inp" id="f-lookup" placeholder="np. MP-44 Optimus Prime, Fans Toys FT-04, Hot Rod G1..." style="margin-bottom:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-n" id="lookup-official-btn" onclick="runLookupOfficial()"
+        style="flex-direction:column;gap:3px;padding:11px 6px;height:auto;min-width:0;overflow:hidden">
+        <span style="font-size:18px;line-height:1">&#127981;</span>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap">OFICJALNE</span>
+        <span style="font-family:var(--M);font-size:7.5px;color:var(--neon3);font-weight:400;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center">Hasbro &bull; Takara &bull; TFWiki</span>
+      </button>
+      <button class="btn btn-f" id="lookup-tp-btn" onclick="runLookupTP()"
+        style="flex-direction:column;gap:3px;padding:11px 6px;height:auto;min-width:0;overflow:hidden">
+        <span style="font-size:18px;line-height:1">&#128295;</span>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap">3RD PARTY</span>
+        <span style="font-family:var(--M);font-size:7.5px;color:var(--fire3);font-weight:400;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center">FT &bull; MMC &bull; DX9 &bull; TFW2005</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- OR PHOTO -->
+  <div class="divider-or"><div></div><span>LUB ZROB ZDJ&#280;CIE</span><div></div></div>
+
+  <!-- SCAN ZONE -->
+  <div class="szone" id="szone">
+    <div class="sc tl"></div><div class="sc tr"></div><div class="sc bl"></div><div class="sc br"></div>
+    <div class="si" id="scan-ico">&#129302;</div>
+    <div class="sh2" id="scan-hint">Wybierz zdj&#281;cie figurki<br>aparatem lub z galerii</div>
+    <img id="scan-prev" style="display:none" alt="">
+  </div>
+  <input type="file" id="inp-cam" accept="image/*" capture="environment" style="display:none" onchange="onImg(event)">
+  <input type="file" id="inp-gal" accept="image/*" style="display:none" onchange="onImg(event)">
+  <div class="src-btns">
+    <button class="btn btn-n" onclick="document.getElementById('inp-cam').click()">&#128247; APARAT</button>
+    <button class="btn"       onclick="document.getElementById('inp-gal').click()">&#128444; GALERIA</button>
+  </div>
+  <div class="go-btn">
+    <button class="btn btn-f btn-w" id="btn-analyze" disabled onclick="runAnalysis()">&#128269; ROZPOZNAJ FIGURK&#280;</button>
+  </div>
+
+  <!-- RESULT FORM -->
+  <div class="rform hidden" id="rform">
+    <div class="cbar">
+      <span class="cbar-lbl" id="cbar-lbl">PEWNO&#346;&#262; ROZPOZNANIA</span>
+      <div class="cpips">
+        <div class="pip" id="p0"></div><div class="pip" id="p1"></div><div class="pip" id="p2"></div>
+        <div class="pip" id="p3"></div><div class="pip" id="p4"></div>
+        <span class="cpct" id="cpct">&#8211;</span>
+      </div>
+    </div>
+    <div id="ai-wrap" class="hidden"><label class="lbl">OPIS AI</label><div class="ai-box" id="ai-box"></div></div>
+
+    <!-- IDENTYFIKACJA -->
+    <div>
+      <span class="fslbl" style="color:var(--neon)">&#9656; IDENTYFIKACJA</span>
+      <div class="fg">
+        <label class="lbl">POSTA&#262; / NAZWA MODELU</label>
+        <div style="display:flex;gap:7px;align-items:center">
+          <input class="inp" id="f-char" placeholder="np. Optimus Prime, Starscream, Megatron..." style="flex:1">
+          <button class="btn btn-n btn-sm" id="ai-fill-btn" onclick="runAIFill()"
+            style="flex-shrink:0;padding:9px 11px;white-space:nowrap" title="Uzupelnij dane AI na podstawie nazwy">
+            &#129302; AI
+          </button>
+        </div>
+        <div style="font-family:var(--M);font-size:8px;color:var(--tx3);margin-top:4px;letter-spacing:.5px">
+          Wpisz nazw&#281; i kliknij &#129302; AI aby automatycznie uzupe&#322;ni&#263; wszystkie pola
+        </div>
+      </div>
+      <div class="r2">
+        <div class="fg"><label class="lbl">PRODUCENT</label>
+          <select class="sel" id="f-manu">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <optgroup label="Oficjalni"><option>Hasbro</option><option>Takara Tomy</option><option>Takara Tomy / Hasbro</option></optgroup>
+            <optgroup label="Third Party">
+              <option>FansProject</option><option>iGear</option><option>MakeToys</option>
+              <option>Mastermind Creations (MMC)</option><option>DX9 Toys</option><option>Fans Toys</option>
+              <option>Iron Factory</option><option>BadCube</option><option>Unique Toys</option>
+              <option>Planet X</option><option>Zeta Toys</option><option>ToyWorld</option>
+              <option>Wei Jiang</option><option>Magic Square</option><option>X-Transbots</option>
+              <option>Newage</option><option>Hero Horizon</option><option>KFC (Keith's Fantasy Club)</option>
+              <option value="other-tp">Inny third party...</option>
+            </optgroup>
+            <option value="other">Inny producent...</option>
+          </select></div>
+        <div class="fg"><label class="lbl">ROK</label>
+          <input class="inp" id="f-year" placeholder="np. 1984, 2023"></div>
+      </div>
+      <div class="r2">
+        <div class="fg"><label class="lbl">SERIA</label>
+          <select class="sel" id="f-series">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <optgroup label="Oficjalne">
+              <option>Generation 1 (G1)</option><option>Generation 2 (G2)</option>
+              <option>Beast Wars</option><option>Beast Machines</option>
+              <option>Robots in Disguise (2001)</option><option>Armada / Energon / Cybertron</option>
+              <option>Animated</option><option>Movie (2007)</option><option>ROTF</option>
+              <option>DOTM</option><option>AOE</option><option>TLK</option>
+              <option>Cyberverse</option><option>War for Cybertron (WFC)</option>
+              <option>Kingdom</option><option>Legacy</option><option>Studio Series</option>
+              <option>Masterpiece (MP)</option><option>Masterpiece Movie (MPM)</option>
+              <option>Unite Warriors</option><option>Titan Returns</option>
+              <option>Power of the Primes</option><option>Rise of the Beasts (ROTB)</option><option>One (2024)</option>
+            </optgroup>
+            <optgroup label="Third Party">
+              <option>Third Party G1-inspired</option><option>Third Party MP-scale</option>
+              <option>Third Party Legends-scale</option><option value="other-s">Inna</option>
+            </optgroup>
+          </select></div>
+        <div class="fg"><label class="lbl">KLASA / SKALA</label>
+          <select class="sel" id="f-class">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <option>Legends / Core Class</option><option>Scout / Basic Class</option>
+            <option>Deluxe Class</option><option>Voyager Class</option><option>Leader Class</option>
+            <option>Commander Class</option><option>Titan Class</option>
+            <option>Masterpiece Scale</option><option>MP-scale (Third Party)</option>
+            <option>1/6 scale</option><option>Combiner</option><option>Inny</option>
+          </select></div>
+      </div>
+      <div class="fg"><label class="lbl">NR KATALOGOWY / SKU</label>
+        <input class="inp" id="f-sku" placeholder="np. MP-44, WFC-K1, FP-09..."></div>
+    </div>
+
+    <!-- STAN -->
+    <div>
+      <span class="fslbl" style="color:var(--fire2)">&#9656; STAN FIGURKI</span>
+      <div class="r2">
+        <div class="fg"><label class="lbl">OCENA STANU</label>
+          <select class="sel" id="f-cond">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <option>MISB &#8211; zapiecz&#281;towany</option><option>MIB &#8211; Mint in Box</option>
+            <option>C10 &#8211; Perfekcyjny</option><option>C9 &#8211; Doskona&#322;y</option>
+            <option>C8 &#8211; Bardzo dobry</option><option>C7 &#8211; Dobry</option>
+            <option>C6 &#8211; &#346;redni</option><option>C5 &#8211; Przeci&#281;tny</option>
+            <option>Loose &#8211; bez opakowania</option><option>Do naprawy / cz&#281;&#347;ci</option>
+          </select></div>
+        <div class="fg"><label class="lbl">PUDE&#321;KO</label>
+          <select class="sel" id="f-box">
+            <option value="">&#8212; wybierz &#8212;</option>
+            <option>Oryginalne &#8211; stan idealny</option><option>Oryginalne &#8211; uszkodzone</option>
+            <option>Oryginalne &#8211; otwarte</option><option>Brak pude&#322;ka</option><option>Zast&#281;pcze</option>
+          </select></div>
+      </div>
+      <div class="fg"><label class="lbl">OPIS STANU (szczeg&#243;&#322;owy)</label>
+        <textarea class="ta" id="f-cond-desc" placeholder="&#379;&#243;&#322;kni&#281;cie, z&#322;amania, retapy, odklejenia..."></textarea></div>
+    </div>
+
+    <!-- AKCESORIA -->
+    <div>
+      <span class="fslbl" style="color:var(--acid)">&#9656; AKCESORIA</span>
+      <div class="acc-grid" id="acc-grid">
+        <div class="acc-item" data-ac="Instrukcja"       onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128196; Instrukcja</span></div>
+        <div class="acc-item" data-ac="Ulotka/katalog"   onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128240; Ulotka</span></div>
+        <div class="acc-item" data-ac="Bron glowna"      onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128299; Bro&#324; g&#322;.</span></div>
+        <div class="acc-item" data-ac="Bron dodatkowa"   onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#9876; Bro&#324; dod.</span></div>
+        <div class="acc-item" data-ac="Glowa zamienna"   onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#127917; G&#322;owa zam.</span></div>
+        <div class="acc-item" data-ac="Dlonie zamienne"  onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#9995; D&#322;onie zam.</span></div>
+        <div class="acc-item" data-ac="Efekty specjalne" onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#10024; Efekty</span></div>
+        <div class="acc-item" data-ac="Podstawka/stand"  onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#127991; Podstawka</span></div>
+        <div class="acc-item" data-ac="Mini-figurka"     onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128126; Mini-fig.</span></div>
+        <div class="acc-item" data-ac="Chip Energon"     onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128142; Chip</span></div>
+        <div class="acc-item" data-ac="Certyfikat"       onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128220; Certyfikat</span></div>
+        <div class="acc-item" data-ac="Ladowarka"        onclick="tAcc(this)"><div class="acc-chk"></div><span class="acc-name">&#128267; &#321;adowarka</span></div>
+      </div>
+      <div class="fg mt8"><label class="lbl">INNE AKCESORIA</label>
+        <input class="inp" id="f-acc-extra" placeholder="Dodatkowe elementy..."></div>
+    </div>
+
+    <!-- ZDJECIA -->
+    <div>
+      <span class="fslbl" style="color:var(--spark)">&#9656; ZDJ&#280;CIA</span>
+      <div class="pstrip" id="pstrip">
+        <div class="padd" onclick="document.getElementById('inp-photo').click()">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;opacity:.4"><path d="M12 4a8 8 0 100 16A8 8 0 0012 4zm1 7V7h-2v4H7v2h4v4h2v-4h4v-2h-4z"/></svg>
+          <span>DODAJ</span></div>
+      </div>
+      <input type="file" id="inp-photo" accept="image/*" style="display:none" onchange="onAddPhoto(event)">
+    </div>
+
+    <!-- WYCENA -->
+    <div>
+      <span class="fslbl" style="color:var(--neon)">&#9656; WYCENA &#8212; eBay Sold Listings (darmowe)</span>
+      <div class="vpanel">
+        <div class="vgrid">
+          <div>
+            <div class="vl">MINIMUM</div>
+            <div class="vn-a" id="vp-lo">&#8212;</div>
+            <button class="btn btn-sm vapply" onclick="applyPrice('lo')">U&#379;YJ</button>
+          </div>
+          <div>
+            <div class="vl" style="color:var(--neon)">MEDIANA &#9733;</div>
+            <div class="vn-n" id="vp-med">&#8212;</div>
+            <button class="btn btn-n btn-sm vapply" onclick="applyPrice('med')">U&#379;YJ</button>
+          </div>
+          <div>
+            <div class="vl">MAKS.</div>
+            <div class="vn-f" id="vp-hi">&#8212;</div>
+            <button class="btn btn-sm vapply" onclick="applyPrice('hi')">U&#379;YJ</button>
+          </div>
+        </div>
+        <div class="vhint">Mediana jest automatycznie wpisywana jako cena rynkowa</div>
+        <button class="btn btn-n btn-w btn-sm" id="val-btn" onclick="runValuation()">&#128176; SZUKAJ CEN NA EBAY</button>
+        <div id="val-result" class="hidden mt8"></div>
+      </div>
+      <div class="r2 mt8">
+        <div class="fg"><label class="lbl">CENA RYNKOWA (USD)</label>
+          <input type="number" class="inp" id="f-mktprice" placeholder="0.00" step="0.01" min="0"></div>
+        <div class="fg"><label class="lbl">CENA ZAKUPU (USD)</label>
+          <input type="number" class="inp" id="f-paidprice" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+    </div>
+
+    <!-- NOTATKI -->
+    <div>
+      <span class="fslbl" style="color:var(--tx2)">&#9656; NOTATKI</span>
+      <textarea class="ta" id="f-notes" placeholder="Historia zakupu, plany sprzeda&#380;y..."></textarea>
+    </div>
+
+    <div style="display:flex;gap:8px;padding-bottom:6px">
+      <button class="btn btn-r" onclick="clearForm()">&#10005; ANULUJ</button>
+      <button class="btn btn-a btn-w" onclick="saveFig()">&#128190; ZAPISZ DO KOLEKCJI</button>
+    </div>
+  </div><!-- /rform -->
+</div><!-- /pg-scan -->
+
+<!-- ── COLLECTION ── -->
+<div class="pg" id="pg-col">
+  <div class="coltb">
+    <div class="swrap"><span class="sico">&#128269;</span>
+      <input class="inp" id="srch" placeholder="Szukaj figurki..." oninput="onSearch(this.value)"></div>
+    <button class="btn btn-sm" onclick="cycleSort()">&#8645;</button>
+    <button class="btn btn-sm" id="cf-toggle-btn" onclick="toggleCustomFilters()" title="Filtry niestandardowe" style="position:relative">
+      &#9881;<span id="cf-dot" style="display:none;position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--neon)"></span>
+    </button>
+  </div>
+  <div class="fpills">
+    <button class="pill on" data-f="all"    onclick="setF('all',this)">WSZYSTKIE</button>
+    <button class="pill"    data-f="hasbro" onclick="setF('hasbro',this)">HASBRO</button>
+    <button class="pill"    data-f="takara" onclick="setF('takara',this)">TAKARA</button>
+    <button class="pill"    data-f="tp"     onclick="setF('tp',this)">3RD PARTY</button>
+    <button class="pill"    data-f="mp"     onclick="setF('mp',this)">MASTERPIECE</button>
+    <button class="pill"    data-f="g1"     onclick="setF('g1',this)">G1</button>
+    <button class="pill"    data-f="boxed"  onclick="setF('boxed',this)">Z PUDE&#321;KEM</button>
+  </div>
+  <!-- Panel filtrów niestandardowych -->
+  <div id="custom-filter-panel" style="display:none;border-top:1px solid var(--wr);padding:10px 16px;background:var(--bg3)">
+    <div style="font-family:var(--M);font-size:9px;color:var(--neon);letter-spacing:1.5px;margin-bottom:10px">&#9656; FILTR NIESTANDARDOWY</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div>
+        <label style="font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">PRODUCENT</label>
+        <select class="sel" id="cf-manu" onchange="renderCol()" style="font-size:12px;padding:6px 8px">
+          <option value="">Wszyscy</option>
+          <option>Hasbro</option><option>Takara Tomy</option>
+          <option>Fans Toys</option><option>Mastermind Creations (MMC)</option>
+          <option>DX9 Toys</option><option>Iron Factory</option>
+          <option>BadCube</option><option>Unique Toys</option>
+          <option>Magic Square</option><option>Newage</option>
+          <option>X-Transbots</option><option>KFC (Keith's Fantasy Club)</option>
+          <option>MakeToys</option><option>Planet X</option><option>Wei Jiang</option>
+          <option>Hero Horizon</option><option>FansProject</option><option>iGear</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">SERIA</label>
+        <select class="sel" id="cf-series" onchange="renderCol()" style="font-size:12px;padding:6px 8px">
+          <option value="">Wszystkie</option>
+          <option>Generation 1 (G1)</option><option>Generation 2 (G2)</option>
+          <option>Beast Wars</option><option>Beast Machines</option>
+          <option>Armada / Energon / Cybertron</option><option>Animated</option>
+          <option>Movie (2007)</option><option>ROTF</option><option>DOTM</option>
+          <option>AOE</option><option>TLK</option><option>Cyberverse</option>
+          <option>War for Cybertron (WFC)</option><option>Kingdom</option>
+          <option>Legacy</option><option>Studio Series</option>
+          <option>Masterpiece (MP)</option><option>Masterpiece Movie (MPM)</option>
+          <option>Titan Returns</option><option>Power of the Primes</option>
+          <option>Rise of the Beasts (ROTB)</option><option>One (2024)</option>
+          <option>Third Party G1-inspired</option><option>Third Party MP-scale</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+      <div>
+        <label style="font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">KLASA</label>
+        <select class="sel" id="cf-class" onchange="renderCol()" style="font-size:12px;padding:6px 8px">
+          <option value="">Wszystkie</option>
+          <option>Legends / Core Class</option><option>Scout / Basic Class</option>
+          <option>Deluxe Class</option><option>Voyager Class</option>
+          <option>Leader Class</option><option>Commander Class</option>
+          <option>Titan Class</option><option>Masterpiece Scale</option>
+          <option>MP-scale (Third Party)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">ROK OD</label>
+        <input class="inp" id="cf-year-from" type="number" placeholder="np. 1984" min="1980" max="2099"
+          style="font-size:12px;padding:6px 8px" oninput="renderCol()">
+      </div>
+      <div>
+        <label style="font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">ROK DO</label>
+        <input class="inp" id="cf-year-to" type="number" placeholder="np. 2024" min="1980" max="2099"
+          style="font-size:12px;padding:6px 8px" oninput="renderCol()">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div>
+        <label style="font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">STAN</label>
+        <select class="sel" id="cf-cond" onchange="renderCol()" style="font-size:12px;padding:6px 8px">
+          <option value="">Wszystkie</option>
+          <option>MISB</option><option>MIB</option>
+          <option>C10</option><option>C9</option><option>C8</option>
+          <option>C7</option><option>C6</option><option>C5</option>
+          <option>Loose</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-family:var(--M);font-size:8px;color:var(--tx3);letter-spacing:1px;display:block;margin-bottom:4px">WYCENA</label>
+        <select class="sel" id="cf-price" onchange="renderCol()" style="font-size:12px;padding:6px 8px">
+          <option value="">Dowolna</option>
+          <option value="has">Z wyceną</option>
+          <option value="none">Bez wyceny</option>
+          <option value="lt50">Poniżej $50</option>
+          <option value="lt100">Poniżej $100</option>
+          <option value="lt200">Poniżej $200</option>
+          <option value="gt200">Powyżej $200</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-sm" onclick="clearCustomFilters()" style="font-size:10px">&#10005; WYCZYSC FILTRY</button>
+  </div>
+
+  <div class="cstats">
+    <div class="cst"><div class="csvv" id="cs-tot">0</div><div class="csl">&#321;&#260;CZ.</div></div>
+    <div class="cst"><div class="csvv" id="cs-hb">0</div><div class="csl">HASBRO</div></div>
+    <div class="cst"><div class="csvv" id="cs-tk">0</div><div class="csl">TAKARA</div></div>
+    <div class="cst"><div class="csvv" id="cs-tp">0</div><div class="csl">3RD PTY</div></div>
+    <div class="cst"><div class="csvv" id="cs-mp">0</div><div class="csl">MP</div></div>
+    <div class="cst"><div class="csvv" id="cs-val">&#8212;</div><div class="csl">USD</div></div>
+  </div>
+  <div class="flist" id="col-list">
+    <div class="empty-box"><div class="ei">&#128230;</div><div class="et">PUSTA KOLEKCJA</div>
+      <div class="es">Dodaj figurk&#281; w zak&#322;adce Skanuj</div></div>
+  </div>
+</div>
+
+<!-- ── SETTINGS ── -->
+<div class="pg" id="pg-settings">
+  <div class="sec">
+    <div class="sgrp">
+      <div class="sgh">GEMINI API &#8212; ROZPOZNAWANIE (do 3 kluczy)</div>
+      <div class="srow sfull">
+        <div><div class="srl">Klucz API #1 <span id="gem-status-1" style="font-family:var(--M);font-size:9px;margin-left:6px"></span></div>
+          <div class="srd">aistudio.google.com &#8594; Get API key &#8594; bezp&#322;atny (1500 req/dzie&#324;)</div></div>
+        <input type="password" class="sinp" id="si-gem" placeholder="AIza..." oninput="SS('gemKey',this.value)">
+      </div>
+      <div class="srow sfull">
+        <div><div class="srl">Klucz API #2 <span id="gem-status-2" style="font-family:var(--M);font-size:9px;margin-left:6px"></span></div>
+          <div class="srd">Zapasowy &#8212; u&#380;ywany gdy #1 ma wyczerpany limit</div></div>
+        <input type="password" class="sinp" id="si-gem2" placeholder="AIza... (opcjonalny)" oninput="SS('gemKey2',this.value)">
+      </div>
+      <div class="srow sfull">
+        <div><div class="srl">Klucz API #3 <span id="gem-status-3" style="font-family:var(--M);font-size:9px;margin-left:6px"></span></div>
+          <div class="srd">Drugi zapasowy &#8212; u&#380;ywany gdy #1 i #2 wyczerpane</div></div>
+        <input type="password" class="sinp" id="si-gem3" placeholder="AIza... (opcjonalny)" oninput="SS('gemKey3',this.value)">
+      </div>
+      <div class="srow">
+        <div><div class="srl">Sprawd&#378; status kluczy</div>
+          <div class="srd">Testuje dost&#281;pno&#347;&#263; bez zu&#380;ywania quota</div></div>
+        <button class="btn btn-n btn-sm" onclick="checkAllKeys()">&#9679; TEST</button>
+      </div>
+    </div>
+    <div class="sgrp">
+      <div class="sgh">PREFERENCJE</div>
+      <div class="srow"><div><div class="srl">Waluta</div></div>
+        <select class="sel" style="width:auto;padding:6px 10px" id="si-cur" onchange="SS('currency',this.value)">
+          <option value="USD">USD $</option><option value="EUR">EUR &#8364;</option>
+          <option value="PLN">PLN z&#322;</option><option value="GBP">GBP &#163;</option>
+        </select></div>
+      <div class="srow"><div><div class="srl">Poka&#380; opis AI</div><div class="srd">Surowy opis z Gemini</div></div>
+        <div class="tog" id="tog-ai" onclick="togS('showAI')"></div></div>
+      <div class="srow"><div><div class="srl">Auto-wycena po skanie</div><div class="srd">Pobiera ceny eBay automatycznie</div></div>
+        <div class="tog on" id="tog-av" onclick="togS('autoVal')"></div></div>
+    </div>
+    <div class="sgrp">
+      <div class="sgh">EKSPORT / IMPORT</div>
+      <div class="srow"><div><div class="srl">Eksportuj JSON</div><div class="srd">Kopia zapasowa</div></div>
+        <button class="btn btn-n btn-sm" onclick="doExport()">&#8595; JSON</button></div>
+      <div class="srow"><div><div class="srl">Importuj JSON</div><div class="srd">Wczytaj backup</div></div>
+        <button class="btn btn-sm" onclick="document.getElementById('inp-imp').click()">&#8593; IMPORT</button>
+        <input type="file" id="inp-imp" accept=".json" style="display:none" onchange="doImport(event)"></div>
+      <div class="srow"><div><div class="srl">Eksportuj CSV</div><div class="srd">Do arkusza</div></div>
+        <button class="btn btn-sm" onclick="doCSV()">&#128202; CSV</button></div>
+      <div class="srow"><div><div class="srl">Wyczy&#347;&#263; kolekcj&#281;</div><div class="srd">Usuwa wszystko!</div></div>
+        <button class="btn btn-r btn-sm" onclick="doWipe()">&#128465; WYCZY&#346;&#262;</button></div>
+      <div class="srow"><div><div class="srl">Reset flagi quota</div><div class="srd">Odblokuj Gemini po zmianie klucza lub nowym dniu</div></div>
+        <button class="btn btn-sm" onclick="Object.keys(_gemCache).forEach(k=>delete _gemCache[k]);toast('Cache wyczyszczony — sprobuj ponownie!','ok')">&#9201; RESET CACHE</button></div>
+    </div>
+    <div class="infobox">
+      <strong>JAK UZYSKA&#262; KLUCZ GEMINI (bezp&#322;atnie):</strong><br><br>
+      1. Wejd&#378; na <strong>aistudio.google.com</strong><br>
+      2. Zaloguj si&#281; kontem Google<br>
+      3. Kliknij <strong>"Get API key"</strong> &#8594; <strong>"Create API key"</strong><br>
+      4. Skopiuj klucz (AIza...) i wklej powy&#380;ej<br><br>
+      Limit: <strong>15 req/min, 1500/dzie&#324; na klucz</strong><br><br>
+      <strong>TIP: Mo&#380;esz doda&#263;3 klucze z 3 r&#243;&#380;nych kont Google</strong> &#8212; aplikacja automatycznie prze&#322;&#261;czy si&#281; na nast&#281;pny gdy jeden osi&#261;gnie limit (razem 4500 zapyta&#324;/dzie&#324;).<br><br>
+      <strong>WYCENA:</strong> Dane z zako&#324;czonych aukcji eBay przez darmowy proxy &#8212; bez klucza API.
+    </div>
+    <div class="infobox fire">
+      <strong>INSTALACJA NA TELEFONIE:</strong><br><br>
+      <strong>GitHub Pages:</strong> github.com &#8594; nowe repo &#8594; wgraj jako index.html &#8594; Settings &#8594; Pages<br>
+      Link: twojlogin.github.io/nazwarepo<br><br>
+      <strong>Cloudflare Pages:</strong> pages.cloudflare.com &#8594; Direct Upload &#8594; przeci&#261;gnij plik &#8594; Deploy<br><br>
+      <strong>Vercel:</strong> vercel.com &#8594; Add New &#8594; Browse &#8594; Deploy<br><br>
+      Po otwarciu w Chrome Android: menu &#8942; &#8594; "Dodaj do ekranu g&#322;&#243;wnego"
+    </div>
+  </div>
+</div>
+</div><!-- /pages -->
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="modal" onclick="closeBg(event)">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="shdr">
+      <div class="sth" id="m-thumb">&#129302;</div>
+      <div class="stg">
+        <div class="smn" id="m-name">&#8212;</div>
+        <div class="smm" id="m-sub">&#8212;</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px" id="m-badges"></div>
+      </div>
+    </div>
+    <div class="sbody">
+      <div class="dgrid">
+        <div><div class="dl">Producent</div>    <div class="dv" id="md-manu">&#8212;</div></div>
+        <div><div class="dl">Rok</div>          <div class="dv" id="md-year">&#8212;</div></div>
+        <div><div class="dl">Seria</div>        <div class="dv" id="md-series">&#8212;</div></div>
+        <div><div class="dl">Klasa</div>        <div class="dv" id="md-class">&#8212;</div></div>
+        <div><div class="dl">Nr katalogowy</div><div class="dv" id="md-sku">&#8212;</div></div>
+        <div><div class="dl">Pude&#322;ko</div>   <div class="dv" id="md-box">&#8212;</div></div>
+        <div><div class="dl">Stan</div>          <div class="dv" id="md-cond">&#8212;</div></div>
+        <div><div class="dl">Dodano</div>        <div class="dv" id="md-date">&#8212;</div></div>
+      </div>
+
+      <!-- PRICE BOX z edytowaln&#261; cen&#261; zakupu -->
+      <div class="pbox">
+        <div>
+          <div class="pbl">RYNKOWA</div>
+          <div class="pbv pn" id="md-mkt">&#8212;</div>
+        </div>
+        <div>
+          <div class="pbl">ZAP&#321;ACONO
+            <span onclick="togglePaidEdit()" style="cursor:pointer;margin-left:4px;font-size:10px;color:var(--neon2);vertical-align:middle" title="Edytuj">&#9998;</span>
+          </div>
+          <div class="pbv" id="md-paid">&#8212;</div>
+          <div id="md-paid-edit" style="display:none;margin-top:5px">
+            <input type="number" id="md-paid-inp"
+              style="width:100%;background:var(--bg3);border:1px solid var(--neon2);border-radius:4px;
+                     color:var(--tx);font-family:var(--T);font-size:20px;font-weight:600;
+                     padding:4px 6px;outline:none;text-align:center"
+              placeholder="0.00" step="0.01" min="0"
+              onkeydown="if(event.key==='Enter')savePaidEdit()"
+              onblur="savePaidEdit()">
+          </div>
+        </div>
+        <div>
+          <div class="pbl">R&#211;&#379;NICA</div>
+          <div class="pbv pa" id="md-diff">&#8212;</div>
+        </div>
+      </div>
+
+      <div id="md-accs-w" class="hidden">
+        <div class="dl" style="margin-bottom:6px">AKCESORIA</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px" id="md-accs"></div>
+      </div>
+      <div id="md-photos-w" class="hidden">
+        <div class="dl" style="margin-bottom:6px">ZDJ&#280;CIA</div>
+        <div class="dstrip" id="md-photos"></div>
+      </div>
+      <div id="md-cd-w" class="hidden">
+        <div class="dl" style="margin-bottom:5px">OPIS STANU</div>
+        <div class="dnotes" id="md-cd"></div>
+      </div>
+      <div id="md-notes-w" class="hidden">
+        <div class="dl" style="margin-bottom:5px">NOTATKI</div>
+        <div class="dnotes" id="md-notes"></div>
+      </div>
+
+      <!-- Aktualizacja ceny z eBay -->
+      <div style="margin-bottom:12px">
+        <button class="btn btn-n btn-w" id="upd-btn" onclick="updatePriceModal()">&#128176; AKTUALIZUJ CEN&#280; Z EBAY</button>
+        <div id="upd-res" class="hidden mt8"></div>
+      </div>
+
+      <div class="mact">
+        <button class="btn btn-r" onclick="delFig()">&#128465; USU&#323;</button>
+        <button class="btn"       onclick="editFig()">&#9998; EDYTUJ</button>
+        <button class="btn" style="flex:1" onclick="closeModal()">&#10005; ZAMKNIJ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+  <div class="ltxt" id="ltxt">ANALIZUJE...</div>
+  <div class="lsteps" id="lsteps"></div>
+</div>
+<div class="tc" id="tc"></div>
+<div class="pview" id="pview" onclick="closePV()">
+  <span class="pvcl">&#10005;</span>
+  <img id="pv-img" src="" alt="">
+</div>
+
+<script>
+'use strict';
+
+// =========================================================
+//  STATE
+// =========================================================
+const DBK  = 'tfvault_db_v3';
+const CFGK = 'tfvault_cfg_v3';
+
+let DB  = [];
+let CFG = { gemKey:'', gemKey2:'', gemKey3:'', currency:'USD', showAI:false, autoVal:true };
+let editId = null, modalId = null;
+let filter = 'all', sortOrd = 'newest', search = '';
+let extraPhotos = [], scanImg = null;
+
+// =========================================================
+//  PERSIST
+// =========================================================
+function loadAll() {
+  try { DB  = JSON.parse(localStorage.getItem(DBK)  || '[]'); } catch { DB=[]; }
+  try { CFG = {...CFG, ...JSON.parse(localStorage.getItem(CFGK) || '{}')}; } catch {}
+}
+function saveDB()  { localStorage.setItem(DBK,  JSON.stringify(DB)); }
+function saveCFG() { localStorage.setItem(CFGK, JSON.stringify(CFG)); }
+function SS(k,v)   {
+  CFG[k]=v; saveCFG();
+  if(k==='currency'){ renderDash(); renderCol(); }
+  // Clear endpoint cache when key changes
+  if(k==='gemKey'){ delete _gemCache[CFG.gemKey?.slice(-12)||'']; }
+}
+function togS(k)   {
+  CFG[k]=!CFG[k]; saveCFG();
+  const ids = {showAI:'tog-ai', autoVal:'tog-av'};
+  const el  = document.getElementById(ids[k]);
+  if (el) el.classList.toggle('on', !!CFG[k]);
+}
+
+// =========================================================
+//  HELPERS
+// =========================================================
+function SYM() { return {USD:'$',EUR:'€',PLN:'zł ',GBP:'£'}[CFG.currency]||'$'; }
+// Approximate exchange rates from USD (update periodically)
+const FX = { USD:1, EUR:0.92, PLN:3.98, GBP:0.79 };
+// Convert a USD amount to the user's chosen currency
+function toLocal(usd)  { return usd * (FX[CFG.currency]||1); }
+// Format a USD amount as the local currency string
+function fmtPrice(usd) {
+  if(!usd&&usd!==0) return '—';
+  const v = toLocal(+usd);
+  return SYM() + v.toFixed(0);
+}
+function fmtPriceFull(usd) {
+  if(!usd&&usd!==0) return '—';
+  const v = toLocal(+usd);
+  return SYM() + v.toFixed(2);
+}
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function sv(id,v)  { const e=document.getElementById(id); if(e) e.value=v||''; }
+function st(id,v)  { const e=document.getElementById(id); if(e) e.textContent=v||'—'; }
+function show(id)  { document.getElementById(id)?.classList.remove('hidden'); }
+function hide(id)  { document.getElementById(id)?.classList.add('hidden'); }
+function emptyBox(i,t,s){ return `<div class="empty-box"><div class="ei">${i}</div><div class="et">${t}</div><div class="es">${s}</div></div>`; }
+
+function isTP(fig) {
+  const kw=['fanstoys','fans toys','maketoys','mastermind','dx9','unique toys','uniquetoys',
+    'iron factory','badcube','newage','kfc','zeta toys','toyworld','weijiang','magic square',
+    'x-transbots','hero horizon','fansproject','igear','planet x'];
+  return kw.some(k => (fig.manufacturer||'').toLowerCase().includes(k));
+}
+function tfEmoji(f) {
+  const s=((f.charName||'')+(f.series||'')+(f.manufacturer||'')).toLowerCase();
+  if(s.includes('optimus')||s.includes('prime'))return'🔴';
+  if(s.includes('megatron')||s.includes('galvatron'))return'⚫';
+  if(s.includes('bumblebee'))return'🟡';
+  if(s.includes('starscream'))return'✈️';
+  if(s.includes('soundwave'))return'📻';
+  if(s.includes('grimlock'))return'🦖';
+  if(s.includes('devastator'))return'🧱';
+  return'⚙️';
+}
+
+// =========================================================
+//  NAV
+// =========================================================
+function showPage(pg) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pg-'+pg).classList.add('on');
+  document.getElementById('nt-'+pg).classList.add('on');
+  if(pg==='dash')    renderDash();
+  if(pg==='col')     renderCol();
+  if(pg==='settings')renderSettings();
+}
+
+// =========================================================
+//  DASHBOARD
+// =========================================================
+function renderDash() {
+  const mkt=DB.reduce((s,f)=>s+(+f.mktPrice||0),0);
+  const pd=DB.reduce((s,f)=>s+(+f.paidPrice||0),0), df=mkt-pd;
+  document.getElementById('kv-cnt').textContent=DB.length;
+  function sk(vi,ui,val,empty){
+    if(val>0){
+      document.getElementById(vi).textContent=fmtPrice(val);
+      document.getElementById(ui).textContent=CFG.currency;
+    }else{document.getElementById(vi).textContent='—';document.getElementById(ui).textContent=empty;}
+  }
+  sk('kv-mkt','ku-mkt',mkt,'brak wycen');
+  sk('kv-paid','ku-paid',pd,'brak danych');
+  if(mkt&&pd){
+    document.getElementById('kv-diff').textContent=(df>=0?'+':'')+fmtPrice(Math.abs(df));
+    document.getElementById('ku-diff').textContent=df>=0?'zysk szac.':'strata szac.';
+  }else{document.getElementById('kv-diff').textContent='—';document.getElementById('ku-diff').textContent='szacunkowo';}
+  const rec=[...DB].sort((a,b)=>b.ts-a.ts).slice(0,5);
+  const el=document.getElementById('d-recent');
+  el.innerHTML=rec.length?rec.map(fcHTML).join(''):emptyBox('🤖','BRAK FIGUREK','Użyj zakładki Skanuj');
+}
+
+// =========================================================
+//  FIGURE CARD
+// =========================================================
+function fcHTML(f) {
+  const sym=SYM(), tp=isTP(f);
+  const thumb=(f.photos&&f.photos[0])?`<img src="${f.photos[0]}" alt="">`:tfEmoji(f);
+  return `<div class="fc" onclick="openModal(${f.id})">
+    <div class="fc-thumb">${thumb}</div>
+    <div class="fc-info">
+      <div class="fc-char">${esc(f.charName)||'Bez nazwy'}</div>
+      <div class="fc-meta">${[f.manufacturer,f.year].filter(Boolean).join(' · ')||'—'}</div>
+      <div class="fc-tags">
+        ${f.series?`<span class="badge bn">${esc(f.series.slice(0,18))}</span>`:''}
+        ${tp?`<span class="badge bf">3RD PARTY</span>`:f.manufacturer?`<span class="badge bn">${esc(f.manufacturer.slice(0,12))}</span>`:''}
+        ${f.condition?`<span class="badge ba">${esc(f.condition.slice(0,12))}</span>`:''}
+      </div>
+    </div>
+    <div class="fc-price">
+      ${f.mktPrice?`<div class="pv">${fmtPrice(f.mktPrice)}</div><div class="pl2">rynkowa</div>`:`<div class="pl2" style="color:var(--tx3)">brak wyceny</div>`}
+      ${f.paidPrice?`<div class="pp">zapł. ${fmtPrice(f.paidPrice)}</div>`:''}
+    </div>
+  </div>`;
+}
+
+// =========================================================
+//  IMAGE COMPRESSION
+// =========================================================
+function compressImg(file) {
+  return new Promise(res=>{
+    const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const MAX=1280;let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+      const cv=document.createElement('canvas');cv.width=w;cv.height=h;
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      const du=cv.toDataURL('image/jpeg',.85);
+      res({b64:du.split(',')[1],mime:'image/jpeg',du});
+    };
+    img.onerror=()=>{const r=new FileReader();r.onload=e=>{const du=e.target.result;res({b64:du.split(',')[1],mime:file.type||'image/jpeg',du});};r.readAsDataURL(file);};
+    img.src=url;
+  });
+}
+async function onImg(e){
+  const file=e.target.files[0];if(!file)return;e.target.value='';
+  try{
+    const c=await compressImg(file);scanImg=c;
+    const prev=document.getElementById('scan-prev');
+    prev.src=c.du;prev.style.display='block';
+    document.getElementById('scan-ico').style.display='none';
+    document.getElementById('scan-hint').style.display='none';
+    document.getElementById('szone').classList.add('lit');
+    document.getElementById('btn-analyze').disabled=false;
+    hide('rform');hide('val-result');resetPrices();
+  }catch{toast('Blad ladowania zdjecia','er');}
+}
+
+// =========================================================
+//  GEMINI CALL — shared helper
+//  FIX: tries v1 endpoint first (most stable for free keys),
+//  then v1beta. Discriminates 400 errors: model-not-found
+//  → try next endpoint; bad key / auth error → stop immediately.
+// =========================================================
+function extractJSON(txt) {
+  try{return JSON.parse(txt.trim());}catch{}
+  const m=txt.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if(m)try{return JSON.parse(m[1].trim());}catch{}
+  const s=txt.indexOf('{'),e=txt.lastIndexOf('}');
+  if(s!==-1&&e>s)try{return JSON.parse(txt.slice(s,e+1));}catch{}
+  throw new Error('Nie mozna sparsowac odpowiedzi JSON z Gemini');
+}
+
+// =========================================================
+//  TFWIKI.NET LOOKUP
+//  Uses the public MediaWiki API (CORS-enabled, no key needed).
+//  Returns structured figure data from TFWiki infoboxes.
+// =========================================================
+
+// Fetch the first few paragraphs + infobox text of a TFWiki article
+async function tfwikiSearch(query) {
+  try {
+    // Step 1: search for the best matching article title
+    const searchUrl = 'https://tfwiki.net/api.php?action=query&list=search&srsearch='
+      + encodeURIComponent(query + ' toy')
+      + '&srlimit=3&srnamespace=0&format=json&origin=*';
+    const sr = await fetch(searchUrl, {signal: AbortSignal.timeout(8000)});
+    if(!sr.ok) return null;
+    const sd = await sr.json();
+    const hits = sd?.query?.search || [];
+    if(!hits.length) return null;
+
+    // Use the top result
+    const title = hits[0].title;
+
+    // Step 2: fetch page extract (plain text summary, max 1200 chars)
+    const extractUrl = 'https://tfwiki.net/api.php?action=query&titles='
+      + encodeURIComponent(title)
+      + '&prop=extracts&exintro=1&exchars=1200&explaintext=1&format=json&origin=*';
+    const er = await fetch(extractUrl, {signal: AbortSignal.timeout(8000)});
+    if(!er.ok) return null;
+    const ed = await er.json();
+    const pages = ed?.query?.pages || {};
+    const page  = Object.values(pages)[0];
+    const extract = page?.extract || '';
+    if(!extract) return null;
+
+    return { title, extract: extract.trim(), url: 'https://tfwiki.net/wiki/'+encodeURIComponent(title.replace(/ /g,'_')) };
+  } catch(e) {
+    return null; // TFWiki unavailable — fail silently, Gemini still runs
+  }
+}
+
+// ─── Gemini model cache (cleared when key changes) ───
+// =========================================================
+//  GEMINI — QUOTA-EFFICIENT ARCHITECTURE
+//
+//  Problem: old code made up to 5 API calls per lookup:
+//    1 discovery + up to 4 endpoint retries = quota exhausted fast.
+//
+//  New approach:
+//    1. Cache working endpoint in localStorage (survives page refresh)
+//    2. Skip discovery if we already know what works
+//    3. Rate-limit: enforce min 4s between calls, show countdown
+//    4. Only ONE attempt — if it fails, tell user clearly
+//    5. For text lookups: TFWiki is FREE and tried first
+// =========================================================
+
+// ── Gemini engine — lean, no discovery, retry-based ─────────────────
+// ROOT CAUSE OF OLD BUG: discovery call (/v1beta/models) + generation call
+// = 2 rapid requests → per-minute rate limit (15/min) → 429 with "quota"
+// in the message → misidentified as daily limit → key wrongly abandoned.
+//
+// NEW APPROACH:
+//  1. NO discovery call. Use gemini-1.5-flash directly (always free, always works).
+//  2. On 429: wait 6s and retry ONCE. This clears a per-minute rate limit.
+//  3. If STILL 429 after retry → actually exhausted → switch to next key.
+//  4. Bad key (401/403) → skip that key, try next.
+
+const _gemCache = {}; // kept for compatibility (reset cache button uses it)
+
+async function geminiCall(body) {
+  const BASE   = 'https://generativelanguage.googleapis.com';
+  // Free-tier models only — ordered by preference.
+  // gemini-1.5-flash is THE reliable free model; others are fallbacks for 404.
+  const MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-lite'];
+  const keys   = [CFG.gemKey, CFG.gemKey2, CFG.gemKey3].filter(k => k && k.trim());
+
+  if(!keys.length)
+    throw new Error('Brak klucza Gemini API. Wejdz w Ustawienia i dodaj klucz z aistudio.google.com.');
+
+  let lastErr = '';
+
+  for(let ki = 0; ki < keys.length; ki++) {
+    const K      = keys[ki].trim();
+    const keyNum = ki + 1;
+    let   keyDone = false; // true when this key should be skipped entirely
+
+    modelLoop:
+    for(const model of MODELS) {
+      if(keyDone) break;
+      const ep = BASE + '/v1beta/models/' + model + ':generateContent?key=' + K;
+
+      for(let attempt = 0; attempt < 2; attempt++) {
+
+        // Second attempt: wait to let the per-minute window clear
+        if(attempt === 1) {
+          toast('Rate limit — czekam 6s i ponawiam...', '');
+          await new Promise(res => setTimeout(res, 6000));
+        }
+
+        let r;
+        try {
+          r = await fetch(ep, {
+            method:  'POST',
+            headers: {'Content-Type': 'application/json'},
+            body:    JSON.stringify(body),
+            signal:  AbortSignal.timeout(35000),
+          });
+        } catch(e) {
+          lastErr = e.name === 'TimeoutError' ? 'Timeout (35s)' : 'Brak polaczenia';
+          continue modelLoop; // network error — try next model
+        }
+
+        if(r.ok) {
+          const d   = await r.json();
+          const txt = d.candidates?.[0]?.content?.parts?.[0]?.text;
+          if(txt) {
+            _updateKeyStatus(keyNum, 'ok');
+            return d; // ✓ success
+          }
+          const fin = d.candidates?.[0]?.finishReason || '';
+          if(fin === 'SAFETY')
+            throw new Error('Gemini zablokowal odpowiedz (filtr bezpieczenstwa) — sprobuj inne zdjecie');
+          lastErr = 'Pusta odpowiedz modelu ' + model;
+          continue modelLoop;
+        }
+
+        // Error response — drain body for error details
+        const eb     = await r.json().catch(() => ({}));
+        const errTxt = eb?.error?.message || ('HTTP ' + r.status);
+        lastErr = errTxt;
+
+        if(r.status === 401 || r.status === 403) {
+          _updateKeyStatus(keyNum, 'bad');
+          keyDone = true;
+          break modelLoop; // bad key — don't try other models
+        }
+
+        if(r.status === 429) {
+          if(attempt === 0) continue; // retry once after 6s delay
+          // Both attempts returned 429 — daily quota truly exhausted for this key
+          _updateKeyStatus(keyNum, 'quota');
+          keyDone = true;
+          break modelLoop;
+        }
+
+        if(r.status === 404 || r.status === 400) {
+          // This model not available for this key/plan — try next model
+          continue modelLoop;
+        }
+
+        if(r.status >= 500) continue modelLoop; // server error — try next model
+        continue modelLoop; // other error — try next model
+      }
+    }
+
+    if(keyDone && ki < keys.length - 1)
+      toast('Klucz #'+keyNum+' niedostepny — probuje klucz #'+(keyNum+1)+'...', '');
+  }
+
+  // Build useful error message
+  const nKeys = keys.length;
+  throw new Error(
+    'Gemini niedostepny (' + nKeys + ' klucz' + (nKeys===1?'':'e') + ' sprawdzone). ' +
+    (lastErr ? 'Ostatni blad: ' + lastErr + '. ' : '') +
+    'Jesli widzisz ten blad po raz pierwszy — odczekaj ~1 min i sprobuj ponownie (limit 15 req/min). ' +
+    'Jesli blad jest staly — sprawdz klucze w Ustawieniach lub dodaj nowy klucz.'
+  );
+}
+
+
+
+// Update key status indicator in settings UI
+function _updateKeyStatus(idx, status) {
+  const el = document.getElementById('gem-status-'+idx);
+  if(!el) return;
+  if(status==='ok')    { el.textContent='✓ aktywny'; el.style.color='var(--acid)'; }
+  if(status==='quota') { el.textContent='⚠ wyczerpany'; el.style.color='var(--fire2)'; }
+  if(status==='bad')   { el.textContent='✕ bledny klucz'; el.style.color='var(--red)'; }
+}
+
+// Test all keys without burning quota (models list endpoint is free)
+async function checkAllKeys() {
+  const keys = [CFG.gemKey, CFG.gemKey2, CFG.gemKey3];
+  toast('Sprawdzam klucze...', '');
+  for(let i=0; i<keys.length; i++) {
+    const K = (keys[i]||'').trim();
+    const el = document.getElementById('gem-status-'+(i+1));
+    if(!K) { if(el){ el.textContent='brak klucza'; el.style.color='var(--tx3)'; } continue; }
+    try {
+      const r = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models?key='+K+'&pageSize=1',
+        { signal: AbortSignal.timeout(8000) }
+      );
+      if(r.ok)               _updateKeyStatus(i+1, 'ok');
+      else if(r.status===401||r.status===403) _updateKeyStatus(i+1, 'bad');
+      else if(r.status===429) _updateKeyStatus(i+1, 'quota');
+      else                   { if(el){ el.textContent='HTTP '+r.status; el.style.color='var(--fire2)'; } }
+    } catch(e) {
+      if(el){ el.textContent='brak polaczenia'; el.style.color='var(--red)'; }
+    }
+  }
+  toast('Test zakonczony — sprawdz statusy kluczy', 'ok');
+}
+
+
+// =========================================================
+//  GEMINI VISION ANALYSIS (from photo)
+// =========================================================
+async function runAnalysis() {
+  if(!scanImg)     return toast('Najpierw wybierz zdjecie','er');
+  if(![CFG.gemKey,CFG.gemKey2,CFG.gemKey3].some(k=>k&&k.trim())) return toast('Ustaw klucz Gemini API w Ustawieniach','er');
+
+  showLoader('ANALIZUJE ZDJECIE...',[
+    {k:'up',  t:'Wysylanie obrazu do Gemini Vision'},
+    {k:'rec', t:'Rozpoznawanie figurki'},
+    {k:'ex',  t:'Ekstrakcja danych'},
+  ]);
+  setLS('up','act');
+
+  const PROMPT=`You are a world-class expert on Transformers collectible figures (official and third-party). Analyze this image.
+
+Return ONLY a valid JSON object (no markdown, no extra text):
+{"charName":"character name + version e.g. Optimus Prime G1 or Starscream MP-03","manufacturer":"exact maker e.g. Hasbro or Fans Toys","isThirdParty":false,"year":"release year","series":"main line e.g. Generation 1 or Masterpiece or Kingdom","subLine":"sub-line if applicable","catalogId":"catalog number if visible e.g. MP-44","figClass":"size class e.g. Deluxe Class or Masterpiece","confidence":0.85,"description":"visual description: colors, alt mode, accessories, condition"}
+
+confidence MUST be a NUMBER 0.0-1.0. Always return valid JSON.`;
+
+  try{
+    setLS('up','done');setLS('rec','act');
+    const data=await geminiCall({
+      contents:[{parts:[
+        {inline_data:{mime_type:scanImg.mime,data:scanImg.b64}},
+        {text:PROMPT},
+      ]}],
+      generationConfig:{temperature:0.1,maxOutputTokens:1024},
+    });
+    setLS('rec','done');setLS('ex','act');
+    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    if(!raw) throw new Error('Pusta odpowiedz — sprawdz limity konta');
+    const p=extractJSON(raw);
+    setLS('ex','done');hideLoader();
+    fillForm({
+      charName:    String(p.charName||'').trim(),
+      manufacturer:String(p.manufacturer||'').trim(),
+      year:        String(p.year||'').trim(),
+      series:      String(p.series||p.subLine||'').trim(),
+      figClass:    String(p.figClass||'').trim(),
+      catalogId:   String(p.catalogId||'').trim(),
+      confidence:  Math.min(1,Math.max(0,parseFloat(p.confidence)||0)),
+      description: String(p.description||'').trim(),
+    });
+    toast('Figurka rozpoznana!','ok');
+    if(CFG.autoVal) setTimeout(()=>runValuation(true),600);
+    // Silently enrich with TFWiki in background (improves data quality)
+    const charNameFound = document.getElementById('f-char')?.value?.trim();
+    if(charNameFound){
+      tfwikiSearch(charNameFound).then(wikiEnrich => {
+        if(!wikiEnrich) return;
+        // Show TFWiki source note in AI description box
+        const aiBox = document.getElementById('ai-box');
+        if(aiBox && aiBox.textContent){
+          aiBox.textContent = aiBox.textContent + '\n\n[Zrodlo: TFWiki.net — '+wikiEnrich.title+']';
+          document.getElementById('ai-wrap').classList.remove('hidden');
+        }
+      }).catch(()=>{});
+    }
+  }catch(e){
+    hideLoader();
+    const quotaMsg = e.message.toLowerCase().includes('quota') || e.message.toLowerCase().includes('billing')
+      || e.message.toLowerCase().includes('limit');
+    const msg = quotaMsg
+      ? e.message + ' (wskazowka: darmowe konto ma limit 1500 zapytan/dzien i 15/min — sprobuj pozniej)'
+      : 'Blad rozpoznania: ' + e.message;
+    toast(msg,'er');
+    fillForm({charName:'',manufacturer:'',year:'',series:'',figClass:'',catalogId:'',confidence:0,description:''});
+  }
+}
+
+// =========================================================
+//  AI FILL — fills form using name already typed in f-char
+//  Triggered by the robot button next to the character name field.
+// =========================================================
+async function runAIFill() {
+  const q = document.getElementById('f-char').value.trim();
+  if(!q) return toast('Wpisz najpierw nazwe postaci / modelu','er');
+  if(![CFG.gemKey,CFG.gemKey2,CFG.gemKey3].some(k=>k&&k.trim())) return toast('Ustaw klucz Gemini API w Ustawieniach','er');
+  const btn = document.getElementById('ai-fill-btn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳'; }
+  showLoader('SZUKAM DANYCH O FIGURCE...',[
+    {k:'wiki', t:'TFWiki.net — szukam artykulu'},
+    {k:'ask',  t:'Gemini AI — uzupelnianie danych'},
+    {k:'parse',t:'Wypelnianie formularza'},
+  ]);
+  setLS('wiki','act');
+
+  // Step 1: Query TFWiki first for accurate, sourced data
+  const wikiData = await tfwikiSearch(q);
+  setLS('wiki','done');
+  setLS('ask','act');
+
+  // Build prompt — include TFWiki context if found
+  let wikiContext = '';
+  if(wikiData){
+    wikiContext = 'CONTEXT FROM TFWIKI.NET (reliable source — use this data preferentially):\n'
+      + 'Article title: '+wikiData.title+'\n'
+      + wikiData.extract+'\n\n';
+  }
+
+  const PROMPT = wikiContext
+    + 'You are a world-class Transformers collectibles expert.'
+    + ' The user is looking for: "'+q+'".'
+    + (wikiData ? ' Use the TFWiki context above to fill in the details accurately.' : '')
+    + '\n\nReturn ONLY a valid JSON object (no markdown, no extra text):'
+    + '{"charName":"full character name and version e.g. Optimus Prime G1 or Hot Rod MP-28",'
+    + '"manufacturer":"exact manufacturer e.g. Hasbro or Takara Tomy or Fans Toys",'
+    + '"isThirdParty":false,'
+    + '"year":"release year as 4-digit string",'
+    + '"series":"main product line e.g. Generation 1 or Masterpiece or Kingdom or Legacy",'
+    + '"subLine":"sub-line or wave if applicable",'
+    + '"catalogId":"catalog number e.g. MP-44 or WFC-K1, empty string if unknown",'
+    + '"figClass":"size class e.g. Deluxe Class or Voyager Class or Leader Class or Masterpiece",'
+    + '"confidence":0.95,'
+    + '"description":"brief description: alt mode, notable features, accessories included"}'
+    + '\n\nRules: confidence is a NUMBER 0.0-1.0, year is a 4-digit string. Always return valid JSON.';
+
+  try{
+    const data = await geminiCall({
+      contents:[{parts:[{text:PROMPT}]}],
+      generationConfig:{temperature:0.1,maxOutputTokens:1024},
+    });
+    setLS('ask','done'); setLS('parse','act');
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    if(!raw) throw new Error('Pusta odpowiedz Gemini');
+    const p = extractJSON(raw);
+    setLS('parse','done'); hideLoader();
+    // Boost confidence if TFWiki data was used
+    if(wikiData && p.confidence < 0.9) p.confidence = Math.min(1, p.confidence + 0.15);
+    // Fill form — keep what the user already typed in f-char unless AI improved it
+    const charVal = String(p.charName||q).trim();
+    sv('f-char', charVal);
+    sv('f-year',   String(p.year||'').trim());
+    sv('f-sku',    String(p.catalogId||'').trim());
+    // Match selects
+    const ms=document.getElementById('f-manu');
+    const ml=(p.manufacturer||'').toLowerCase();
+    let mfound=false;
+    for(const o of ms.options){if(o.value&&ml.includes(o.value.toLowerCase().replace(/\s*\(.*\)$/,'').trim())){ms.value=o.value;mfound=true;break;}}
+    if(!mfound)ms.value='';
+    const ss=document.getElementById('f-series');
+    const sl=(p.series||'').toLowerCase();
+    for(const o of ss.options){const ov=o.value.toLowerCase().replace(/\s*\(.*\)$/,'').trim();if(ov&&(sl.includes(ov.split(' ')[0])||ov.includes(sl.split(' ')[0]))){ss.value=o.value;break;}}
+    const cs=document.getElementById('f-class');
+    const cl=(p.figClass||'').toLowerCase();
+    for(const o of cs.options){if(o.value&&cl.includes(o.value.toLowerCase().split(' ')[0])){cs.value=o.value;break;}}
+    // Confidence pips
+    const conf=Math.min(1,Math.max(0,parseFloat(p.confidence)||0));
+    const pct=Math.round(conf*100);
+    document.getElementById('cpct').textContent=pct+'%';
+    for(let i=0;i<5;i++){
+      const pip=document.getElementById('p'+i),on=i<Math.round(conf*5);
+      pip.className='pip'+(on?' on'+(conf<.4?' low':conf<.7?' mid':''):'');
+    }
+    if(p.description){
+      document.getElementById('ai-box').textContent=p.description;
+      document.getElementById('ai-wrap').classList.toggle('hidden',!CFG.showAI);
+    }
+    show('rform');
+    document.getElementById('cbar-lbl').textContent='DANE Z AI';
+    toast('Dane uzupelnione przez AI!','ok');
+    if(CFG.autoVal) setTimeout(()=>runValuation(true),700);
+  }catch(e){
+    hideLoader();
+    toast('AI Fill: '+e.message,'er');
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='🤖 AI'; }
+  }
+}
+
+// =========================================================
+//  SHARED: apply Gemini result to form
+function _applyLookupResult(p, q, wikiData, btn, btnOrigText) {
+  if(wikiData && p.confidence < 0.92) p.confidence = Math.min(1, p.confidence + 0.15);
+  hideLoader();
+  fillForm({
+    charName:    String(p.charName||q).trim(),
+    manufacturer:String(p.manufacturer||'').trim(),
+    year:        String(p.year||'').trim(),
+    series:      String(p.series||'').trim(),
+    figClass:    String(p.figClass||'').trim(),
+    catalogId:   String(p.catalogId||'').trim(),
+    confidence:  Math.min(1,Math.max(0,parseFloat(p.confidence)||0)),
+    description: String(p.description||'').trim(),
+  });
+  toast('Dane uzupelnione!','ok');
+  if(CFG.autoVal) setTimeout(()=>runValuation(true),700);
+  if(btn){ btn.disabled=false; btn.innerHTML=btnOrigText; }
+}
+
+function _lockLookupBtns(activeBtn, label) {
+  ['lookup-official-btn','lookup-tp-btn'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){ b.disabled=true; }
+  });
+  if(activeBtn){ activeBtn._origHTML=activeBtn.innerHTML; activeBtn.innerHTML='<span>&#9203;</span><span>'+label+'</span>'; }
+}
+function _unlockLookupBtns(activeBtn) {
+  ['lookup-official-btn','lookup-tp-btn'].forEach(id=>{
+    const b=document.getElementById(id); if(b) b.disabled=false;
+  });
+  if(activeBtn && activeBtn._origHTML) activeBtn.innerHTML=activeBtn._origHTML;
+}
+
+// Build the standard JSON schema string for Gemini prompts
+function _gemJsonSchema() {
+  return '{"charName":"full character name and version",'
+    +'"manufacturer":"exact manufacturer name",'
+    +'"isThirdParty":false,'
+    +'"year":"4-digit release year",'
+    +'"series":"main product line",'
+    +'"subLine":"sub-line or wave if applicable",'
+    +'"catalogId":"catalog number e.g. MP-44 or FP-03, empty if unknown",'
+    +'"figClass":"size class e.g. Deluxe Class or Masterpiece",'
+    +'"confidence":0.9,'
+    +'"description":"brief description: alt mode, notable features, accessories"}';
+}
+
+// ─── Parse TFWiki extract directly (no Gemini needed) ───────────────
+// Returns a partial figure object if enough data can be extracted,
+// or null if data is insufficient and Gemini is still needed.
+function parseTFWikiDirect(wiki, query) {
+  if(!wiki || !wiki.extract || wiki.extract.length < 80) return null;
+  const txt = wiki.extract;
+  const tl  = wiki.title;
+
+  // Extract year (4-digit number in range 1980-2030)
+  const yrM = txt.match(/\b(19[89]\d|20[0-3]\d)\b/);
+  const year = yrM ? yrM[1] : '';
+
+  // Detect manufacturer
+  let manufacturer = '';
+  if(/takara tomy/i.test(txt))    manufacturer = 'Takara Tomy';
+  else if(/takara/i.test(txt))    manufacturer = 'Takara';
+  else if(/hasbro/i.test(txt))    manufacturer = 'Hasbro';
+
+  // Detect series from common keywords
+  let series = '';
+  const serMap = [
+    [/masterpiece/i,      'Masterpiece (MP)'],
+    [/kingdom/i,          'Kingdom'],
+    [/legacy/i,           'Legacy'],
+    [/studio series/i,    'Studio Series'],
+    [/war for cybertron/i,'War for Cybertron (WFC)'],
+    [/siege/i,            'War for Cybertron (WFC)'],
+    [/earthrise/i,        'War for Cybertron (WFC)'],
+    [/generation 1|gen 1/i,'Generation 1 (G1)'],
+    [/beast wars/i,       'Beast Wars'],
+    [/animated/i,         'Animated'],
+    [/cyberverse/i,       'Cyberverse'],
+    [/rise of the beasts/i,'Rise of the Beasts (ROTB)'],
+    [/titans return/i,    'Titan Returns'],
+    [/power of the primes/i,'Power of the Primes'],
+  ];
+  for(const [re, name] of serMap){ if(re.test(txt)){ series=name; break; } }
+
+  // Detect size class
+  let figClass = '';
+  const clsMap = [
+    [/\bdeluxe\b/i,    'Deluxe Class'],
+    [/\bvoyager\b/i,   'Voyager Class'],
+    [/\bleader\b/i,    'Leader Class'],
+    [/\bcommander\b/i, 'Commander Class'],
+    [/\btitan\b/i,     'Titan Class'],
+    [/\bcore class\b/i,'Legends / Core Class'],
+    [/masterpiece/i,     'Masterpiece Scale'],
+  ];
+  for(const [re, name] of clsMap){ if(re.test(txt)){ figClass=name; break; } }
+
+  // Detect catalog number (MP-XX, WFC-XX, etc.)
+  const catM = txt.match(/\b([A-Z]{1,4}-\d{1,3}[A-Z]?)\b/);
+  const catalogId = catM ? catM[1] : '';
+
+  // Need at least year OR manufacturer OR series to be worth using
+  if(!year && !manufacturer && !series) return null;
+
+  // Extract first sentence as description
+  const desc = txt.split(/[.!?]/)[0].trim();
+
+  return {
+    charName:     tl.split('(')[0].trim(),
+    manufacturer: manufacturer || 'Hasbro',
+    year,
+    series,
+    figClass,
+    catalogId,
+    confidence:   (year && manufacturer && series) ? 0.88 : 0.72,
+    description:  desc.slice(0, 200),
+  };
+}
+
+// ─── OFICJALNE: TFWiki first, Gemini only if needed ─────────────────
+async function runLookupOfficial() {
+  const q = document.getElementById('f-lookup').value.trim();
+  if(!q) return toast('Wpisz nazwe figurki','er');
+  const btn = document.getElementById('lookup-official-btn');
+  _lockLookupBtns(btn, 'SZUKAM...');
+
+  showLoader('OFICJALNE — SZUKAM...',[
+    {k:'wiki', t:'TFWiki.net — artykul (bezplatne)'},
+    {k:'ai',   t:'Gemini AI — uzupelnianie'},
+    {k:'done', t:'Formularz'},
+  ]);
+  setLS('wiki','act');
+
+  // Step 1: TFWiki (free, no quota)
+  const wiki = await tfwikiSearch(q);
+  setLS('wiki','done');
+
+  // Try to parse TFWiki data directly — if we get enough, skip Gemini entirely
+  if(wiki) {
+    const direct = parseTFWikiDirect(wiki, q);
+    if(direct) {
+      setLS('ai','done'); setLS('done','act');
+      hideLoader();
+      _applyLookupResult(direct, q, wiki, btn, btn._origHTML);
+      toast('Dane z TFWiki (bez API Gemini)!','ok');
+      return;
+    }
+  }
+
+  // Step 2: need Gemini — check key first
+  if(![CFG.gemKey,CFG.gemKey2,CFG.gemKey3].some(k=>k&&k.trim())) {
+    hideLoader(); _unlockLookupBtns(btn);
+    return toast('TFWiki nie znalazl danych. Ustaw klucz Gemini API w Ustawieniach.','er');
+  }
+
+  setLS('ai','act');
+  const wikiCtx = wiki
+    ? 'CONTEXT FROM TFWIKI.NET (authoritative source):\nArticle: ' + wiki.title + '\n' + wiki.extract + '\n\n'
+    : '';
+
+  const PROMPT = wikiCtx
+    + 'You are an expert on OFFICIAL Transformers toys (Hasbro, Takara Tomy).'
+    + ' Search query: "' + q + '".'
+    + (wiki ? ' The TFWiki data above is the most reliable source — use it.' : '')
+    + '\n\nReturn ONLY valid JSON:\n' + _gemJsonSchema()
+    + '\n\nconfidence is a NUMBER 0.0-1.0. Always return valid JSON.';
+
+  try {
+    const data = await geminiCall({
+      contents:[{parts:[{text:PROMPT}]}],
+      generationConfig:{temperature:0.05, maxOutputTokens:700},
+    });
+    setLS('ai','done'); setLS('done','act');
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    if(!raw) throw new Error('Pusta odpowiedz Gemini');
+    const p = extractJSON(raw);
+    if(wiki && p.confidence < 0.92) p.confidence = Math.min(1, p.confidence + 0.15);
+    setLS('done','done');
+    _applyLookupResult(p, q, wiki, btn, btn._origHTML);
+  } catch(e) {
+    hideLoader(); _unlockLookupBtns(btn);
+    toast('Blad (oficjalne): ' + e.message,'er');
+  }
+}
+
+
+// ─── Fetch TFW2005 forum snippets via CORS proxy ─────────────────────
+async function tfw2005Search(query) {
+  try {
+    const url = 'https://www.tfw2005.com/boards/search/search/?keywords='
+      + encodeURIComponent(query) + '&terms=all&sc=1&sf=titlepost&sr=posts&sk=t&sd=d&st=0&ch=300&submit=Search';
+    const html = await fetchProxy(url);
+    if(!html) return null;
+    const snippets = [];
+    const dtRe = /<dt[^>]*>[\s\S]*?<a[^>]+class="[^"]*topictitle[^"]*"[^>]*>([\s\S]*?)<\/a>/g;
+    let m;
+    while((m = dtRe.exec(html)) !== null && snippets.length < 6)
+      snippets.push(m[1].replace(/<[^>]+>/g,'').trim());
+    if(!snippets.length) return null;
+    return { source:'TFW2005', text: snippets.join(' | ').slice(0,800) };
+  } catch(e) { return null; }
+}
+
+// ─── THIRD PARTY: TFW2005 → Gemini (no TFWiki) ───────────────────────
+async function runLookupTP() {
+  const q = document.getElementById('f-lookup').value.trim();
+  if(!q) return toast('Wpisz nazwe figurki','er');
+  if(![CFG.gemKey,CFG.gemKey2,CFG.gemKey3].some(k=>k&&k.trim())) return toast('Ustaw klucz Gemini API w Ustawieniach','er');
+  const btn = document.getElementById('lookup-tp-btn');
+  _lockLookupBtns(btn, 'SZUKAM...');
+
+  showLoader('THIRD PARTY — SZUKAM DANYCH...',[
+    {k:'tfw',  t:'TFW2005.com — forum search'},
+    {k:'ai',   t:'Gemini AI — uzupelnianie'},
+    {k:'done', t:'Wypelnianie formularza'},
+  ]);
+  setLS('tfw','act');
+
+  // Step 1: TFW2005 forum (no TFWiki — TP figures rarely have TFWiki articles)
+  const tfw = await tfw2005Search(q);
+  setLS('tfw','done'); setLS('ai','act');
+
+  const tfwCtx = tfw
+    ? 'SOURCE — TFW2005.COM FORUM (third-party collectors forum):\n'+tfw.text+'\n\n'
+    : '';
+
+  const PROMPT = tfwCtx
+    + 'You are an expert on THIRD-PARTY Transformers figures (e.g. Fans Toys, Mastermind Creations, DX9, '
+    + 'Iron Factory, BadCube, Unique Toys, X-Transbots, Newage, Magic Square, KFC, Zeta Toys, ToyWorld, etc.).'
+    + '\nNOTE: Do NOT use Hasbro/Takara data. Focus ONLY on third-party manufacturers.'
+    + (tfw ? '\nUse the TFW2005 forum context above to identify the figure accurately.' : '')
+    + '\nUser is searching for: "'+q+'".'
+    + '\n\nReturn ONLY valid JSON (no markdown):\n' + _gemJsonSchema()
+    + '\n\nSet isThirdParty to true. confidence is a NUMBER 0.0-1.0. Always return valid JSON.';
+
+  try{
+    const data = await geminiCall({
+      contents:[{parts:[{text:PROMPT}]}],
+      generationConfig:{temperature:0.05, maxOutputTokens:800},
+    });
+    setLS('ai','done'); setLS('done','act');
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    if(!raw) throw new Error('Pusta odpowiedz Gemini');
+    const p = extractJSON(raw);
+    p.isThirdParty = true; // always TP for this path
+    if(tfw && p.confidence < 0.85) p.confidence = Math.min(1, p.confidence + 0.1);
+    setLS('done','done');
+    _applyLookupResult(p, q, tfw, btn, btn._origHTML);
+  }catch(e){
+    hideLoader(); _unlockLookupBtns(btn);
+    toast('Blad (third party): '+e.message,'er');
+  }
+}
+
+// kept for compatibility with runAIFill which uses the old name
+async function runTextLookup() { return runLookupOfficial(); }
+
+// =========================================================
+//  FILL FORM
+// =========================================================
+function fillForm(d) {
+  sv('f-char',d.charName);sv('f-year',d.year);sv('f-sku',d.catalogId);
+  // Match selects
+  const ms=document.getElementById('f-manu');
+  const ml=(d.manufacturer||'').toLowerCase();
+  let mfound=false;
+  for(const o of ms.options){if(o.value&&ml.includes(o.value.toLowerCase().replace(/\s*\(.*\)$/,'').trim())){ms.value=o.value;mfound=true;break;}}
+  if(!mfound)ms.value='';
+  const ss=document.getElementById('f-series');
+  const sl=(d.series||'').toLowerCase();
+  for(const o of ss.options){const ov=o.value.toLowerCase().replace(/\s*\(.*\)$/,'').trim();if(ov&&(sl.includes(ov.split(' ')[0])||ov.includes(sl.split(' ')[0]))){ss.value=o.value;break;}}
+  const cs=document.getElementById('f-class');
+  const cl=(d.figClass||'').toLowerCase();
+  for(const o of cs.options){if(o.value&&cl.includes(o.value.toLowerCase().split(' ')[0])){cs.value=o.value;break;}}
+  // Confidence pips
+  const pct=Math.round(d.confidence*100);
+  document.getElementById('cpct').textContent=pct+'%';
+  for(let i=0;i<5;i++){
+    const pip=document.getElementById('p'+i),on=i<Math.round(d.confidence*5);
+    pip.className='pip'+(on?' on'+(d.confidence<.4?' low':d.confidence<.7?' mid':''):'');
+  }
+  if(d.description){
+    document.getElementById('ai-box').textContent=d.description;
+    document.getElementById('ai-wrap').classList.toggle('hidden',!CFG.showAI);
+  }
+  extraPhotos=[];if(scanImg)extraPhotos=[scanImg.du];
+  renderPhotoStrip();
+  show('rform');
+  setTimeout(()=>document.getElementById('rform').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+// =========================================================
+//  ACCESSORIES
+// =========================================================
+function tAcc(el){el.classList.toggle('on');el.querySelector('.acc-chk').textContent=el.classList.contains('on')?'✓':'';}
+function getAccs(){return[...document.querySelectorAll('#acc-grid .acc-item.on')].map(e=>e.dataset.ac);}
+function resetAccs(){document.querySelectorAll('#acc-grid .acc-item').forEach(e=>{e.classList.remove('on');e.querySelector('.acc-chk').textContent='';});}
+function setAccs(accs=[]){resetAccs();accs.forEach(ac=>{const el=[...document.querySelectorAll('#acc-grid .acc-item')].find(e=>e.dataset.ac===ac);if(el){el.classList.add('on');el.querySelector('.acc-chk').textContent='✓';}});}
+
+// =========================================================
+//  PHOTOS
+// =========================================================
+async function onAddPhoto(e){const file=e.target.files[0];if(!file)return;e.target.value='';const c=await compressImg(file);extraPhotos.push(c.du);renderPhotoStrip();}
+function renderPhotoStrip(){
+  const s=document.getElementById('pstrip');
+  s.innerHTML=extraPhotos.map((src,i)=>`<div class="pth"><img src="${src}" alt=""><div class="pdel" onclick="removePhoto(${i})">✕</div></div>`).join('')
+    +`<div class="padd" onclick="document.getElementById('inp-photo').click()"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;opacity:.4"><path d="M12 4a8 8 0 100 16A8 8 0 0012 4zm1 7V7h-2v4H7v2h4v4h2v-4h4v-2h-4z"/></svg><span>DODAJ</span></div>`;
+}
+function removePhoto(i){extraPhotos.splice(i,1);renderPhotoStrip();}
+
+// =========================================================
+//  VALUATION — eBay Sold Listings (free CORS proxy)
+//
+//  FIX: Each proxy has a different response format:
+//   allorigins /get  → JSON wrapper → extract .contents
+//   allorigins /raw  → raw HTML text
+//   corsproxy.io     → raw HTML text (was incorrectly called with .json() before)
+//   codetabs.com     → raw HTML text (same bug)
+//  Calling .json() on a text response causes "<!DOCTYPE is not valid JSON" crash.
+// =========================================================
+
+// eBay-specific price extraction — 4 strategies in priority order
+function extractPrices(html){
+  const seen=new Set(), raw=[];
+  const add=v=>{const r=Math.round(v*100)/100;if(r>2&&r<40000&&!seen.has(r)){seen.add(r);raw.push(r);}};
+  // A: JSON-LD structured data
+  const re1=/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/g;let m;
+  while((m=re1.exec(html))!==null){try{const d=JSON.parse(m[1]);const w=o=>{if(!o||typeof o!=='object')return;['price','lowPrice','highPrice'].forEach(k=>{if(k in o){const v=parseFloat(String(o[k]).replace(/[^0-9.]/g,''));if(!isNaN(v))add(v);}});Object.values(o).forEach(v=>{if(typeof v==='object')w(v);});};w(Array.isArray(d)?{x:d}:d);}catch{}}
+  // B: itemprop price
+  const re2=/itemprop=["']price["'][^>]*content=["']([0-9.]+)["']/g;
+  while((m=re2.exec(html))!==null)add(parseFloat(m[1]));
+  const re3=/itemprop=["']price["'][^>]*>\s*\$?\s*([0-9,]+\.[0-9]{2})/g;
+  while((m=re3.exec(html))!==null)add(parseFloat(m[1].replace(/,/g,'')));
+  // C: eBay CSS class patterns
+  const re4=/(?:s-item__price|notranslate)[^>]*>[^<$]*\$([0-9,]+\.[0-9]{2})/g;
+  while((m=re4.exec(html))!==null)add(parseFloat(m[1].replace(/,/g,'')));
+  // D: generic USD decimal pattern
+  const re5=/\$([0-9]{1,6}\.[0-9]{2})(?:[^0-9]|$)/g;
+  while((m=re5.exec(html))!==null)add(parseFloat(m[1]));
+  return raw;
+}
+
+// Fetch eBay HTML via free CORS proxies (text vs json response mode per proxy)
+async function fetchProxy(url){
+  const proxies=[
+    {fn:u=>'https://api.allorigins.win/get?url='+encodeURIComponent(u), mode:'json'},
+    {fn:u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u), mode:'text'},
+    {fn:u=>'https://corsproxy.io/?'+encodeURIComponent(u),              mode:'text'},
+    {fn:u=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u), mode:'text'},
+  ];
+  let lastErr='';
+  for(const px of proxies){
+    try{
+      const resp=await fetch(px.fn(url),{signal:AbortSignal.timeout(14000)});
+      if(!resp.ok){lastErr='HTTP '+resp.status;continue;}
+      let html='';
+      if(px.mode==='json'){
+        // Safe JSON parse — proxy might return HTML error page on overload
+        const txt=await resp.text();
+        try{const d=JSON.parse(txt);html=d.contents||d.body||'';}
+        catch{lastErr='Proxy zwrocil HTML zamiast JSON';continue;}
+      }else{
+        html=await resp.text();
+      }
+      if(html&&html.length>1000&&!html.includes('Access Denied')&&!html.toLowerCase().includes('captcha'))
+        return html;
+      lastErr='Proxy: blad strony lub captcha';
+    }catch(e){lastErr=e.message;}
+  }
+  throw new Error('Wszystkie proxy niedostepne: '+lastErr);
+}
+
+function ebayURL(q){
+  return 'https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(q)+'&LH_Complete=1&LH_Sold=1&_ipg=60&_sop=13';
+}
+
+// Build shortest effective eBay query from figure data
+function buildEbayQuery(charName, series, manu){
+  // Remove common words that reduce results
+  const cleanChar = charName
+    .replace(/\s*(official|figurka|figure|toy|action|collectible)\s*/gi,'')
+    .replace(/\s*(hasbro|takara)\s*/gi,'')
+    .trim();
+  // Use just character name + "transformers" for broadest results
+  // Only add series if charName alone is too generic
+  const genericNames = ['optimus','megatron','bumblebee','starscream','soundwave','grimlock'];
+  const isGeneric = genericNames.some(n=>cleanChar.toLowerCase().startsWith(n));
+  const parts = [cleanChar];
+  if(isGeneric && series) parts.push(series.replace(/\s*\(.*?\)/g,'').trim().split(' ')[0]);
+  parts.push('transformers');
+  return parts.filter(Boolean).join(' ');
+}
+
+async function runValuation(silent=false, opts={}){
+  const charName=opts.charName||document.getElementById('f-char')?.value.trim()||'';
+  if(!charName) return toast('Uzupelnij nazwe postaci/modelu','er');
+  const series =opts.series||document.getElementById('f-series')?.value.trim()||'';
+  const manu   =opts.manu||document.getElementById('f-manu')?.value.trim()||'';
+  const modal  =!!opts.modalMode;
+  const btnId  =modal?'upd-btn':'val-btn';
+  const resId  =modal?'upd-res':'val-result';
+  const q = buildEbayQuery(charName, series, manu);
+  const btn=document.getElementById(btnId);
+  if(btn){btn.disabled=true;btn.textContent='⏳ SZUKAM...';}
+  hide(resId);
+  try{
+    let html=await fetchProxy(ebayURL(q));
+    let raw=extractPrices(html);
+    // Progressive retry with shorter queries
+    if(raw.length<3){
+      const shortQ=charName+' transformers';
+      try{const h2=await fetchProxy(ebayURL(shortQ));raw.push(...extractPrices(h2));}catch{}
+    }
+    if(raw.length<3){
+      // Absolute minimum: just character name
+      try{const h3=await fetchProxy(ebayURL(charName));raw.push(...extractPrices(h3));}catch{}
+    }
+    if(raw.length<2) throw new Error('Za malo wynikow cenowych ('+raw.length+'). Sprawdz polaczenie lub szukaj recznie na eBay.');
+    raw.sort((a,b)=>a-b);
+    const tr=Math.max(1,Math.floor(raw.length*.1)),prices=raw.slice(tr,raw.length-tr);
+    const median=prices[Math.floor(prices.length/2)];
+    const lo=prices[Math.floor(prices.length*.1)]||prices[0];
+    const hi=prices[Math.floor(prices.length*.85)]||prices[prices.length-1];
+    // Update form price fields (use MEDIAN as default)
+    if(!modal){
+      document.getElementById('vp-lo').textContent ='$'+lo.toFixed(2);
+      document.getElementById('vp-med').textContent='$'+median.toFixed(2);
+      document.getElementById('vp-hi').textContent ='$'+hi.toFixed(2);
+      document.getElementById('f-mktprice').value  =median.toFixed(2);
+    }
+    // Update modal figure directly
+    if(modal&&opts.figId!=null){
+      const fig=DB.find(f=>f.id===opts.figId);
+      if(fig){
+        fig.mktPrice=parseFloat(median.toFixed(2));saveDB();
+        const sym=SYM();
+        document.getElementById('md-mkt').textContent=fmtPriceFull(fig.mktPrice);
+        if(fig.paidPrice){
+          const d=(+fig.mktPrice)-(+fig.paidPrice),el=document.getElementById('md-diff');
+          el.textContent=(d>=0?'+':'')+fmtPriceFull(Math.abs(d));el.style.color=d>=0?'var(--acid)':'var(--red)';
+        }
+        renderDash();
+      }
+    }
+    const link='https://www.ebay.com/sch/i.html?_nkw='+encodeURIComponent(q)+'&LH_Complete=1&LH_Sold=1';
+    const resEl=document.getElementById(resId);
+    if(resEl){
+      resEl.innerHTML=`<div style="background:var(--bg3);border:1px solid var(--neon2);border-radius:6px;padding:11px 13px">
+        <div style="font-family:var(--M);font-size:9px;color:var(--neon);letter-spacing:1px;margin-bottom:9px">&#10003; EBAY SOLD &bull; ${raw.length} aukcji</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:10px">
+          <div><div style="font-family:var(--M);font-size:8px;color:var(--tx3);margin-bottom:3px">MINIMUM</div>
+               <div style="font-family:var(--T);font-size:20px;color:var(--acid)">$${lo.toFixed(2)}</div></div>
+          <div><div style="font-family:var(--M);font-size:8px;color:var(--neon);margin-bottom:3px">MEDIANA &#9733;</div>
+               <div style="font-family:var(--T);font-size:20px;color:var(--neon)">$${median.toFixed(2)}</div></div>
+          <div><div style="font-family:var(--M);font-size:8px;color:var(--tx3);margin-bottom:3px">MAKS.</div>
+               <div style="font-family:var(--T);font-size:20px;color:var(--fire2)">$${hi.toFixed(2)}</div></div>
+        </div>
+        <a href="${link}" target="_blank" rel="noopener"
+           style="display:block;text-align:center;font-family:var(--M);font-size:9px;color:var(--neon2);
+                  text-decoration:none;padding-top:8px;border-top:1px solid var(--wr)">&#8594; OTWORZ NA EBAY.COM</a>
+      </div>`;
+      show(resId);
+    }
+    if(!silent) toast('Ceny z eBay zaladowane!','ok');
+  }catch(e){
+    if(!silent){
+      toast('Wycena: '+e.message,'er');
+      const q2=encodeURIComponent(charName+' transformers');
+      const resEl=document.getElementById(resId);
+      if(resEl){
+        resEl.innerHTML=`<div style="background:var(--bg3);border:1px solid var(--wr);border-radius:6px;padding:11px 13px">
+          <div style="font-family:var(--M);font-size:9px;color:var(--tx3);margin-bottom:9px">Auto-pobieranie nieudane. Sprawdz recznie:</div>
+          <a href="https://www.ebay.com/sch/i.html?_nkw=${q2}&LH_Complete=1&LH_Sold=1" target="_blank" rel="noopener"
+             style="display:block;font-family:var(--M);font-size:10px;color:var(--neon);text-decoration:none;padding:7px 0;border-top:1px solid var(--wr)">&#8594; eBay Zakonczone aukcje</a>
+          <a href="https://myfigurecollection.net/search.php?type=0&q=${encodeURIComponent(charName+' transformers')}" target="_blank" rel="noopener"
+             style="display:block;font-family:var(--M);font-size:10px;color:var(--tx2);text-decoration:none;padding:7px 0;border-top:1px solid var(--wr)">&#8594; MyFigureCollection</a>
+        </div>`;
+        show(resId);
+      }
+    }
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=modal?'💰 AKTUALIZUJ CENE':'💰 SZUKAJ CEN NA EBAY';}
+  }
+}
+
+function resetPrices(){
+  ['vp-lo','vp-med','vp-hi'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
+  sv('f-mktprice','');
+}
+
+// Apply a specific price tier to the market price field
+function applyPrice(which){
+  const map={lo:'vp-lo',med:'vp-med',hi:'vp-hi'};
+  const val=(document.getElementById(map[which])?.textContent||'').replace('$','').trim();
+  if(val&&val!=='—'){document.getElementById('f-mktprice').value=val;toast('Cena rynkowa: $'+val,'ok');}
+}
+
+// =========================================================
+//  SAVE FIGURE
+// =========================================================
+function saveFig(){
+  const charName=document.getElementById('f-char').value.trim();
+  if(!charName) return toast('Podaj nazwe postaci / modelu','er');
+  const mSel=document.getElementById('f-manu'),mv=mSel.value;
+  const manu=(mv==='other'||mv==='other-tp')?mSel.options[mSel.selectedIndex].text.replace('...','').trim():mv;
+  const fig={
+    id:      editId||(Date.now()+Math.floor(Math.random()*9999)),
+    ts:      editId?(DB.find(f=>f.id===editId)?.ts||Date.now()):Date.now(),
+    charName,manufacturer:manu,
+    year:    document.getElementById('f-year').value.trim(),
+    series:  document.getElementById('f-series').value,
+    figClass:document.getElementById('f-class').value,
+    catalogId:document.getElementById('f-sku').value.trim(),
+    condition:document.getElementById('f-cond').value,
+    boxState: document.getElementById('f-box').value,
+    condDesc: document.getElementById('f-cond-desc').value.trim(),
+    accs:     getAccs(),
+    accsExtra:document.getElementById('f-acc-extra').value.trim(),
+    notes:    document.getElementById('f-notes').value.trim(),
+    mktPrice: parseFloat(document.getElementById('f-mktprice').value)||null,
+    paidPrice:parseFloat(document.getElementById('f-paidprice').value)||null,
+    currency: CFG.currency,
+    photos:   [...extraPhotos],
+  };
+  if(editId){const i=DB.findIndex(f=>f.id===editId);if(i!==-1)DB[i]=fig;toast('Figurka zaktualizowana!','ok');}
+  else{DB.push(fig);toast('Zapisano do kolekcji!','ok');}
+  saveDB();clearForm();showPage('col');
+}
+
+// =========================================================
+//  CLEAR FORM
+// =========================================================
+function clearForm(){
+  scanImg=null;editId=null;extraPhotos=[];
+  const prev=document.getElementById('scan-prev');
+  prev.style.display='none';prev.src='';
+  document.getElementById('scan-ico').style.display='';
+  document.getElementById('scan-hint').style.display='';
+  document.getElementById('szone').classList.remove('lit');
+  document.getElementById('btn-analyze').disabled=true;
+  document.getElementById('inp-cam').value='';document.getElementById('inp-gal').value='';
+  hide('rform');hide('val-result');resetPrices();resetAccs();
+  ['f-char','f-year','f-sku','f-cond-desc','f-acc-extra','f-notes','f-mktprice','f-paidprice','f-lookup'].forEach(id=>sv(id,''));
+  const afb=document.getElementById('ai-fill-btn');if(afb){afb.disabled=false;afb.textContent='🤖 AI';}
+  _unlockLookupBtns(null);
+  ['f-manu','f-series','f-class','f-cond','f-box'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  for(let i=0;i<5;i++)document.getElementById('p'+i).className='pip';
+  document.getElementById('cpct').textContent='–';
+  document.getElementById('cbar-lbl').textContent='PEWNOSC ROZPOZNANIA';
+}
+
+// =========================================================
+//  COLLECTION
+// =========================================================
+function onSearch(v){search=v;renderCol();}
+function setF(f,el){filter=f;document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));el.classList.add('on');renderCol();}
+function cycleSort(){
+  const o=['newest','oldest','name','price-hi','price-lo'],l=['Najnowsze','Najstarsze','Nazwa A-Z','Cena v','Cena ^'];
+  const i=o.indexOf(sortOrd);sortOrd=o[(i+1)%o.length];toast('Sortowanie: '+l[o.indexOf(sortOrd)]);renderCol();
+}
+// Toggle custom filter panel
+function toggleCustomFilters(){
+  const panel=document.getElementById('custom-filter-panel');
+  const open=panel.style.display==='none';
+  panel.style.display=open?'block':'none';
+  document.getElementById('cf-toggle-btn').classList.toggle('btn-n',open);
+}
+function clearCustomFilters(){
+  ['cf-manu','cf-series','cf-class','cf-cond','cf-price'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  ['cf-year-from','cf-year-to'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('cf-dot').style.display='none';
+  renderCol();
+}
+function getCustomFilters(){
+  return{
+    manu:     (document.getElementById('cf-manu')?.value||'').toLowerCase(),
+    series:   (document.getElementById('cf-series')?.value||'').toLowerCase(),
+    cls:      (document.getElementById('cf-class')?.value||'').toLowerCase(),
+    cond:     (document.getElementById('cf-cond')?.value||'').toLowerCase(),
+    price:     document.getElementById('cf-price')?.value||'',
+    yearFrom:  parseInt(document.getElementById('cf-year-from')?.value)||0,
+    yearTo:    parseInt(document.getElementById('cf-year-to')?.value)||9999,
+  };
+}
+function hasCustomFilters(cf){
+  return cf.manu||cf.series||cf.cls||cf.cond||cf.price||(cf.yearFrom>0)||(cf.yearTo<9999);
+}
+
+function renderCol(){
+  let items=[...DB];
+  if(filter==='hasbro') items=items.filter(f=>(f.manufacturer||'').toLowerCase().includes('hasbro'));
+  else if(filter==='takara') items=items.filter(f=>(f.manufacturer||'').toLowerCase().includes('takara'));
+  else if(filter==='tp')     items=items.filter(f=>isTP(f));
+  else if(filter==='mp')     items=items.filter(f=>(f.series||'').toLowerCase().includes('masterpiece')||(f.figClass||'').toLowerCase().includes('masterpiece'));
+  else if(filter==='g1')     items=items.filter(f=>(f.series||'').toLowerCase().includes('generation 1'));
+  else if(filter==='boxed')  items=items.filter(f=>f.boxState&&!f.boxState.toLowerCase().includes('brak'));
+  if(search){const q=search.toLowerCase();items=items.filter(f=>(f.charName||'').toLowerCase().includes(q)||(f.manufacturer||'').toLowerCase().includes(q)||(f.series||'').toLowerCase().includes(q)||(f.catalogId||'').toLowerCase().includes(q));}
+  // Custom filters
+  const cf=getCustomFilters();
+  if(cf.manu)     items=items.filter(f=>(f.manufacturer||'').toLowerCase().includes(cf.manu));
+  if(cf.series)   items=items.filter(f=>(f.series||'').toLowerCase().includes(cf.series.split(' ')[0]));
+  if(cf.cls)      items=items.filter(f=>(f.figClass||'').toLowerCase().includes(cf.cls.split(' ')[0]));
+  if(cf.cond)     items=items.filter(f=>(f.condition||'').toLowerCase().includes(cf.cond));
+  if(cf.yearFrom) items=items.filter(f=>parseInt(f.year||0)>=cf.yearFrom);
+  if(cf.yearTo<9999) items=items.filter(f=>{const y=parseInt(f.year||0);return!y||y<=cf.yearTo;});
+  if(cf.price==='has')   items=items.filter(f=>f.mktPrice>0);
+  if(cf.price==='none')  items=items.filter(f=>!f.mktPrice);
+  if(cf.price==='lt50')  items=items.filter(f=>f.mktPrice&&f.mktPrice<50);
+  if(cf.price==='lt100') items=items.filter(f=>f.mktPrice&&f.mktPrice<100);
+  if(cf.price==='lt200') items=items.filter(f=>f.mktPrice&&f.mktPrice<200);
+  if(cf.price==='gt200') items=items.filter(f=>f.mktPrice&&f.mktPrice>200);
+  // Show/hide active indicator dot
+  const dot=document.getElementById('cf-dot');
+  if(dot) dot.style.display=hasCustomFilters(cf)?'block':'none';
+  if(sortOrd==='oldest') items.sort((a,b)=>a.ts-b.ts);
+  else if(sortOrd==='name')     items.sort((a,b)=>(a.charName||'').localeCompare(b.charName||''));
+  else if(sortOrd==='price-hi') items.sort((a,b)=>(b.mktPrice||0)-(a.mktPrice||0));
+  else if(sortOrd==='price-lo') items.sort((a,b)=>(a.mktPrice||0)-(b.mktPrice||0));
+  else items.sort((a,b)=>b.ts-a.ts);
+  document.getElementById('cs-tot').textContent=DB.length;
+  document.getElementById('cs-hb').textContent=DB.filter(f=>(f.manufacturer||'').toLowerCase().includes('hasbro')).length;
+  document.getElementById('cs-tk').textContent=DB.filter(f=>(f.manufacturer||'').toLowerCase().includes('takara')).length;
+  document.getElementById('cs-tp').textContent=DB.filter(f=>isTP(f)).length;
+  document.getElementById('cs-mp').textContent=DB.filter(f=>(f.series||'').toLowerCase().includes('masterpiece')).length;
+  const tv=DB.reduce((s,f)=>s+(+f.mktPrice||0),0);
+  document.getElementById('cs-val').textContent=tv>0?fmtPrice(tv):'—';
+  const el=document.getElementById('col-list');
+  el.innerHTML=items.length?items.map(fcHTML).join(''):emptyBox('📦',search?'BRAK WYNIKOW':'PUSTA KOLEKCJA',search?'Sprobuj innej frazy':'Dodaj figurke w zakladce Skanuj');
+}
+
+// =========================================================
+//  MODAL
+// =========================================================
+function openModal(id){
+  const fig=DB.find(f=>f.id===id);if(!fig)return;
+  modalId=id;const sym=SYM();
+  // Reset update area
+  hide('upd-res');
+  const updBtn=document.getElementById('upd-btn');
+  if(updBtn){updBtn.disabled=false;updBtn.textContent='💰 AKTUALIZUJ CENE Z EBAY';}
+  // Also close paid edit if open
+  closePaidEdit();
+  // Thumb
+  const th=document.getElementById('m-thumb');
+  if(fig.photos&&fig.photos[0])th.innerHTML=`<img src="${fig.photos[0]}" alt="">`;else th.textContent=tfEmoji(fig);
+  document.getElementById('m-name').textContent=fig.charName||'—';
+  document.getElementById('m-sub').textContent=[fig.series,fig.figClass].filter(Boolean).join(' · ')||'—';
+  const tp=isTP(fig);
+  document.getElementById('m-badges').innerHTML=[
+    fig.manufacturer?`<span class="badge bn">${esc(fig.manufacturer)}</span>`:'',
+    tp?`<span class="badge bf">3RD PARTY</span>`:'',
+    fig.condition?`<span class="badge ba">${esc(fig.condition.slice(0,14))}</span>`:'',
+    fig.boxState&&!fig.boxState.toLowerCase().includes('brak')?`<span class="badge bs">BOX</span>`:'',
+  ].join('');
+  st('md-manu',fig.manufacturer);st('md-year',fig.year);st('md-series',fig.series);
+  st('md-class',fig.figClass);st('md-sku',fig.catalogId);st('md-box',fig.boxState);
+  st('md-cond',fig.condition);st('md-date',new Date(fig.ts).toLocaleDateString('pl-PL'));
+  document.getElementById('md-mkt').textContent=fmtPriceFull(fig.mktPrice);
+  document.getElementById('md-paid').textContent=fmtPriceFull(fig.paidPrice);
+  if(fig.mktPrice&&fig.paidPrice){
+    const d=(+fig.mktPrice)-(+fig.paidPrice),el=document.getElementById('md-diff');
+    el.textContent=(d>=0?'+':'')+fmtPriceFull(Math.abs(d));el.style.color=d>=0?'var(--acid)':'var(--red)';
+  }else{st('md-diff','—');document.getElementById('md-diff').style.color='var(--tx)';}
+  const accs=[...(fig.accs||[]),fig.accsExtra||''].filter(Boolean);
+  const aw=document.getElementById('md-accs-w');
+  if(accs.length){document.getElementById('md-accs').innerHTML=accs.map(a=>`<span class="badge bn">${esc(a)}</span>`).join('');aw.classList.remove('hidden');}
+  else aw.classList.add('hidden');
+  const pw=document.getElementById('md-photos-w');
+  if(fig.photos&&fig.photos.length){
+    document.getElementById('md-photos').innerHTML=fig.photos.map(src=>`<div class="dpt" onclick="openPV('${src}')"><img src="${src}" alt=""></div>`).join('');
+    pw.classList.remove('hidden');
+  }else pw.classList.add('hidden');
+  const cdw=document.getElementById('md-cd-w');
+  if(fig.condDesc){document.getElementById('md-cd').textContent=fig.condDesc;cdw.classList.remove('hidden');}else cdw.classList.add('hidden');
+  const nw=document.getElementById('md-notes-w');
+  if(fig.notes){document.getElementById('md-notes').textContent=fig.notes;nw.classList.remove('hidden');}else nw.classList.add('hidden');
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';modalId=null;}
+function closeBg(e){if(e.target===document.getElementById('modal'))closeModal();}
+function delFig(){
+  if(modalId==null)return;if(!confirm('Usunac te figurke?'))return;
+  DB=DB.filter(f=>f.id!==modalId);saveDB();closeModal();renderCol();renderDash();toast('Figurka usunieta');
+}
+
+// =========================================================
+//  MODAL — INLINE EDIT PAID PRICE
+// =========================================================
+function togglePaidEdit(){
+  const fig=DB.find(f=>f.id===modalId);if(!fig)return;
+  const wrap=document.getElementById('md-paid-edit');
+  const disp=document.getElementById('md-paid');
+  const inp =document.getElementById('md-paid-inp');
+  if(wrap.style.display==='none'||!wrap.style.display){
+    inp.value=fig.paidPrice||'';
+    wrap.style.display='block';disp.style.display='none';
+    setTimeout(()=>{inp.focus();inp.select();},50);
+  }else{closePaidEdit();}
+}
+function closePaidEdit(){
+  const wrap=document.getElementById('md-paid-edit');
+  const disp=document.getElementById('md-paid');
+  if(wrap){wrap.style.display='none';}
+  if(disp){disp.style.display='';}
+}
+function savePaidEdit(){
+  const wrap=document.getElementById('md-paid-edit');
+  if(!wrap||wrap.style.display==='none')return;
+  const fig=DB.find(f=>f.id===modalId);if(!fig)return;
+  const newVal=parseFloat(document.getElementById('md-paid-inp').value)||null;
+  fig.paidPrice=newVal;saveDB();
+  const sym=SYM(),disp=document.getElementById('md-paid');
+  disp.textContent=fmtPriceFull(newVal);
+  closePaidEdit();
+  if(fig.mktPrice&&fig.paidPrice){
+    const d=(+fig.mktPrice)-(+fig.paidPrice),el=document.getElementById('md-diff');
+    el.textContent=(d>=0?'+':'')+fmtPriceFull(Math.abs(d));el.style.color=d>=0?'var(--acid)':'var(--red)';
+  }else{st('md-diff','—');document.getElementById('md-diff').style.color='var(--tx)';}
+  renderDash();toast('Cena zakupu zapisana!','ok');
+}
+
+// =========================================================
+//  MODAL — UPDATE PRICE FROM EBAY
+// =========================================================
+function updatePriceModal(){
+  if(modalId==null)return;
+  const fig=DB.find(f=>f.id===modalId);if(!fig)return;
+  runValuation(false,{charName:fig.charName,series:fig.series,manu:fig.manufacturer,modalMode:true,figId:fig.id});
+}
+
+// =========================================================
+//  EDIT FIGURE
+//  FIX: previous version crashed on getElementById('cbar')
+//  because 'cbar' is a CSS class, not an element id.
+//  Now uses getElementById('cbar-lbl') which is a real id.
+// =========================================================
+function editFig(){
+  const fig=DB.find(f=>f.id===modalId);if(!fig)return;
+  closeModal();editId=fig.id;extraPhotos=[...(fig.photos||[])];
+  if(fig.photos&&fig.photos[0]){
+    scanImg={du:fig.photos[0],b64:fig.photos[0].split(',')[1]||'',mime:'image/jpeg'};
+    const prev=document.getElementById('scan-prev');
+    prev.src=fig.photos[0];prev.style.display='block';
+    document.getElementById('scan-ico').style.display='none';
+    document.getElementById('scan-hint').style.display='none';
+    document.getElementById('szone').classList.add('lit');
+    document.getElementById('btn-analyze').disabled=false;
+  }
+  sv('f-char',fig.charName);sv('f-year',fig.year);sv('f-sku',fig.catalogId);
+  sv('f-cond-desc',fig.condDesc);sv('f-acc-extra',fig.accsExtra);sv('f-notes',fig.notes);
+  sv('f-mktprice',fig.mktPrice||'');sv('f-paidprice',fig.paidPrice||'');
+  document.getElementById('f-manu').value=fig.manufacturer||'';
+  document.getElementById('f-series').value=fig.series||'';
+  document.getElementById('f-class').value=fig.figClass||'';
+  document.getElementById('f-cond').value=fig.condition||'';
+  document.getElementById('f-box').value=fig.boxState||'';
+  setAccs(fig.accs||[]);renderPhotoStrip();
+  // FIX: getElementById('cbar-lbl') — correct element id
+  const lbl=document.getElementById('cbar-lbl');
+  if(lbl)lbl.textContent='TRYB EDYCJI';
+  for(let i=0;i<5;i++)document.getElementById('p'+i).className='pip';
+  document.getElementById('cpct').textContent='—';
+  show('rform');
+  showPage('scan');
+  setTimeout(()=>document.getElementById('rform').scrollIntoView({behavior:'smooth',block:'start'}),200);
+}
+
+// =========================================================
+//  PHOTO VIEWER
+// =========================================================
+function openPV(src){document.getElementById('pv-img').src=src;document.getElementById('pview').classList.add('open');}
+function closePV(){document.getElementById('pview').classList.remove('open');}
+
+// =========================================================
+//  EXPORT / IMPORT / CSV
+// =========================================================
+function doExport(){
+  if(!DB.length)return toast('Kolekcja jest pusta','er');
+  const b=new Blob([JSON.stringify({v:3,date:new Date().toISOString(),collection:DB},null,2)],{type:'application/json'});
+  dl(b,'tfvault_'+new Date().toISOString().slice(0,10)+'.json');toast('Export gotowy!','ok');
+}
+function doImport(e){
+  const file=e.target.files[0];if(!file)return;e.target.value='';
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);const imp=d.collection||d;
+      if(!Array.isArray(imp))throw new Error('Nieprawidlowy format');
+      if(!confirm('Importowac '+imp.length+' figurek? (duplikaty pominiete)'))return;
+      const ids=new Set(DB.map(f=>f.id));let added=0;
+      imp.forEach(f=>{if(!ids.has(f.id)){DB.push(f);added++;}});
+      saveDB();renderCol();renderDash();toast('Zaimportowano '+added+' figurek','ok');
+    }catch(err){toast('Blad importu: '+err.message,'er');}
+  };
+  r.readAsText(file);
+}
+function doCSV(){
+  if(!DB.length)return toast('Kolekcja jest pusta','er');
+  const cols=['charName','manufacturer','year','series','figClass','catalogId','condition','boxState','mktPrice','paidPrice','currency','condDesc','notes'];
+  const b=new Blob(['\uFEFF'+cols.join(',')+'\n'+DB.map(f=>cols.map(c=>`"${(f[c]||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n')],{type:'text/csv;charset=utf-8'});
+  dl(b,'tfvault_'+new Date().toISOString().slice(0,10)+'.csv');toast('CSV gotowy!','ok');
+}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+function doWipe(){
+  if(!confirm('Usunac CALA kolekcje? Nieodwracalne!'))return;
+  if(!confirm('Na pewno?'))return;
+  DB=[];saveDB();renderDash();renderCol();toast('Kolekcja wyczyszczona');
+}
+
+// =========================================================
+//  SETTINGS RENDER
+// =========================================================
+function renderSettings(){
+  const g=document.getElementById('si-gem');if(g)g.value=CFG.gemKey||'';
+  const g2=document.getElementById('si-gem2');if(g2)g2.value=CFG.gemKey2||'';
+  const g3=document.getElementById('si-gem3');if(g3)g3.value=CFG.gemKey3||'';
+  const c=document.getElementById('si-cur');if(c)c.value=CFG.currency||'USD';
+  document.getElementById('tog-ai').classList.toggle('on',!!CFG.showAI);
+  document.getElementById('tog-av').classList.toggle('on',!!CFG.autoVal);
+}
+
+// =========================================================
+//  LOADER
+// =========================================================
+function showLoader(txt,steps){
+  document.getElementById('ltxt').textContent=txt;
+  document.getElementById('lsteps').innerHTML=steps.map(s=>`<div class="lstep" id="ls-${s.k}"><div class="ldot"></div>${s.t}</div>`).join('');
+  document.getElementById('loader').classList.add('open');
+}
+function setLS(k,st){const el=document.getElementById('ls-'+k);if(el)el.className='lstep '+(st==='done'?'done':st==='act'?'act':'');}
+function hideLoader(){document.getElementById('loader').classList.remove('open');}
+
+// =========================================================
+//  TOAST
+// =========================================================
+function toast(msg,type=''){
+  const tc=document.getElementById('tc');
+  const t=document.createElement('div');
+  t.className='toast '+(type==='ok'?'ok':type==='er'?'er':'');
+  t.textContent=msg;tc.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),320);},2800);
+}
+
+// =========================================================
+//  BOOT
+// =========================================================
+// ── PASSWORD GATE ─────────────────────────────────────────────────
+const PW_HASH = 'tfpolska26'; // lowercased for case-insensitive check
+
+function checkPW() {
+  const val = (document.getElementById('pw-inp').value || '').trim();
+  if(val.toLowerCase() === PW_HASH) {
+    sessionStorage.setItem('tfv_auth','1');
+    document.getElementById('pw-gate').style.display='none';
+    document.body.style.overflow='';
+  } else {
+    const err = document.getElementById('pw-err');
+    err.textContent = 'Nieprawidlowe haslo. Sprobuj ponownie.';
+    document.getElementById('pw-inp').value='';
+    document.getElementById('pw-inp').focus();
+    // Shake animation
+    const inp = document.getElementById('pw-inp-wrap') || document.getElementById('pw-inp');
+    if(inp){ inp.style.animation='none'; inp.offsetHeight; inp.style.animation='pw-shake .35s ease'; }
+  }
+}
+function togglePWvis() {
+  const inp = document.getElementById('pw-inp');
+  const btn = document.querySelector('.pw-eye');
+  if(inp.type==='password'){ inp.type='text';  if(btn) btn.textContent='🙈'; }
+  else                      { inp.type='password'; if(btn) btn.innerHTML='&#128065;'; }
+}
+
+// Boot — clear any leftover quota flags from old versions
+try{
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('tfv_q_') || k.startsWith('tfv_quota_'))
+    .forEach(k => localStorage.removeItem(k));
+}catch{}
+
+// Boot
+loadAll();
+// Check auth — gate stays visible until correct password
+if(sessionStorage.getItem('tfv_auth')==='1'){
+  document.getElementById('pw-gate').style.display='none';
+  document.body.style.overflow='';
+  renderDash();
+  renderSettings();
+} else {
+  // Keep gate visible, hide body scroll
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('pw-inp')?.focus(), 200);
+  // Still init data silently so it's ready after unlock
+  renderDash();
+  renderSettings();
+}
+</script>
+</body>
+</html>
